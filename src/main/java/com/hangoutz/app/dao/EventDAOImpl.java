@@ -33,4 +33,10 @@ public class EventDAOImpl implements EventDAO {
     public void save(Event event) {
         em.persist(event);
     }
+
+    @Override
+    public void delete(String id) {
+        Event event = em.find(Event.class, id);
+        em.remove(event);
+    }
 }

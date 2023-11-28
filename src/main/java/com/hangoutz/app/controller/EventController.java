@@ -33,4 +33,10 @@ public class EventController {
         eventService.save(newEvent);
         return newEvent;
     }
+
+    @DeleteMapping("/events/{eventId}")
+    public String delete(@PathVariable String eventId) {
+        eventService.delete(eventId);
+        return "Deleted the event with id " + eventId;
+    }
 }

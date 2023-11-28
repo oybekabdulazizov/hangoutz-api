@@ -33,4 +33,10 @@ public class EventServiceImpl implements EventService {
     public void save(Event event) {
         eventDAO.save(event);
     }
+
+    @Override
+    @Transactional
+    public void delete(String id) {
+        eventDAO.delete(id);
+    }
 }
