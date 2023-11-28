@@ -2,6 +2,7 @@ package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.model.Event;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,5 +26,11 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event findById(String id) {
         return eventDAO.findById(id);
+    }
+
+    @Override
+    @Transactional
+    public void save(Event event) {
+        eventDAO.save(event);
     }
 }

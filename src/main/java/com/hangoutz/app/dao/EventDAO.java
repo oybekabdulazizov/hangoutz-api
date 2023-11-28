@@ -9,4 +9,6 @@ public interface EventDAO {
     List<Event> findAll();
 
     Event findById(String id);
+
+    void save(Event event);
 }

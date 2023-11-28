@@ -28,4 +28,9 @@ public class EventDAOImpl implements EventDAO {
     public Event findById(String id) {
         return em.find(Event.class, id);
     }
+
+    @Override
+    public void save(Event event) {
+        em.persist(event);
+    }
 }
