@@ -3,7 +3,6 @@ package com.hangoutz.app.model;
 import jakarta.persistence.*;
 
 import java.util.Date;
-import java.util.UUID;
 
 @Entity
 @Table(name = "event")
@@ -11,8 +10,8 @@ public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", columnDefinition = "varchar(36)")
-    private UUID id;
+    @Column(name = "id")
+    private String id;
 
     @Column(name = "title")
     private String title;
@@ -49,11 +48,11 @@ public class Event {
 
 
     // getters and setters ===================================
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 
