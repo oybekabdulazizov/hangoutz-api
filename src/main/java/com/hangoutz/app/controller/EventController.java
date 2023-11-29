@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/events")
+@RequestMapping("/api")
 public class EventController {
 
     private final EventService eventService;
@@ -58,7 +58,8 @@ public class EventController {
 
     @DeleteMapping("/events/{eventId}")
     public ResponseEntity<String> delete(@PathVariable String eventId) {
-        eventService.delete(eventId);
+        Event event = eventService.findById(eventId);
+        eventService.delete(event);
         return new ResponseEntity<>("Deleted the event with id " + eventId, HttpStatus.OK);
     }
 }

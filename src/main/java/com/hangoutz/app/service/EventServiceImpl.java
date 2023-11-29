@@ -36,8 +36,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void delete(String id) {
-        eventDAO.delete(id);
+    public void delete(Event event) {
+        eventDAO.delete(event);
     }
 
     @Override

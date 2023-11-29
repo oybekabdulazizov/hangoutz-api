@@ -35,8 +35,7 @@ public class EventDAOImpl implements EventDAO {
     }
 
     @Override
-    public void delete(String id) {
-        Event event = em.find(Event.class, id);
+    public void delete(Event event) {
         em.remove(event);
     }
 
