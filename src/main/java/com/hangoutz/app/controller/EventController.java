@@ -33,6 +33,9 @@ public class EventController {
     @GetMapping("/events/{eventId}")
     public ResponseEntity<Event> findById(@PathVariable String eventId) {
         Event event = eventService.findById(eventId);
+        if (event == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(event, HttpStatus.OK);
     }
 
@@ -45,6 +48,10 @@ public class EventController {
     @PutMapping("/events/{eventId}")
     public ResponseEntity<Event> update(@PathVariable String eventId, @RequestBody Map<Object, Object> fields) {
         Event event = eventService.findById(eventId);
+        if (event == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Event.class, (String) key);
             if (field != null) {
@@ -59,6 +66,9 @@ public class EventController {
     @DeleteMapping("/events/{eventId}")
     public ResponseEntity<String> delete(@PathVariable String eventId) {
         Event event = eventService.findById(eventId);
+        if (event == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
         eventService.delete(event);
         return new ResponseEntity<>("Deleted the event with id " + eventId, HttpStatus.OK);
     }
