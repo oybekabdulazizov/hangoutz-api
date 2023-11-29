@@ -39,4 +39,9 @@ public class EventDAOImpl implements EventDAO {
         Event event = em.find(Event.class, id);
         em.remove(event);
     }
+
+    @Override
+    public void update(Event event) {
+        em.merge(event);
+    }
 }

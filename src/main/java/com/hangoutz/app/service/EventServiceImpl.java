@@ -39,4 +39,10 @@ public class EventServiceImpl implements EventService {
     public void delete(String id) {
         eventDAO.delete(id);
     }
+
+    @Override
+    @Transactional
+    public void update(Event event) {
+        eventDAO.update(event);
+    }
 }
