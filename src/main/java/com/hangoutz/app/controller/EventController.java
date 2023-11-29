@@ -3,15 +3,18 @@ package com.hangoutz.app.controller;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/events")
 public class EventController {
 
     private final EventService eventService;
@@ -22,23 +25,25 @@ public class EventController {
     }
 
     @GetMapping("/events")
-    public List<Event> findAll() {
-        return eventService.findAll();
+    public ResponseEntity<Collection<Event>> findAll() {
+        List<Event> events = eventService.findAll();
+        return new ResponseEntity<>(events, HttpStatus.OK);
     }
 
     @GetMapping("/events/{eventId}")
-    public Event findById(@PathVariable String eventId) {
-        return eventService.findById(eventId);
+    public ResponseEntity<Event> findById(@PathVariable String eventId) {
+        Event event = eventService.findById(eventId);
+        return new ResponseEntity<>(event, HttpStatus.OK);
     }
 
     @PostMapping("/events")
-    public Event create(@RequestBody Event newEvent) {
+    public ResponseEntity<Event> create(@RequestBody Event newEvent) {
         eventService.save(newEvent);
-        return newEvent;
+        return new ResponseEntity<>(newEvent, HttpStatus.CREATED);
     }
 
     @PutMapping("/events/{eventId}")
-    public Event update(@PathVariable String eventId, @RequestBody Map<Object, Object> fields) {
+    public ResponseEntity<Event> update(@PathVariable String eventId, @RequestBody Map<Object, Object> fields) {
         Event event = eventService.findById(eventId);
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Event.class, (String) key);
@@ -48,12 +53,12 @@ public class EventController {
             }
         });
         eventService.update(event);
-        return event;
+        return new ResponseEntity<>(event, HttpStatus.OK);
     }
 
     @DeleteMapping("/events/{eventId}")
-    public String delete(@PathVariable String eventId) {
+    public ResponseEntity<String> delete(@PathVariable String eventId) {
         eventService.delete(eventId);
-        return "Deleted the event with id " + eventId;
+        return new ResponseEntity<>("Deleted the event with id " + eventId, HttpStatus.OK);
     }
 }
