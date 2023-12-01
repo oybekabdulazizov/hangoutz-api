@@ -1,5 +1,7 @@
 package com.hangoutz.app.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -8,17 +10,23 @@ public class EventDTO {
 
     private String id;
 
+    @NotBlank(message = "title is required")
     private String title;
 
+    @NotNull(message = "date is required")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime date;
 
+    @NotBlank(message = "description is required")
     private String description;
 
+    @NotBlank(message = "category is required")
     private String category;
 
+    @NotBlank(message = "city is required")
     private String city;
 
+    @NotBlank(message = "venue is required")
     private String venue;
 
     public EventDTO() {

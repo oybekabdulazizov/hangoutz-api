@@ -4,6 +4,7 @@ import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.service.EventService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +55,7 @@ public class EventController {
     }
 
     @PostMapping("/events")
-    public ResponseEntity<EventDTO> create(@RequestBody EventDTO newEventDTO) {
+    public ResponseEntity<EventDTO> create(@Valid @RequestBody EventDTO newEventDTO) {
         Event newEvent = eventMapper.dtoToModel(newEventDTO);
         eventService.save(newEvent);
         return new ResponseEntity<>(eventMapper.modelToDto(newEvent), HttpStatus.CREATED);
