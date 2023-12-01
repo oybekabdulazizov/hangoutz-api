@@ -1,6 +1,7 @@
 package com.hangoutz.app.controller;
 
 import com.hangoutz.app.dto.EventDTO;
+import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.service.EventService;
@@ -49,7 +50,7 @@ public class EventController {
     public ResponseEntity<EventDTO> findById(@PathVariable String eventId) {
         Event event = eventService.findById(eventId);
         if (event == null) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Event not found");
         }
         return new ResponseEntity<>(eventMapper.modelToDto(event), HttpStatus.OK);
     }
@@ -65,7 +66,7 @@ public class EventController {
     public ResponseEntity<EventDTO> update(@PathVariable String eventId, @RequestBody Map<Object, Object> fields) {
         Event event = eventService.findById(eventId);
         if (event == null) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Event not found");
         }
         EventDTO eventDTO = eventMapper.modelToDto(event);
 
@@ -87,7 +88,7 @@ public class EventController {
     public ResponseEntity<String> delete(@PathVariable String eventId) {
         Event event = eventService.findById(eventId);
         if (event == null) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            throw new NotFoundException("Event not found");
         }
         eventService.delete(event);
         return new ResponseEntity<>("Deleted the event with id " + eventId, HttpStatus.OK);
