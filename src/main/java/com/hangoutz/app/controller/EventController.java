@@ -27,7 +27,8 @@ public class EventController {
     @GetMapping("/events")
     public ResponseEntity<Collection<Event>> findAll() {
         List<Event> events = eventService.findAll();
-        return new ResponseEntity<>(events, HttpStatus.OK);
+        HttpStatus httpStatus = events.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        return new ResponseEntity<>(events, httpStatus);
     }
 
     @GetMapping("/events/{eventId}")

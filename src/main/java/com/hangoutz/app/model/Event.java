@@ -2,7 +2,7 @@ package com.hangoutz.app.model;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "event")
@@ -16,8 +16,8 @@ public class Event {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "date")
-    private Date date;
+    @Column(name = "date_time")
+    private LocalDateTime dateTime;
 
     @Column(name = "description")
     private String description;
@@ -36,9 +36,9 @@ public class Event {
     public Event() {
     }
 
-    public Event(String title, Date date, String description, String category, String city, String venue) {
+    public Event(String title, LocalDateTime dateTime, String description, String category, String city, String venue) {
         this.title = title;
-        this.date = date;
+        setDate(dateTime);
         this.description = description;
         this.category = category;
         this.city = city;
@@ -64,12 +64,12 @@ public class Event {
         this.title = title;
     }
 
-    public Date getDate() {
-        return date;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public String getDescription() {
@@ -104,6 +104,20 @@ public class Event {
         this.venue = venue;
     }
     // =======================================================
+
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", dateTime=" + dateTime +
+                ", description='" + description + '\'' +
+                ", category='" + category + '\'' +
+                ", city='" + city + '\'' +
+                ", venue='" + venue + '\'' +
+                '}';
+    }
 }
 
 
