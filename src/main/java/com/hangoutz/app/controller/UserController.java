@@ -6,10 +6,7 @@ import com.hangoutz.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,5 +39,11 @@ public class UserController {
             throw new NotFoundException("User not found");
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<User> create(@RequestBody User newUser) {
+        userService.save(newUser);
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 }

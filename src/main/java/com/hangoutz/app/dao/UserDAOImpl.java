@@ -28,4 +28,9 @@ public class UserDAOImpl implements UserDAO {
     public User findById(String id) {
         return em.find(User.class, id);
     }
+
+    @Override
+    public void save(User user) {
+        em.persist(user);
+    }
 }
