@@ -33,14 +33,14 @@ public class User {
     public User() {
     }
 
-    public User(String name, String lastname, String username, LocalDateTime dateOfBirth, String emailAddress) {
+    public User(String name, String lastname, LocalDateTime dateOfBirth, String emailAddress) {
         this.name = name;
         this.lastname = lastname;
         this.dateOfBirth = dateOfBirth;
         this.emailAddress = emailAddress;
     }
 
-    public User(String name, String lastname, String username, LocalDateTime dateOfBirth, String emailAddress, String password) {
+    public User(String name, String lastname, LocalDateTime dateOfBirth, String emailAddress, String password) {
         this.name = name;
         this.lastname = lastname;
         this.dateOfBirth = dateOfBirth;
@@ -97,10 +97,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getUsername() {
-        return emailAddress;
     }
     // =========================================================
 
