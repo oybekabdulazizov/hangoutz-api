@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
+        Map<String, Object> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String field = ((FieldError) error).getField();
             String message = error.getDefaultMessage();
@@ -28,18 +29,26 @@ public class ExceptionHandler {
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleNotFoundException(IllegalArgumentException ex) {
-        Map<String, String> errors = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> handleNotFoundException(IllegalArgumentException ex) {
+        Map<String, Object> errors = new HashMap<>();
         errors.put("title", ex.getMessage());
         errors.put("status", HttpStatus.BAD_REQUEST.toString());
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleNotFoundException(NotFoundException ex) {
-        Map<String, String> errors = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> handleNotFoundException(NotFoundException ex) {
+        Map<String, Object> errors = new HashMap<>();
         errors.put("title", ex.getMessage());
         errors.put("status", HttpStatus.NOT_FOUND.toString());
+        return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<Map<String, Object>> handleDateTimeParseException(DateTimeParseException ex) {
+        Map<String, Object> errors = new HashMap<>();
+        errors.put("title", "Invalid date format. Please use: yyyy-MM-dd HH:mm");
+        errors.put("status", HttpStatus.BAD_REQUEST.toString());
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }

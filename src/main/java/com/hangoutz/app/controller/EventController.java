@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -79,7 +80,8 @@ public class EventController {
                     throw new IllegalArgumentException(key + " is required");
                 }
                 if (key == "dateTime") {
-                    LocalDateTime ldt = LocalDateTime.parse(value.toString());
+                    DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                    LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
                     ReflectionUtils.setField(field, eventDTO, ldt);
                 } else {
                     ReflectionUtils.setField(field, eventDTO, value);
