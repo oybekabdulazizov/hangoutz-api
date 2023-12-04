@@ -41,5 +41,8 @@ public class UserDAOImpl implements UserDAO {
         em.persist(user);
     }
 
-
+    @Override
+    public void delete(User user) {
+        em.remove(user);
+    }
 }

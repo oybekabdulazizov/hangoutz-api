@@ -13,4 +13,6 @@ public interface UserService {
     User findByEmailAddress(String emailAddress);
 
     void save(User user);
+
+    void delete(User user);
 }

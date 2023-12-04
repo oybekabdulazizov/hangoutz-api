@@ -58,4 +58,14 @@ public class UserController {
         userService.save(newUser);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<String> delete(@PathVariable String userId) {
+        User user = userService.findById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        userService.delete(user);
+        return new ResponseEntity<>("Deleted the user with id " + userId, HttpStatus.OK);
+    }
 }
