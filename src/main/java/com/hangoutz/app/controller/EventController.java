@@ -13,6 +13,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -77,7 +78,12 @@ public class EventController {
                 if (value == null || value.toString().isBlank()) {
                     throw new IllegalArgumentException(key + " is required");
                 }
-                ReflectionUtils.setField(field, eventDTO, value);
+                if (key == "dateTime") {
+                    LocalDateTime ldt = LocalDateTime.parse(value.toString());
+                    ReflectionUtils.setField(field, eventDTO, ldt);
+                } else {
+                    ReflectionUtils.setField(field, eventDTO, value);
+                }
             }
         });
         eventService.update(eventMapper.dtoToModel(eventDTO));

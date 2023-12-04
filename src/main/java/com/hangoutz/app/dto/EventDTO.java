@@ -13,9 +13,9 @@ public class EventDTO {
     @NotBlank(message = "title is required")
     private String title;
 
-    @NotNull(message = "date is required")
+    @NotNull(message = "date and time is required")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime date;
+    private LocalDateTime dateTime;
 
     @NotBlank(message = "description is required")
     private String description;
@@ -32,10 +32,10 @@ public class EventDTO {
     public EventDTO() {
     }
 
-    public EventDTO(String id, String title, LocalDateTime date, String description, String category, String city, String venue) {
+    public EventDTO(String id, String title, LocalDateTime dateTime, String description, String category, String city, String venue) {
         this.id = id;
         this.title = title;
-        this.date = date;
+        this.dateTime = dateTime;
         this.description = description;
         this.category = category;
         this.city = city;
@@ -58,12 +58,12 @@ public class EventDTO {
         this.title = title;
     }
 
-    public LocalDateTime getDate() {
-        return date;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public String getDescription() {
