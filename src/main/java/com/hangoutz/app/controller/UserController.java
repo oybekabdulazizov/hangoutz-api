@@ -41,6 +41,18 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @GetMapping("/users/find-by-email")
+    public ResponseEntity<User> findByEmailAddress(@RequestParam String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Request param 'email' cannot be null or blank");
+        }
+        User user = userService.findByEmailAddress(email);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
     @PostMapping("/users")
     public ResponseEntity<User> create(@RequestBody User newUser) {
         userService.save(newUser);

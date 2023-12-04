@@ -10,5 +10,7 @@ public interface UserService {
 
     User findById(String id);
 
+    User findByEmailAddress(String emailAddress);
+
     void save(User user);
 }

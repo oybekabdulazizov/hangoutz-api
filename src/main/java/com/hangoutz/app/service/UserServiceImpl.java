@@ -2,7 +2,6 @@ package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.model.User;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +28,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    public User findByEmailAddress(String emailAddress) {
+        return userDAO.findByEmailAddress(emailAddress);
+    }
+
+    @Override
     public void save(User user) {
         userDAO.save(user);
     }

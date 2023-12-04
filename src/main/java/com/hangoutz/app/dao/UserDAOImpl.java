@@ -30,7 +30,16 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
+    public User findByEmailAddress(String emailAddress) {
+        TypedQuery<User> query = em.createQuery("from User where emailAddress=:emailAddress", User.class);
+        query.setParameter("emailAddress", emailAddress);
+        return query.getSingleResult();
+    }
+
+    @Override
     public void save(User user) {
         em.persist(user);
     }
+
+
 }
