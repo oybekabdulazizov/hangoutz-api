@@ -1,6 +1,8 @@
 package com.hangoutz.app.controller;
 
+import com.hangoutz.app.dto.UserDTO;
 import com.hangoutz.app.exception.NotFoundException;
+import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.User;
 import com.hangoutz.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,32 +24,42 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     @GetMapping("/users")
-    public ResponseEntity<Collection<User>> findAll() {
+    public ResponseEntity<Collection<UserDTO>> findAll() {
         List<User> users = userService.findAll();
         if (users.isEmpty()) {
             return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(users, HttpStatus.OK);
+
+        List<UserDTO> usersDTO = new ArrayList<>();
+        for (User user :
+                users) {
+            UserDTO userDTO = userMapper.modelToDto(user);
+            System.out.println(userDTO);
+            usersDTO.add(userDTO);
+        }
+        return new ResponseEntity<>(usersDTO, HttpStatus.OK);
     }
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<User> findById(@PathVariable String userId) {
+    public ResponseEntity<UserDTO> findById(@PathVariable String userId) {
         User user = userService.findById(userId);
         if (user == null) {
             throw new NotFoundException("User not found");
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(userMapper.modelToDto(user), HttpStatus.OK);
     }
 
     @GetMapping("/users/find-by-email")
-    public ResponseEntity<User> findByEmailAddress(@RequestParam String email) {
+    public ResponseEntity<UserDTO> findByEmailAddress(@RequestParam String email) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Request param 'email' cannot be null or blank");
         }
@@ -55,17 +67,17 @@ public class UserController {
         if (user == null) {
             throw new NotFoundException("User not found");
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(userMapper.modelToDto(user), HttpStatus.OK);
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> create(@RequestBody User newUser) {
+    public ResponseEntity<UserDTO> create(@RequestBody User newUser) {
         userService.save(newUser);
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(userMapper.modelToDto(newUser), HttpStatus.CREATED);
     }
 
     @PutMapping("/users/{userId}")
-    public ResponseEntity<User> update(@PathVariable String userId, @RequestBody Map<Object, Object> fields) {
+    public ResponseEntity<UserDTO> update(@PathVariable String userId, @RequestBody Map<Object, Object> fields) {
         User user = userService.findById(userId);
         if (user == null) {
             throw new NotFoundException("User not found");
@@ -88,7 +100,7 @@ public class UserController {
             }
         });
         userService.update(user);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(userMapper.modelToDto(user), HttpStatus.OK);
     }
 
     @DeleteMapping("/users/{userId}")
