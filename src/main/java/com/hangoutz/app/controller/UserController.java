@@ -1,10 +1,12 @@
 package com.hangoutz.app.controller;
 
+import com.hangoutz.app.dto.RegisterUserDTO;
 import com.hangoutz.app.dto.UserDTO;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.User;
 import com.hangoutz.app.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,7 +73,8 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<UserDTO> create(@RequestBody User newUser) {
+    public ResponseEntity<UserDTO> create(@Valid @RequestBody RegisterUserDTO regUserDTO) {
+        User newUser = userMapper.regUserDtoToModel(regUserDTO);
         userService.save(newUser);
         return new ResponseEntity<>(userMapper.modelToDto(newUser), HttpStatus.CREATED);
     }
