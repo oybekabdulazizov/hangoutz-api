@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,8 +76,24 @@ public class UserController {
     @PostMapping("/users")
     public ResponseEntity<UserDTO> create(@Valid @RequestBody RegisterUserDTO regUserDTO) {
         User newUser = userMapper.regUserDtoToModel(regUserDTO);
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(12);
+        newUser.setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
         userService.save(newUser);
         return new ResponseEntity<>(userMapper.modelToDto(newUser), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/auth/login")
+    public ResponseEntity<?> logIn(@RequestParam String email, @RequestParam String password) {
+        User userFromDb = userService.findByEmailAddress(email);
+        if (userFromDb == null) {
+            throw new NotFoundException("User not found");
+        }
+
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        if (!bCryptPasswordEncoder.matches(password, userFromDb.getPassword())) {
+            return new ResponseEntity<>("Failed to log in", HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>("Logged in successfully", HttpStatus.OK);
     }
 
     @PutMapping("/users/{userId}")
