@@ -3,20 +3,16 @@ package com.hangoutz.app.service;
 import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.model.Event;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class EventServiceImpl implements EventService {
 
     private final EventDAO eventDAO;
-
-    @Autowired
-    public EventServiceImpl(EventDAO eventDAO) {
-        this.eventDAO = eventDAO;
-    }
 
     @Override
     public List<Event> findAll() {

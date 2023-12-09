@@ -6,7 +6,7 @@ import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.service.EventService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ReflectionUtils;
@@ -20,19 +20,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
 public class EventController {
 
     private final EventService eventService;
-
     private final EventMapper eventMapper;
-
-    @Autowired
-    public EventController(EventService eventService, EventMapper eventMapper) {
-        this.eventService = eventService;
-        this.eventMapper = eventMapper;
-    }
 
     @GetMapping("/events")
     public ResponseEntity<Collection<EventDTO>> findAll() {

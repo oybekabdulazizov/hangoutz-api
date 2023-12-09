@@ -3,20 +3,16 @@ package com.hangoutz.app.dao;
 import com.hangoutz.app.model.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Repository
 public class UserDAOImpl implements UserDAO {
 
     private final EntityManager em;
-
-    @Autowired
-    public UserDAOImpl(EntityManager em) {
-        this.em = em;
-    }
 
     @Override
     public List<User> findAll() {
