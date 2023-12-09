@@ -29,6 +29,9 @@ public class UserDAOImpl implements UserDAO {
     public User findByEmailAddress(String emailAddress) {
         TypedQuery<User> query = em.createQuery("from User where emailAddress=:emailAddress", User.class);
         query.setParameter("emailAddress", emailAddress);
+        if (query.getResultList().isEmpty()) {
+            return null;
+        }
         return query.getSingleResult();
     }
 
