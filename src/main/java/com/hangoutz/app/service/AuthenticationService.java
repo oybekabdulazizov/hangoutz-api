@@ -8,7 +8,9 @@ import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,21 +64,24 @@ public class AuthenticationService {
                 .build();
     }
 
-    public String resetPassword(String token, ResetPasswordDTO request) {
-        // TODO: when BadCredentialsException is thrown,
-        //  handle the exception and display a friendly error message
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmailAddress(), request.getOldPassword())
-        );
+    public String resetPassword(String token, ResetPasswordDTO request) throws BadRequestException {
+        // extract the token without the 'Bearer ' part
         String jwt = token.substring(7);
-        User user = userService.findByEmailAddress(request.getEmailAddress());
-        String requesterUsername = jwtService.extractUsername(jwt);
 
-        if (!requesterUsername.equals(user.getUsername())) {
-            return null;
+        // find the user using the request properties
+        User user = userService.findByEmailAddress(request.getEmailAddress());
+
+        // 1st IF checks the token's validity,
+        //  meaning the requester username and username from the request dto match
+        // the 2nd and 3rd IFs are self-explanatory
+        if (!jwtService.isTokenValid(jwt, user)) {
+            throw new BadCredentialsException("You can reset only your own password");
+        }
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Username or password is incorrect");
         }
         if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
-            return null;
+            throw new BadRequestException("New password and its confirmation must match");
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));

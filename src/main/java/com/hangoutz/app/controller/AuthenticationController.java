@@ -5,9 +5,10 @@ import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
 import com.hangoutz.app.service.AuthenticationService;
-import jakarta.security.auth.message.AuthException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -34,11 +35,7 @@ public class AuthenticationController {
     public String resetPassword(
             @RequestHeader(name = "Authorization") String jwt,
             @Valid @RequestBody ResetPasswordDTO request
-    ) throws AuthException {
-        String result = authenticationService.resetPassword(jwt, request);
-        if (result == null) {
-            throw new AuthException("Password reset failed. Please try again.");
-        }
-        return result;
+    ) throws BadRequestException, BadCredentialsException {
+        return authenticationService.resetPassword(jwt, request);
     }
 }
