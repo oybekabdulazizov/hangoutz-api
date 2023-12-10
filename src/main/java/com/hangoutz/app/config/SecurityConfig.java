@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/api/signup", "/api/signin").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/events", "/api/users").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/events/**", "/api/users/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
