@@ -25,12 +25,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(String id) {
-        return userDAO.findById(id);
+        User user = userDAO.findById(id);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        return user;
     }
 
     @Override
     public User findByEmailAddress(String emailAddress) {
-        return userDAO.findByEmailAddress(emailAddress);
+        User user = userDAO.findByEmailAddress(emailAddress);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        return user;
     }
 
     @Override

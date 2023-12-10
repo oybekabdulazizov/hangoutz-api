@@ -1,7 +1,6 @@
 package com.hangoutz.app.controller;
 
 import com.hangoutz.app.dto.EventDTO;
-import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.service.EventService;
@@ -34,20 +33,16 @@ public class EventController {
         if (events.isEmpty()) {
             return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NO_CONTENT);
         }
-
         List<EventDTO> eventsDTO = new ArrayList<>();
-        for (Event e : events) {
-            eventsDTO.add(eventMapper.modelToDto(e));
-        }
+        events.forEach((event) -> {
+            eventsDTO.add(eventMapper.modelToDto(event));
+        });
         return new ResponseEntity<>(eventsDTO, HttpStatus.OK);
     }
 
     @GetMapping("/events/{eventId}")
     public ResponseEntity<EventDTO> findById(@PathVariable String eventId) {
         Event event = eventService.findById(eventId);
-        if (event == null) {
-            throw new NotFoundException("Event not found");
-        }
         return new ResponseEntity<>(eventMapper.modelToDto(event), HttpStatus.OK);
     }
 
@@ -61,9 +56,6 @@ public class EventController {
     @PutMapping("/events/{eventId}")
     public ResponseEntity<EventDTO> update(@PathVariable String eventId, @RequestBody Map<Object, Object> fields) {
         Event event = eventService.findById(eventId);
-        if (event == null) {
-            throw new NotFoundException("Event not found");
-        }
         EventDTO eventDTO = eventMapper.modelToDto(event);
 
         fields.forEach((key, value) -> {
@@ -89,9 +81,6 @@ public class EventController {
     @DeleteMapping("/events/{eventId}")
     public ResponseEntity<String> delete(@PathVariable String eventId) {
         Event event = eventService.findById(eventId);
-        if (event == null) {
-            throw new NotFoundException("Event not found");
-        }
         eventService.delete(event);
         return new ResponseEntity<>("Deleted the event with id " + eventId, HttpStatus.OK);
     }

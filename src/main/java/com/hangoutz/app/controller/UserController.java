@@ -1,7 +1,6 @@
 package com.hangoutz.app.controller;
 
 import com.hangoutz.app.dto.UserDTO;
-import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.User;
 import com.hangoutz.app.service.UserService;
@@ -33,35 +32,25 @@ public class UserController {
         if (users.isEmpty()) {
             return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NO_CONTENT);
         }
-
         List<UserDTO> usersDTO = new ArrayList<>();
-        for (User user :
-                users) {
-            UserDTO userDTO = userMapper.modelToDto(user);
-            System.out.println(userDTO);
-            usersDTO.add(userDTO);
-        }
+        users.forEach((user) -> {
+            usersDTO.add(userMapper.modelToDto(user));
+        });
         return new ResponseEntity<>(usersDTO, HttpStatus.OK);
     }
 
     @GetMapping("/users/{userId}")
     public ResponseEntity<UserDTO> findById(@PathVariable String userId) {
         User user = userService.findById(userId);
-        if (user == null) {
-            throw new NotFoundException("User not found");
-        }
         return new ResponseEntity<>(userMapper.modelToDto(user), HttpStatus.OK);
     }
 
     @GetMapping("/users/find-by-email")
     public ResponseEntity<UserDTO> findByEmailAddress(@RequestParam String email) {
         if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Request param 'email' cannot be null or blank");
+            throw new IllegalArgumentException("Request parameter 'email' cannot be null or blank");
         }
         User user = userService.findByEmailAddress(email);
-        if (user == null) {
-            throw new NotFoundException("User not found");
-        }
         return new ResponseEntity<>(userMapper.modelToDto(user), HttpStatus.OK);
     }
 
@@ -77,9 +66,6 @@ public class UserController {
     @PutMapping("/users/{userId}")
     public ResponseEntity<UserDTO> update(@PathVariable String userId, @RequestBody Map<Object, Object> fields) {
         User user = userService.findById(userId);
-        if (user == null) {
-            throw new NotFoundException("User not found");
-        }
 
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(User.class, (String) key);
@@ -97,6 +83,7 @@ public class UserController {
                 }
             }
         });
+
         userService.update(user);
         return new ResponseEntity<>(userMapper.modelToDto(user), HttpStatus.OK);
     }
@@ -104,9 +91,6 @@ public class UserController {
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<String> delete(@PathVariable String userId) {
         User user = userService.findById(userId);
-        if (user == null) {
-            throw new NotFoundException("User not found");
-        }
         userService.delete(user);
         return new ResponseEntity<>("Deleted the user with id " + userId, HttpStatus.OK);
     }

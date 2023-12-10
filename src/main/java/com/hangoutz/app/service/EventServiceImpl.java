@@ -1,6 +1,7 @@
 package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.EventDAO;
+import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.model.Event;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event findById(String id) {
-        return eventDAO.findById(id);
+        Event event = eventDAO.findById(id);
+        if (event == null) {
+            throw new NotFoundException("Event not found");
+        }
+        return event;
     }
 
     @Override
