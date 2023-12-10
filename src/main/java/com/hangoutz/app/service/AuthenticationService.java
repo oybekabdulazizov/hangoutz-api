@@ -1,6 +1,7 @@
 package com.hangoutz.app.service;
 
 import com.hangoutz.app.dto.JwtAuthenticationResponseDTO;
+import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
 import com.hangoutz.app.exception.NotFoundException;
@@ -59,6 +60,28 @@ public class AuthenticationService {
                 .token(jwt)
                 .expiresAt(getExpirationTime(jwt))
                 .build();
+    }
+
+    public String resetPassword(String token, ResetPasswordDTO request) {
+        // TODO: when BadCredentialsException is thrown,
+        //  handle the exception and display a friendly error message
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmailAddress(), request.getOldPassword())
+        );
+        String jwt = token.substring(7);
+        User user = userService.findByEmailAddress(request.getEmailAddress());
+        String requesterUsername = jwtService.extractUsername(jwt);
+
+        if (!requesterUsername.equals(user.getUsername())) {
+            return null;
+        }
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            return null;
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userService.update(user);
+        return "The password has been reset successfully!";
     }
 
     private LocalDateTime getExpirationTime(String token) {

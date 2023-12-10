@@ -64,11 +64,7 @@ public class UserServiceImpl implements UserService {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                User user = findByEmailAddress(username);
-                if (user == null) {
-                    throw new NotFoundException("(userDetailsService.loadUserByUsername()): User not found");
-                }
-                return user;
+                return findByEmailAddress(username);
             }
         };
     }
