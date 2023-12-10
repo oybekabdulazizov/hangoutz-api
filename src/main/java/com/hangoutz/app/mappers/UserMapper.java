@@ -1,6 +1,5 @@
 package com.hangoutz.app.mappers;
 
-import com.hangoutz.app.dto.RegisterUserDTO;
 import com.hangoutz.app.dto.UserDTO;
 import com.hangoutz.app.model.User;
 import org.modelmapper.ModelMapper;
@@ -13,7 +12,7 @@ public class UserMapper {
         return new ModelMapper().map(user, UserDTO.class);
     }
 
-    public User regUserDtoToModel(RegisterUserDTO regUserDTO) {
+    /*public User regUserDtoToModel(RegisterUserDTO regUserDTO) {
         return new ModelMapper().map(regUserDTO, User.class);
-    }
+    }*/
 }

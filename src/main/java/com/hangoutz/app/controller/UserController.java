@@ -26,6 +26,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
+
     @GetMapping("/users")
     public ResponseEntity<Collection<UserDTO>> findAll() {
         List<User> users = userService.findAll();
@@ -39,11 +40,13 @@ public class UserController {
         return new ResponseEntity<>(usersDTO, HttpStatus.OK);
     }
 
+
     @GetMapping("/users/{userId}")
     public ResponseEntity<UserDTO> findById(@PathVariable String userId) {
         User user = userService.findById(userId);
         return new ResponseEntity<>(userMapper.modelToDto(user), HttpStatus.OK);
     }
+
 
     @GetMapping("/users/find-by-email")
     public ResponseEntity<UserDTO> findByEmailAddress(@RequestParam String email) {
@@ -54,19 +57,10 @@ public class UserController {
         return new ResponseEntity<>(userMapper.modelToDto(user), HttpStatus.OK);
     }
 
-    /*
-    @PostMapping("/users")
-    public ResponseEntity<UserDTO> create(@Valid @RequestBody RegisterUserDTO regUserDTO) {
-        User newUser = userMapper.regUserDtoToModel(regUserDTO);
-        userService.save(newUser);
-        return new ResponseEntity<>(userMapper.modelToDto(newUser), HttpStatus.CREATED);
-    }
-    */
 
     @PutMapping("/users/{userId}")
     public ResponseEntity<UserDTO> update(@PathVariable String userId, @RequestBody Map<Object, Object> fields) {
         User user = userService.findById(userId);
-
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(User.class, (String) key);
             if (field != null && !key.equals("id")) {
@@ -83,11 +77,11 @@ public class UserController {
                 }
             }
         });
-
         userService.update(user);
         return new ResponseEntity<>(userMapper.modelToDto(user), HttpStatus.OK);
     }
 
+    
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<String> delete(@PathVariable String userId) {
         User user = userService.findById(userId);

@@ -27,7 +27,6 @@ public class AuthenticationService {
 
     public JwtAuthenticationResponseDTO signUp(SignUpRequestDTO request) {
         Role role = request.getEmailAddress().contains("@admin.") ? Role.ROLE_ADMIN : Role.ROLE_USER;
-        System.out.println("1");
         User user = User
                 .builder()
                 .name(request.getName())
@@ -37,10 +36,8 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
                 .build();
-
         userService.save(user);
         String jwt = jwtService.generateToken(user);
-
         return JwtAuthenticationResponseDTO
                 .builder()
                 .token(jwt)
@@ -56,9 +53,7 @@ public class AuthenticationService {
         if (user == null) {
             throw new NotFoundException("User not found");
         }
-
         String jwt = jwtService.generateToken(user);
-
         return JwtAuthenticationResponseDTO
                 .builder()
                 .token(jwt)

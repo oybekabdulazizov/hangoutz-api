@@ -27,6 +27,7 @@ public class EventController {
     private final EventService eventService;
     private final EventMapper eventMapper;
 
+
     @GetMapping("/events")
     public ResponseEntity<Collection<EventDTO>> findAll() {
         List<Event> events = eventService.findAll();
@@ -40,11 +41,13 @@ public class EventController {
         return new ResponseEntity<>(eventsDTO, HttpStatus.OK);
     }
 
+
     @GetMapping("/events/{eventId}")
     public ResponseEntity<EventDTO> findById(@PathVariable String eventId) {
         Event event = eventService.findById(eventId);
         return new ResponseEntity<>(eventMapper.modelToDto(event), HttpStatus.OK);
     }
+
 
     @PostMapping("/events")
     public ResponseEntity<EventDTO> create(@Valid @RequestBody EventDTO newEventDTO) {
@@ -53,11 +56,11 @@ public class EventController {
         return new ResponseEntity<>(eventMapper.modelToDto(newEvent), HttpStatus.CREATED);
     }
 
+
     @PutMapping("/events/{eventId}")
     public ResponseEntity<EventDTO> update(@PathVariable String eventId, @RequestBody Map<Object, Object> fields) {
         Event event = eventService.findById(eventId);
         EventDTO eventDTO = eventMapper.modelToDto(event);
-
         fields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(EventDTO.class, (String) key);
             if (field != null && !key.equals("id")) {
@@ -77,6 +80,7 @@ public class EventController {
         eventService.update(eventMapper.dtoToModel(eventDTO));
         return new ResponseEntity<>(eventMapper.modelToDto(event), HttpStatus.OK);
     }
+
 
     @DeleteMapping("/events/{eventId}")
     public ResponseEntity<String> delete(@PathVariable String eventId) {
