@@ -4,6 +4,7 @@ import com.hangoutz.app.model.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
 
@@ -15,8 +16,10 @@ public interface UserService {
 
     void save(User user);
 
-    void delete(User user);
+    void delete(String id);
 
+    User update(String id, Map<Object, Object> updatedFields);
+    
     void update(User user);
 
     UserDetailsService userDetailsService();

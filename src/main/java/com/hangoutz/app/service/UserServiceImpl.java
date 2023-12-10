@@ -9,8 +9,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -49,8 +54,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void delete(User user) {
-        userDAO.delete(user);
+    public void delete(String id) {
+        userDAO.delete(findById(id));
+    }
+
+    @Override
+    @Transactional
+    public User update(String id, Map<Object, Object> updatedFields) {
+        User user = findById(id);
+        updatedFields.forEach((key, value) -> {
+            Field field = ReflectionUtils.findField(User.class, (String) key);
+            if (field != null && !key.equals("id")) {
+                field.setAccessible(true);
+                if (value == null || value.toString().isBlank()) {
+                    throw new IllegalArgumentException(key + " is required");
+                }
+                if (key == "dateOfBirth") {
+                    DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                    LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
+                    ReflectionUtils.setField(field, user, ldt);
+                } else {
+                    ReflectionUtils.setField(field, user, value);
+                }
+            }
+        });
+        return userDAO.update(user);
     }
 
     @Override
@@ -64,7 +92,7 @@ public class UserServiceImpl implements UserService {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                return findByEmailAddress(username);
+                return userDAO.findByEmailAddress(username);
             }
         };
     }
