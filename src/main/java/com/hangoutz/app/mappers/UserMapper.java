@@ -11,8 +11,4 @@ public class UserMapper {
     public UserDTO modelToDto(User user) {
         return new ModelMapper().map(user, UserDTO.class);
     }
-
-    /*public User regUserDtoToModel(RegisterUserDTO regUserDTO) {
-        return new ModelMapper().map(regUserDTO, User.class);
-    }*/
 }
