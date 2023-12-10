@@ -1,6 +1,7 @@
 package com.hangoutz.app.service;
 
 import com.hangoutz.app.model.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface UserService {
     void delete(User user);
 
     void update(User user);
+
+    UserDetailsService userDetailsService();
 }

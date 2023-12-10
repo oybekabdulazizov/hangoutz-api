@@ -3,6 +3,7 @@ package com.hangoutz.app.dao;
 import com.hangoutz.app.model.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -26,6 +27,7 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
+    @Transactional
     public User findByEmailAddress(String emailAddress) {
         TypedQuery<User> query = em.createQuery("from User where emailAddress=:emailAddress", User.class);
         query.setParameter("emailAddress", emailAddress);

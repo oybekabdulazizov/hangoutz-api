@@ -1,9 +1,13 @@
 package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.UserDAO;
+import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,5 +49,19 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void update(User user) {
         userDAO.update(user);
+    }
+
+    @Override
+    public UserDetailsService userDetailsService() {
+        return new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+                User user = findByEmailAddress(username);
+                if (user == null) {
+                    throw new NotFoundException("(userDetailsService.loadUserByUsername()): User not found");
+                }
+                return user;
+            }
+        };
     }
 }
