@@ -8,14 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -29,63 +23,39 @@ public class EventController {
 
 
     @GetMapping("/events")
-    public ResponseEntity<Collection<EventDTO>> findAll() {
-        List<Event> events = eventService.findAll();
-        if (events.isEmpty()) {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NO_CONTENT);
-        }
-        List<EventDTO> eventsDTO = new ArrayList<>();
-        events.forEach((event) -> {
-            eventsDTO.add(eventMapper.modelToDto(event));
-        });
-        return new ResponseEntity<>(eventsDTO, HttpStatus.OK);
+    public ResponseEntity<List<EventDTO>> findAll() {
+        List<EventDTO> events = eventService.findAll().stream()
+                                            .map((event) -> eventMapper.modelToDto(event)).toList();
+        HttpStatus httpStatus = events.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        return new ResponseEntity<>(events, httpStatus);
     }
 
 
-    @GetMapping("/events/{eventId}")
-    public ResponseEntity<EventDTO> findById(@PathVariable String eventId) {
-        Event event = eventService.findById(eventId);
-        return new ResponseEntity<>(eventMapper.modelToDto(event), HttpStatus.OK);
+    @GetMapping("/events/{id}")
+    public ResponseEntity<EventDTO> findById(@PathVariable String id) {
+        return new ResponseEntity<>(eventMapper.modelToDto(eventService.findById(id)), HttpStatus.OK);
     }
 
 
     @PostMapping("/events")
     public ResponseEntity<EventDTO> create(@Valid @RequestBody EventDTO newEventDTO) {
-        Event newEvent = eventMapper.dtoToModel(newEventDTO);
-        eventService.save(newEvent);
-        return new ResponseEntity<>(eventMapper.modelToDto(newEvent), HttpStatus.CREATED);
+        Event savedEvent = eventService.save(eventMapper.dtoToModel(newEventDTO));
+        return new ResponseEntity<>(eventMapper.modelToDto(savedEvent), HttpStatus.CREATED);
     }
 
 
-    @PutMapping("/events/{eventId}")
-    public ResponseEntity<EventDTO> update(@PathVariable String eventId, @RequestBody Map<Object, Object> fields) {
-        Event event = eventService.findById(eventId);
-        EventDTO eventDTO = eventMapper.modelToDto(event);
-        fields.forEach((key, value) -> {
-            Field field = ReflectionUtils.findField(EventDTO.class, (String) key);
-            if (field != null && !key.equals("id")) {
-                field.setAccessible(true);
-                if (value == null || value.toString().isBlank()) {
-                    throw new IllegalArgumentException(key + " is required");
-                }
-                if (key == "dateTime") {
-                    DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                    LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
-                    ReflectionUtils.setField(field, eventDTO, ldt);
-                } else {
-                    ReflectionUtils.setField(field, eventDTO, value);
-                }
-            }
-        });
-        eventService.update(eventMapper.dtoToModel(eventDTO));
-        return new ResponseEntity<>(eventMapper.modelToDto(event), HttpStatus.OK);
+    @PutMapping("/events/{id}")
+    public ResponseEntity<EventDTO> update(
+            @PathVariable String id,
+            @RequestBody Map<Object, Object> updatedFields
+    ) {
+        return new ResponseEntity<>(eventMapper.modelToDto(eventService.update(id, updatedFields)), HttpStatus.OK);
     }
 
 
     @DeleteMapping("/events/{eventId}")
-    public ResponseEntity<String> delete(@PathVariable String eventId) {
-        Event event = eventService.findById(eventId);
-        eventService.delete(event);
-        return new ResponseEntity<>("Deleted the event with id " + eventId, HttpStatus.OK);
+    @ResponseStatus(value = HttpStatus.OK)
+    public void delete(@PathVariable String eventId) {
+        eventService.delete(eventId);
     }
 }

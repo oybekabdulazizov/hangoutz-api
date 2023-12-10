@@ -3,6 +3,7 @@ package com.hangoutz.app.service;
 import com.hangoutz.app.model.Event;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EventService {
 
@@ -10,9 +11,9 @@ public interface EventService {
 
     Event findById(String id);
 
-    void save(Event event);
+    Event save(Event event);
 
-    void delete(Event event);
+    void delete(String id);
 
-    void update(Event event);
+    Event update(String id, Map<Object, Object> updatedFields);
 }
