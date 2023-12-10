@@ -20,7 +20,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class UserController {
 
     private final UserService userService;
@@ -81,7 +81,7 @@ public class UserController {
         return new ResponseEntity<>(userMapper.modelToDto(user), HttpStatus.OK);
     }
 
-    
+
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<String> delete(@PathVariable String userId) {
         User user = userService.findById(userId);

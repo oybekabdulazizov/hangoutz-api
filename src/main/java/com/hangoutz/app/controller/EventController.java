@@ -21,7 +21,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class EventController {
 
     private final EventService eventService;
