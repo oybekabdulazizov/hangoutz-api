@@ -67,18 +67,18 @@ public class AuthenticationService {
     public String resetPassword(String token, ResetPasswordDTO request) throws BadRequestException {
         // extract the token without the 'Bearer ' part
         String jwt = token.substring(7);
+        String requesterUsernameFromToken = jwtService.extractUsername(jwt);
 
         // find the user using the request properties
-        User user = userService.findByEmailAddress(request.getEmailAddress());
-
-        // 1st IF checks the token's validity,
-        //  meaning the requester username and username from the request dto match
-        // the 2nd and 3rd IFs are self-explanatory
-        if (!jwtService.isTokenValid(jwt, user)) {
-            throw new BadCredentialsException("You can reset only your own password");
-        }
-        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+        User user = (User) userService.userDetailsService().loadUserByUsername(request.getEmailAddress());
+        if (user == null
+                || !user.getUsername().equals(requesterUsernameFromToken)
+                || !passwordEncoder.matches(request.getOldPassword(), user.getPassword())
+        ) {
             throw new BadCredentialsException("Username or password is incorrect");
+        }
+        if (jwtService.isTokenExpired(jwt)) {
+            throw new BadCredentialsException("Invalid token");
         }
         if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
             throw new BadRequestException("New password and its confirmation must match");

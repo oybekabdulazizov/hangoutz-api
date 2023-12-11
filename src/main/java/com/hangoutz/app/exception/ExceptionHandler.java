@@ -31,7 +31,7 @@ public class ExceptionHandler {
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFoundException(IllegalArgumentException ex) {
+    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
         Map<String, Object> errors = new HashMap<>();
         errors.put("title", ex.getMessage());
         errors.put("status", HttpStatus.BAD_REQUEST.toString());
@@ -59,14 +59,14 @@ public class ExceptionHandler {
         Map<String, Object> errors = new HashMap<>();
         errors.put("title", ex.getMessage());
         errors.put("status", HttpStatus.UNAUTHORIZED.toString());
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errors, HttpStatus.UNAUTHORIZED);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(BadRequestException.class)
     public ResponseEntity<Map<String, Object>> handleBadRequestException(BadRequestException ex) {
         Map<String, Object> errors = new HashMap<>();
         errors.put("title", ex.getMessage());
-        errors.put("status", HttpStatus.UNAUTHORIZED.toString());
+        errors.put("status", HttpStatus.BAD_REQUEST.toString());
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }
