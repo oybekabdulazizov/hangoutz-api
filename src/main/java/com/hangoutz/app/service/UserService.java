@@ -12,14 +12,14 @@ public interface UserService {
 
     User findById(String id);
 
-    User findByEmailAddress(String emailAddress);
+    User findByEmail(String email);
 
     void save(User user);
 
     void delete(String id);
 
     User update(String id, Map<Object, Object> updatedFields);
-    
+
     void update(User user);
 
     UserDetailsService userDetailsService();

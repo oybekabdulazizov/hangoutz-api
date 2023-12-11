@@ -37,8 +37,8 @@ public class User implements UserDetails {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime dateOfBirth;
 
-    @Column(name = "email_address", unique = true)
-    private String emailAddress;
+    @Column(name = "email", unique = true)
+    private String email;
 
     @Column(name = "password")
     private String password;
@@ -55,7 +55,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return emailAddress;
+        return email;
     }
 
     @Override

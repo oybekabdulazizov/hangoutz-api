@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class SignInRequestDTO {
 
     @NotBlank(message = "email is required")
-    private String emailAddress;
+    private String email;
 
     @NotBlank(message = "password is required")
     private String password;

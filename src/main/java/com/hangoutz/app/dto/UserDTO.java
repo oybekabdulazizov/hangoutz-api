@@ -23,5 +23,5 @@ public class UserDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime dateOfBirth;
 
-    private String emailAddress;
+    private String email;
 }

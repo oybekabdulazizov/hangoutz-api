@@ -37,11 +37,11 @@ public class UserController {
 
 
     @GetMapping("/users/find-by-email")
-    public ResponseEntity<UserDTO> findByEmailAddress(@RequestParam String email) {
+    public ResponseEntity<UserDTO> findByEmail(@RequestParam String email) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Request parameter 'email' cannot be null or blank");
         }
-        return new ResponseEntity<>(userMapper.modelToDto(userService.findByEmailAddress(email)), HttpStatus.OK);
+        return new ResponseEntity<>(userMapper.modelToDto(userService.findByEmail(email)), HttpStatus.OK);
     }
 
 

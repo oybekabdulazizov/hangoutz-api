@@ -30,13 +30,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtAuthResponseDTO signUp(SignUpRequestDTO request) {
-        Role role = request.getEmailAddress().contains("@admin.") ? Role.ROLE_ADMIN : Role.ROLE_USER;
+        Role role = request.getEmail().contains("@admin.") ? Role.ROLE_ADMIN : Role.ROLE_USER;
         User user = User
                 .builder()
                 .name(request.getName())
                 .lastname(request.getLastname())
                 .dateOfBirth(request.getDateOfBirth())
-                .emailAddress(request.getEmailAddress())
+                .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
                 .build();
@@ -52,9 +52,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public JwtAuthResponseDTO signIn(SignInRequestDTO request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmailAddress(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-        var user = userService.findByEmailAddress(request.getEmailAddress());
+        var user = userService.findByEmail(request.getEmail());
         if (user == null) {
             throw new NotFoundException("User not found");
         }
@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         String requesterUsernameFromToken = jwtService.extractUsername(jwt);
 
         // find the user using the request properties
-        User user = (User) userService.userDetailsService().loadUserByUsername(request.getEmailAddress());
+        User user = (User) userService.userDetailsService().loadUserByUsername(request.getEmail());
         if (user == null
                 || !user.getUsername().equals(requesterUsernameFromToken)
                 || !passwordEncoder.matches(request.getOldPassword(), user.getPassword())

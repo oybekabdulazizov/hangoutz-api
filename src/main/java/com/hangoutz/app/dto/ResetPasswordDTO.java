@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class ResetPasswordDTO {
 
     @NotBlank(message = "email is required")
-    private String emailAddress;
+    private String email;
 
     @NotBlank(message = "old password is required")
     private String oldPassword;

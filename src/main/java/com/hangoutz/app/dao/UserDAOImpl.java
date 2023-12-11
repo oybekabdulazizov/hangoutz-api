@@ -28,9 +28,9 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     @Transactional
-    public User findByEmailAddress(String emailAddress) {
-        TypedQuery<User> query = em.createQuery("from User where emailAddress=:emailAddress", User.class);
-        query.setParameter("emailAddress", emailAddress);
+    public User findByEmail(String email) {
+        TypedQuery<User> query = em.createQuery("from User where email=:email", User.class);
+        query.setParameter("email", email);
         if (query.getResultList().isEmpty()) {
             return null;
         }

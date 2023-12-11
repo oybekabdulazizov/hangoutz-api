@@ -27,7 +27,7 @@ public class SignUpRequestDTO {
     private LocalDateTime dateOfBirth;
 
     @NotBlank(message = "email is required")
-    private String emailAddress;
+    private String email;
 
     @NotBlank(message = "password is required")
     private String password;
