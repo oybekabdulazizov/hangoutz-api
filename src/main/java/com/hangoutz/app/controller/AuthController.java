@@ -1,10 +1,10 @@
 package com.hangoutz.app.controller;
 
-import com.hangoutz.app.dto.JwtAuthenticationResponseDTO;
+import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
-import com.hangoutz.app.service.AuthenticationService;
+import com.hangoutz.app.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -15,20 +15,20 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth")
-public class AuthenticationController {
+public class AuthController {
 
-    private final AuthenticationService authenticationService;
+    private final AuthService authService;
 
 
     @PostMapping("/signup")
-    public ResponseEntity<JwtAuthenticationResponseDTO> singUp(@RequestBody SignUpRequestDTO request) {
-        return new ResponseEntity<>(authenticationService.signUp(request), HttpStatus.OK);
+    public ResponseEntity<JwtAuthResponseDTO> singUp(@RequestBody SignUpRequestDTO request) {
+        return new ResponseEntity<>(authService.signUp(request), HttpStatus.OK);
     }
 
 
     @PostMapping("/signin")
-    public ResponseEntity<JwtAuthenticationResponseDTO> singIn(@RequestBody SignInRequestDTO request) {
-        return new ResponseEntity<>(authenticationService.signIn(request), HttpStatus.OK);
+    public ResponseEntity<JwtAuthResponseDTO> singIn(@RequestBody SignInRequestDTO request) {
+        return new ResponseEntity<>(authService.signIn(request), HttpStatus.OK);
     }
 
 
@@ -37,6 +37,6 @@ public class AuthenticationController {
             @RequestHeader(name = "Authorization") String jwt,
             @Valid @RequestBody ResetPasswordDTO request
     ) throws BadRequestException {
-        return new ResponseEntity<>(authenticationService.resetPassword(jwt, request), HttpStatus.OK);
+        return new ResponseEntity<>(authService.resetPassword(jwt, request), HttpStatus.OK);
     }
 }

@@ -1,6 +1,6 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.dto.JwtAuthenticationResponseDTO;
+import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationServiceImpl implements AuthenticationService {
+public class AuthServiceImpl implements AuthService {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
@@ -29,7 +29,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public JwtAuthenticationResponseDTO signUp(SignUpRequestDTO request) {
+    public JwtAuthResponseDTO signUp(SignUpRequestDTO request) {
         Role role = request.getEmailAddress().contains("@admin.") ? Role.ROLE_ADMIN : Role.ROLE_USER;
         User user = User
                 .builder()
@@ -42,7 +42,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
         userService.save(user);
         String jwt = jwtService.generateToken(user);
-        return JwtAuthenticationResponseDTO
+        return JwtAuthResponseDTO
                 .builder()
                 .token(jwt)
                 .expiresAt(getExpirationTime(jwt))
@@ -50,7 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public JwtAuthenticationResponseDTO signIn(SignInRequestDTO request) {
+    public JwtAuthResponseDTO signIn(SignInRequestDTO request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmailAddress(), request.getPassword())
         );
@@ -59,7 +59,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new NotFoundException("User not found");
         }
         String jwt = jwtService.generateToken(user);
-        return JwtAuthenticationResponseDTO
+        return JwtAuthResponseDTO
                 .builder()
                 .token(jwt)
                 .expiresAt(getExpirationTime(jwt))

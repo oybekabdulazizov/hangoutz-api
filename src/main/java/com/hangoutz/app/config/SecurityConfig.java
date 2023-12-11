@@ -1,6 +1,6 @@
 package com.hangoutz.app.config;
 
-import com.hangoutz.app.filter.JwtAuthenticationFilter;
+import com.hangoutz.app.filter.JwtAuthFilter;
 import com.hangoutz.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthFilter jwtAuthFilter;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
@@ -54,7 +54,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
