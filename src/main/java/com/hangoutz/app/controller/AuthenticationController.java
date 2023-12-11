@@ -8,7 +8,8 @@ import com.hangoutz.app.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -20,22 +21,22 @@ public class AuthenticationController {
 
 
     @PostMapping("/signup")
-    public JwtAuthenticationResponseDTO singUp(@RequestBody SignUpRequestDTO request) {
-        return authenticationService.signUp(request);
+    public ResponseEntity<JwtAuthenticationResponseDTO> singUp(@RequestBody SignUpRequestDTO request) {
+        return new ResponseEntity<>(authenticationService.signUp(request), HttpStatus.OK);
     }
 
 
     @PostMapping("/signin")
-    public JwtAuthenticationResponseDTO singIn(@RequestBody SignInRequestDTO request) {
-        return authenticationService.signIn(request);
+    public ResponseEntity<JwtAuthenticationResponseDTO> singIn(@RequestBody SignInRequestDTO request) {
+        return new ResponseEntity<>(authenticationService.signIn(request), HttpStatus.OK);
     }
 
 
     @PutMapping("/reset-password")
-    public String resetPassword(
+    public ResponseEntity<String> resetPassword(
             @RequestHeader(name = "Authorization") String jwt,
             @Valid @RequestBody ResetPasswordDTO request
-    ) throws BadRequestException, BadCredentialsException {
-        return authenticationService.resetPassword(jwt, request);
+    ) throws BadRequestException {
+        return new ResponseEntity<>(authenticationService.resetPassword(jwt, request), HttpStatus.OK);
     }
 }
