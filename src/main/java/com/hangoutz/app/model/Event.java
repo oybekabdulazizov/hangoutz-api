@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 public class Event {
 
     @ManyToOne(
-            fetch = FetchType.LAZY,
             cascade = {
                     CascadeType.MERGE,
                     CascadeType.DETACH,

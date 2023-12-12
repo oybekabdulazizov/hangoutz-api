@@ -25,7 +25,6 @@ public class User implements UserDetails {
 
     @OneToMany(
             mappedBy = "host",
-            fetch = FetchType.EAGER,
             cascade = {
                     CascadeType.REMOVE,
                     CascadeType.MERGE,
@@ -117,7 +116,6 @@ public class User implements UserDetails {
                 ", lastname='" + lastname + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", accountNonExpired='" + isAccountNonExpired() + '\'' +
                 ", accountNonLocked='" + isAccountNonLocked() + '\'' +
                 ", credentialsNonExpired='" + isCredentialsNonExpired() + '\'' +
