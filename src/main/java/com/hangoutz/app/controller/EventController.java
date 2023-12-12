@@ -62,7 +62,7 @@ public class EventController {
 
     @DeleteMapping("/events/{eventId}")
     @ResponseStatus(value = HttpStatus.OK)
-    public void delete(@PathVariable String eventId) {
-        eventService.delete(eventId);
+    public void delete(@RequestHeader(name = "Authorization") String bearerToken, @PathVariable String eventId) {
+        eventService.delete(bearerToken, eventId);
     }
 }

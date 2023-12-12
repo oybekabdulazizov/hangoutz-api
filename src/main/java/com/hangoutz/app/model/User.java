@@ -22,7 +22,6 @@ public class User implements UserDetails {
 
     @ManyToMany(
             cascade = {
-                    CascadeType.REMOVE,
                     CascadeType.MERGE,
                     CascadeType.DETACH,
                     CascadeType.PERSIST,

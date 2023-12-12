@@ -58,8 +58,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void delete(String id) {
+    public void delete(String bearerToken, String id) {
+        String jwt = jwtService.extractJwt(bearerToken);
         Event event = findById(id);
+        if (!jwtService.isTokenValid(jwt, event.getHost())) {
+            throw new BadCredentialsException("Invalid token");
+        }
+
         eventDAO.delete(event);
     }
 

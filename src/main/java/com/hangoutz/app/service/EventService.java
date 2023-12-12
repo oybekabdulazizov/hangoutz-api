@@ -13,7 +13,7 @@ public interface EventService {
 
     Event save(String bearerToken, Event event);
 
-    void delete(String id);
+    void delete(String bearerToken, String id);
 
     Event update(String bearerToken, String id, Map<Object, Object> updatedFields);
 }
