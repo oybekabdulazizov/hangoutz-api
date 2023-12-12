@@ -66,7 +66,7 @@ public class EventServiceImpl implements EventService {
         Event event = findById(id);
         updatedFields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Event.class, (String) key);
-            if (field != null && !key.equals("id")) {
+            if (field != null && !(key.equals("id") || key.equals("hostUserId"))) {
                 field.setAccessible(true);
                 if (value == null || value.toString().isBlank()) {
                     throw new IllegalArgumentException(key + " is required");
