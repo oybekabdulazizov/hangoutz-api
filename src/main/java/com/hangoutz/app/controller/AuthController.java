@@ -34,9 +34,9 @@ public class AuthController {
 
     @PutMapping("/reset-password")
     public ResponseEntity<String> resetPassword(
-            @RequestHeader(name = "Authorization") String jwt,
+            @RequestHeader(name = "Authorization") String bearerToken,
             @Valid @RequestBody ResetPasswordDTO request
     ) throws BadRequestException {
-        return new ResponseEntity<>(authService.resetPassword(jwt, request), HttpStatus.OK);
+        return new ResponseEntity<>(authService.resetPassword(bearerToken, request), HttpStatus.OK);
     }
 }

@@ -23,6 +23,10 @@ public class JwtService {
     @Value("${token.expiration-ms}")
     private int jwtExpirationMs;
 
+    public String extractJwt(String bearerToken) {
+        return bearerToken.substring(7);
+    }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }

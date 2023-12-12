@@ -40,8 +40,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event save(String token, Event newEvent) {
-        String jwt = token.substring(7);
+    public Event save(String bearerToken, Event newEvent) {
+        String jwt = jwtService.extractJwt(bearerToken);
         if (jwtService.isTokenExpired(jwt)) {
             throw new BadCredentialsException("Provided token either expired or is invalid");
         }

@@ -67,9 +67,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String resetPassword(String token, ResetPasswordDTO request) throws BadRequestException {
-        // extract the token without the 'Bearer ' part
-        String jwt = token.substring(7);
+    public String resetPassword(String bearerToken, ResetPasswordDTO request) throws BadRequestException {
+        String jwt = jwtService.extractJwt(bearerToken);
         String requesterUsernameFromToken = jwtService.extractUsername(jwt);
 
         // find the user using the request properties
