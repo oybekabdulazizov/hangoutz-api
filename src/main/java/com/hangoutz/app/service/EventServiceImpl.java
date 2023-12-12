@@ -45,10 +45,13 @@ public class EventServiceImpl implements EventService {
         if (jwtService.isTokenExpired(jwt)) {
             throw new BadCredentialsException("Provided token either expired or is invalid");
         }
+
         User host = userService.findByEmail(jwtService.extractUsername(jwt));
-        newEvent.setHost(host);
-        eventDAO.save(newEvent);
+
         host.hostEvent(newEvent);
+        newEvent.setHost(host);
+        newEvent.addAttendee(host);
+        eventDAO.save(newEvent);
 
         return newEvent;
     }

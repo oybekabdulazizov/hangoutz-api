@@ -23,6 +23,20 @@ import java.util.Set;
 @Table(name = "user")
 public class User implements UserDetails {
 
+    @ManyToMany(
+            cascade = {
+                    CascadeType.REMOVE,
+                    CascadeType.MERGE,
+                    CascadeType.DETACH,
+                    CascadeType.PERSIST,
+                    CascadeType.REFRESH})
+    @JoinTable(
+            name = "event_attendee",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private Set<Event> attendingEvents;
+
     @OneToMany(
             mappedBy = "host",
             cascade = {
@@ -58,6 +72,13 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+
+    public void attendToEvent(Event event) {
+        if (attendingEvents == null) {
+            attendingEvents = new HashSet<>();
+        }
+        attendingEvents.add(event);
+    }
 
     public void hostEvent(Event event) {
         if (hostingEvents == null) {

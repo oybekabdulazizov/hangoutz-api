@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,6 +17,20 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "event")
 public class Event {
+
+    @ManyToMany(
+            cascade = {
+                    CascadeType.REMOVE,
+                    CascadeType.MERGE,
+                    CascadeType.DETACH,
+                    CascadeType.PERSIST,
+                    CascadeType.REFRESH})
+    @JoinTable(
+            name = "event_attendee",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> attendees;
 
     @ManyToOne(
             cascade = {
@@ -48,6 +64,15 @@ public class Event {
 
     @Column(name = "venue")
     private String venue;
+
+
+    public void addAttendee(User attendee) {
+        if (attendees == null) {
+            attendees = new HashSet<>();
+        }
+        attendees.add(attendee);
+    }
+
 
     @JsonBackReference
     public User getHost() {
