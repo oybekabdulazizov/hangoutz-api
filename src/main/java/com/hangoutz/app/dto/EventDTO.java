@@ -3,17 +3,16 @@ package com.hangoutz.app.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class EventDTO {
 
     private String id;
@@ -36,4 +35,18 @@ public class EventDTO {
 
     @NotBlank(message = "venue is required")
     private String venue;
+
+
+    @Override
+    public String toString() {
+        return "EventDTO{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", dateTime=" + dateTime +
+                ", description='" + description + '\'' +
+                ", category='" + category + '\'' +
+                ", city='" + city + '\'' +
+                ", venue='" + venue + '\'' +
+                '}';
+    }
 }
