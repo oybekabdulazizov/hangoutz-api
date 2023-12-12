@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @NoArgsConstructor
@@ -30,6 +31,10 @@ public class DisplayEventDTO {
 
     private String hostUserId;
 
+    private AttendeeProfile host;
+
+    private List<AttendeeProfile> attendees;
+
     @Override
     public String toString() {
         return "NewEventDTO{" +
@@ -40,8 +45,25 @@ public class DisplayEventDTO {
                 ", category='" + category + '\'' +
                 ", city='" + city + '\'' +
                 ", venue='" + venue + '\'' +
-                ", hostUserId='" + hostUserId + '\'' +
+                ", host='" + host + '\'' +
+                ", attendees=" + attendees +
                 '}';
     }
 }
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
+@ToString
+class AttendeeProfile {
+
+    private String id;
+
+    private String name;
+
+    private String lastname;
+
+    private String email;
+}

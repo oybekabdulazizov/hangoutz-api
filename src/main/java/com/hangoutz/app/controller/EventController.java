@@ -27,7 +27,7 @@ public class EventController {
     public ResponseEntity<List<DisplayEventDTO>> findAll() {
         List<DisplayEventDTO> events = eventService
                 .findAll().stream()
-                .map((event) -> eventMapper.toDisplayDTO(event)).toList();
+                .map((event) -> eventMapper.toDto(event, new DisplayEventDTO())).toList();
         HttpStatus httpStatus = events.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return new ResponseEntity<>(events, httpStatus);
     }
@@ -35,7 +35,7 @@ public class EventController {
 
     @GetMapping("/events/{id}")
     public ResponseEntity<DisplayEventDTO> findById(@PathVariable String id) {
-        return new ResponseEntity<>(eventMapper.toDisplayDTO(eventService.findById(id)), HttpStatus.OK);
+        return new ResponseEntity<>(eventMapper.toDto(eventService.findById(id), new DisplayEventDTO()), HttpStatus.OK);
     }
 
 
@@ -45,7 +45,7 @@ public class EventController {
             @Valid @RequestBody NewEventDTO newEventDTO
     ) {
         Event savedEvent = eventService.save(jwt, eventMapper.toModel(newEventDTO));
-        return new ResponseEntity<>(eventMapper.toDisplayDTO(savedEvent), HttpStatus.CREATED);
+        return new ResponseEntity<>(eventMapper.toDto(savedEvent, new DisplayEventDTO()), HttpStatus.CREATED);
     }
 
 
@@ -54,7 +54,9 @@ public class EventController {
             @PathVariable String id,
             @RequestBody Map<Object, Object> updatedFields
     ) {
-        return new ResponseEntity<>(eventMapper.toDisplayDTO(eventService.update(id, updatedFields)), HttpStatus.OK);
+        return new ResponseEntity<>(
+                eventMapper.toDto(eventService.update(id, updatedFields), new DisplayEventDTO()),
+                HttpStatus.OK);
     }
 
 

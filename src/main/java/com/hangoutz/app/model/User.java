@@ -9,10 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -35,7 +32,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
-    private Set<Event> attendingEvents;
+    private List<Event> attendingEvents;
 
     @OneToMany(
             mappedBy = "host",
@@ -75,7 +72,7 @@ public class User implements UserDetails {
 
     public void attendToEvent(Event event) {
         if (attendingEvents == null) {
-            attendingEvents = new HashSet<>();
+            attendingEvents = new ArrayList<>();
         }
         attendingEvents.add(event);
     }
