@@ -36,6 +36,7 @@ public class EventDTO {
     @NotBlank(message = "venue is required")
     private String venue;
 
+    private String hostUserId;
 
     @Override
     public String toString() {
@@ -47,6 +48,7 @@ public class EventDTO {
                 ", category='" + category + '\'' +
                 ", city='" + city + '\'' +
                 ", venue='" + venue + '\'' +
+                ", hostUserId='" + hostUserId + '\'' +
                 '}';
     }
 }
