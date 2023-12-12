@@ -1,5 +1,6 @@
 package com.hangoutz.app.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,6 +15,16 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "event")
 public class Event {
+
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.MERGE,
+                    CascadeType.DETACH,
+                    CascadeType.PERSIST,
+                    CascadeType.REFRESH})
+    @JoinColumn(name = "host_user_id")
+    private User host;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -39,6 +50,15 @@ public class Event {
     @Column(name = "venue")
     private String venue;
 
+    @JsonBackReference
+    public User getHost() {
+        return host;
+    }
+
+    @JsonBackReference
+    public void setUser(User host) {
+        this.host = host;
+    }
 
     @Override
     public String toString() {
@@ -50,6 +70,7 @@ public class Event {
                 ", category='" + category + '\'' +
                 ", city='" + city + '\'' +
                 ", venue='" + venue + '\'' +
+                ", hostUserId='" + host.getId() + '\'' +
                 '}';
     }
 }

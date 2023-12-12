@@ -11,7 +11,7 @@ public interface EventService {
 
     Event findById(String id);
 
-    Event save(Event event);
+    Event save(String jwt, Event event);
 
     void delete(String id);
 

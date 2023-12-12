@@ -3,8 +3,10 @@ package com.hangoutz.app.service;
 import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.model.Event;
+import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -19,6 +21,8 @@ import java.util.Map;
 public class EventServiceImpl implements EventService {
 
     private final EventDAO eventDAO;
+    private final JwtService jwtService;
+    private final UserService userService;
 
     @Override
     public List<Event> findAll() {
@@ -36,8 +40,16 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event save(Event newEvent) {
+    public Event save(String token, Event newEvent) {
+        String jwt = token.substring(7);
+        if (jwtService.isTokenExpired(jwt)) {
+            throw new BadCredentialsException("Provided token either expired or is invalid");
+        }
+        User host = userService.findByEmail(jwtService.extractUsername(jwt));
+        newEvent.setHost(host);
         eventDAO.save(newEvent);
+        host.hostEvent(newEvent);
+
         return newEvent;
     }
 

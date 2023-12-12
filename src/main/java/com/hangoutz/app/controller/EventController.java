@@ -38,9 +38,12 @@ public class EventController {
 
 
     @PostMapping("/events")
-    public ResponseEntity<EventDTO> create(@Valid @RequestBody EventDTO newEventDTO) {
-        Event savedEvent = eventService.save(eventMapper.dtoToModel(newEventDTO));
-        return new ResponseEntity<>(eventMapper.modelToDto(savedEvent), HttpStatus.CREATED);
+    public ResponseEntity<Event> create(
+            @RequestHeader(name = "Authorization") String jwt,
+            @Valid @RequestBody EventDTO newEventDTO
+    ) {
+        Event savedEvent = eventService.save(jwt, eventMapper.dtoToModel(newEventDTO));
+        return new ResponseEntity<>(savedEvent, HttpStatus.CREATED);
     }
 
 
