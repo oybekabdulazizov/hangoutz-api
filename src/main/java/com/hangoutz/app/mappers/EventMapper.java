@@ -1,6 +1,6 @@
 package com.hangoutz.app.mappers;
 
-import com.hangoutz.app.dto.DisplayEventDTO;
+import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.model.Event;
 import lombok.RequiredArgsConstructor;
@@ -11,17 +11,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EventMapper {
 
-    public DisplayEventDTO toDto(Event event, DisplayEventDTO displayEventDTO) {
+    public EventDTO toDto(Event event, EventDTO eventDTO) {
         new ModelMapper()
-                .typeMap(Event.class, DisplayEventDTO.class)
+                .typeMap(Event.class, EventDTO.class)
                 /*.addMappings(mapper -> {
-                    mapper.map(src -> src.getHost().getId(), DisplayEventDTO::setHostUserId);
+                    mapper.map(src -> src.getHost().getId(), EventDTO::setHostUserId);
                 })*/
-                .map(event, displayEventDTO);
-        return displayEventDTO;
+                .map(event, eventDTO);
+        return eventDTO;
     }
 
-    public Event toModel(NewEventDTO newEventDTO) {
+    public Event newDtoToModel(NewEventDTO newEventDTO) {
         return new ModelMapper().map(newEventDTO, Event.class);
     }
 }

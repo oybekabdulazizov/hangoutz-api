@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class DisplayEventDTO {
+public class EventDTO {
 
     private String id;
 
@@ -28,8 +28,6 @@ public class DisplayEventDTO {
     private String city;
 
     private String venue;
-
-    private String hostUserId;
 
     private AttendeeProfile host;
 
