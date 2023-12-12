@@ -11,9 +11,9 @@ public interface EventService {
 
     Event findById(String id);
 
-    Event save(String jwt, Event event);
+    Event save(String bearerToken, Event event);
 
     void delete(String id);
 
-    Event update(String id, Map<Object, Object> updatedFields);
+    Event update(String bearerToken, String id, Map<Object, Object> updatedFields);
 }

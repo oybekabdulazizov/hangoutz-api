@@ -51,12 +51,12 @@ public class EventController {
 
     @PutMapping("/events/{id}")
     public ResponseEntity<DisplayEventDTO> update(
+            @RequestHeader(name = "Authorization") String bearerToken,
             @PathVariable String id,
             @RequestBody Map<Object, Object> updatedFields
     ) {
-        return new ResponseEntity<>(
-                eventMapper.toDto(eventService.update(id, updatedFields), new DisplayEventDTO()),
-                HttpStatus.OK);
+        Event updatedEvent = eventService.update(bearerToken, id, updatedFields);
+        return new ResponseEntity<>(eventMapper.toDto(updatedEvent, new DisplayEventDTO()), HttpStatus.OK);
     }
 
 

@@ -65,8 +65,17 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event update(String id, Map<Object, Object> updatedFields) {
+    public Event update(String bearerToken, String id, Map<Object, Object> updatedFields) {
+        String jwt = jwtService.extractJwt(bearerToken);
+        String username = jwtService.extractUsername(jwt);
+
+        User user = userService.findByEmail(username);
         Event event = findById(id);
+
+        if (!jwtService.isTokenValid(jwt, user) || !event.getHost().getId().equals(user.getId())) {
+            throw new BadCredentialsException("Invalid token");
+        }
+
         updatedFields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Event.class, (String) key);
             if (field != null && !(key.equals("id") || key.equals("hostUserId"))) {
