@@ -1,6 +1,7 @@
 package com.hangoutz.app.controller;
 
-import com.hangoutz.app.dto.EventDTO;
+import com.hangoutz.app.dto.DisplayEventDTO;
+import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.service.EventService;
@@ -23,36 +24,37 @@ public class EventController {
 
 
     @GetMapping("/events")
-    public ResponseEntity<List<EventDTO>> findAll() {
-        List<EventDTO> events = eventService.findAll().stream()
-                                            .map((event) -> eventMapper.modelToDto(event)).toList();
+    public ResponseEntity<List<DisplayEventDTO>> findAll() {
+        List<DisplayEventDTO> events = eventService
+                .findAll().stream()
+                .map((event) -> eventMapper.toDisplayDTO(event)).toList();
         HttpStatus httpStatus = events.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return new ResponseEntity<>(events, httpStatus);
     }
 
 
     @GetMapping("/events/{id}")
-    public ResponseEntity<EventDTO> findById(@PathVariable String id) {
-        return new ResponseEntity<>(eventMapper.modelToDto(eventService.findById(id)), HttpStatus.OK);
+    public ResponseEntity<DisplayEventDTO> findById(@PathVariable String id) {
+        return new ResponseEntity<>(eventMapper.toDisplayDTO(eventService.findById(id)), HttpStatus.OK);
     }
 
 
     @PostMapping("/events")
-    public ResponseEntity<EventDTO> create(
+    public ResponseEntity<DisplayEventDTO> create(
             @RequestHeader(name = "Authorization") String jwt,
-            @Valid @RequestBody EventDTO newEventDTO
+            @Valid @RequestBody NewEventDTO newEventDTO
     ) {
-        Event savedEvent = eventService.save(jwt, eventMapper.dtoToModel(newEventDTO));
-        return new ResponseEntity<>(eventMapper.modelToDto(savedEvent), HttpStatus.CREATED);
+        Event savedEvent = eventService.save(jwt, eventMapper.toModel(newEventDTO));
+        return new ResponseEntity<>(eventMapper.toDisplayDTO(savedEvent), HttpStatus.CREATED);
     }
 
 
     @PutMapping("/events/{id}")
-    public ResponseEntity<EventDTO> update(
+    public ResponseEntity<DisplayEventDTO> update(
             @PathVariable String id,
             @RequestBody Map<Object, Object> updatedFields
     ) {
-        return new ResponseEntity<>(eventMapper.modelToDto(eventService.update(id, updatedFields)), HttpStatus.OK);
+        return new ResponseEntity<>(eventMapper.toDisplayDTO(eventService.update(id, updatedFields)), HttpStatus.OK);
     }
 
 

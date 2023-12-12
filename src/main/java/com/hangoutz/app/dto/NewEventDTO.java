@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @Setter
-public class EventDTO {
+@ToString
+public class NewEventDTO {
 
     private String id;
 
@@ -35,20 +36,4 @@ public class EventDTO {
 
     @NotBlank(message = "venue is required")
     private String venue;
-
-    private String hostUserId;
-
-    @Override
-    public String toString() {
-        return "EventDTO{" +
-                "id='" + id + '\'' +
-                ", title='" + title + '\'' +
-                ", dateTime=" + dateTime +
-                ", description='" + description + '\'' +
-                ", category='" + category + '\'' +
-                ", city='" + city + '\'' +
-                ", venue='" + venue + '\'' +
-                ", hostUserId='" + hostUserId + '\'' +
-                '}';
-    }
 }
