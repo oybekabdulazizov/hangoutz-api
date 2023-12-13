@@ -4,7 +4,6 @@ import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
-import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,13 +53,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtAuthResponseDTO signIn(SignInRequestDTO existingUser) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(existingUser.getEmail(), existingUser.getPassword())
-        );
-        var user = userService.findByEmailAndHandle(existingUser.getEmail());
-        if (user == null) {
-            throw new NotFoundException("User not found");
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(existingUser.getEmail(), existingUser.getPassword())
+            );
+        } catch (InternalAuthenticationServiceException ex) {
+            throw new InternalAuthenticationServiceException("Username or password is incorrect");
         }
+        var user = userService.findByEmailAndHandle(existingUser.getEmail());
         String jwt = jwtService.generateToken(user);
         return JwtAuthResponseDTO
                 .builder()
