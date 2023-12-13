@@ -38,12 +38,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByEmail(String email) {
-        User user = userDAO.findByEmail(email);
+    public User findByEmailAndHandle(String email) {
+        User user = findByEmail(email);
         if (user == null) {
             throw new NotFoundException("User not found");
         }
         return user;
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userDAO.findByEmail(email);
     }
 
     @Override

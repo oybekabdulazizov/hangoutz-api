@@ -123,7 +123,7 @@ public class EventServiceImpl implements EventService {
     private User getCurrentUser(String bearerToken) {
         String jwt = jwtService.extractJwt(bearerToken);
         String currentUserUsername = jwtService.extractUsername(jwt);
-        return userService.findByEmail(currentUserUsername);
+        return userService.findByEmailAndHandle(currentUserUsername);
     }
 
     private void checkTokenValidity(String jwt, User user) {

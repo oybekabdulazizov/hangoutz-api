@@ -42,7 +42,7 @@ public class UserController {
             throw new IllegalArgumentException("Request parameter 'email' cannot be null or blank");
         }
         return new ResponseEntity<>(
-                userMapper.toDto(userService.findByEmail(email), new UserDTO()),
+                userMapper.toDto(userService.findByEmailAndHandle(email), new UserDTO()),
                 HttpStatus.OK);
     }
 

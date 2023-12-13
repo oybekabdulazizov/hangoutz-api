@@ -12,6 +12,8 @@ public interface UserService {
 
     User findById(String id);
 
+    User findByEmailAndHandle(String email);
+
     User findByEmail(String email);
 
     void save(User user);
