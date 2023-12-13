@@ -42,15 +42,11 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public Event save(String bearerToken, Event newEvent) {
-        String jwt = jwtService.extractJwt(bearerToken);
-        if (jwtService.isTokenExpired(jwt)) {
-            throw new BadCredentialsException("Provided token either expired or is invalid");
-        }
+        User currentUser = getCurrentUser(bearerToken);
+        checkTokenValidity(jwtService.extractJwt(bearerToken), currentUser);
 
-        User host = userService.findByEmail(jwtService.extractUsername(jwt));
-
-        newEvent.setHost(host);
-        newEvent.addAttendee(host);
+        newEvent.setHost(currentUser);
+        newEvent.addAttendee(currentUser);
         eventDAO.save(newEvent);
 
         return newEvent;
@@ -59,11 +55,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void delete(String bearerToken, String id) {
-        String jwt = jwtService.extractJwt(bearerToken);
         Event event = findById(id);
-        if (!jwtService.isTokenValid(jwt, event.getHost())) {
-            throw new BadCredentialsException("Invalid token");
-        }
+        checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         eventDAO.delete(event);
     }
@@ -71,15 +64,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public Event update(String bearerToken, String id, Map<Object, Object> updatedFields) {
-        String jwt = jwtService.extractJwt(bearerToken);
-        String username = jwtService.extractUsername(jwt);
-
-        User user = userService.findByEmail(username);
         Event event = findById(id);
-
-        if (!jwtService.isTokenValid(jwt, user) || !event.getHost().getId().equals(user.getId())) {
-            throw new BadCredentialsException("Invalid token");
-        }
+        checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         updatedFields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Event.class, (String) key);
@@ -103,9 +89,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public Event attend(String bearerToken, String id) {
-        String jwt = jwtService.extractJwt(bearerToken);
-        String currentUserUsername = jwtService.extractUsername(jwt);
-        User currentUser = userService.findByEmail(currentUserUsername);
+        User currentUser = getCurrentUser(bearerToken);
         Event event = findById(id);
 
         currentUser.attendEvent(event);
@@ -120,19 +104,26 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void cancelAttendance(String bearerToken, String id) throws BadRequestException {
-        String jwt = jwtService.extractJwt(bearerToken);
-        String currentUserUsername = jwtService.extractUsername(jwt);
-        User currentUser = userService.findByEmail(currentUserUsername);
+        User currentUser = getCurrentUser(bearerToken);
         Event event = findById(id);
 
         if (currentUser.getId().equals(event.getHost().getId())) {
             throw new BadRequestException("You, as the host, must be present at the event");
         }
 
-        currentUser.cancelAttendanceToEvent(event);
-        userService.save(currentUser);
-
         event.removeAttendee(currentUser);
         eventDAO.save(event);
+    }
+
+    private User getCurrentUser(String bearerToken) {
+        String jwt = jwtService.extractJwt(bearerToken);
+        String currentUserUsername = jwtService.extractUsername(jwt);
+        return userService.findByEmail(currentUserUsername);
+    }
+
+    private void checkTokenValidity(String jwt, User user) {
+        if (!jwtService.isTokenValid(jwt, user)) {
+            throw new BadCredentialsException("Invalid token");
+        }
     }
 }
