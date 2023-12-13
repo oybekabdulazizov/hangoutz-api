@@ -1,6 +1,7 @@
 package com.hangoutz.app.service;
 
 import com.hangoutz.app.model.Event;
+import org.apache.coyote.BadRequestException;
 
 import java.util.List;
 import java.util.Map;
@@ -18,4 +19,6 @@ public interface EventService {
     Event update(String bearerToken, String id, Map<Object, Object> updatedFields);
 
     Event attend(String bearerToken, String id);
+
+    void cancelAttendance(String bearerToken, String id) throws BadRequestException;
 }

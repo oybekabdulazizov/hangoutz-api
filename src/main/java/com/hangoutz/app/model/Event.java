@@ -72,6 +72,14 @@ public class Event {
         attendees.add(attendee);
     }
 
+    public void removeAttendee(User attendee) {
+        if (attendees == null) {
+            attendees = new ArrayList<>();
+        } else {
+            attendees.remove(attendee);
+        }
+    }
+
 
     @JsonBackReference
     public User getHost() {

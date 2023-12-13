@@ -6,6 +6,7 @@ import com.hangoutz.app.model.Event;
 import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
@@ -112,5 +113,21 @@ public class EventServiceImpl implements EventService {
         eventDAO.save(event);
 
         return event;
+    }
+
+    @Override
+    @Transactional
+    public void cancelAttendance(String bearerToken, String id) throws BadRequestException {
+        String jwt = jwtService.extractJwt(bearerToken);
+        String currentUserUsername = jwtService.extractUsername(jwt);
+        User currentUser = userService.findByEmail(currentUserUsername);
+        Event event = findById(id);
+
+        if (currentUser.getId().equals(event.getHost().getId())) {
+            throw new BadRequestException("You, as the host, must be present at the event");
+        }
+
+        event.removeAttendee(currentUser);
+        eventDAO.save(event);
     }
 }

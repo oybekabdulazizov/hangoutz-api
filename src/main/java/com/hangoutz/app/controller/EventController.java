@@ -7,6 +7,7 @@ import com.hangoutz.app.model.Event;
 import com.hangoutz.app.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,12 +51,21 @@ public class EventController {
 
 
     @PostMapping("/events/{id}/attend")
-    public ResponseEntity<EventDTO> attendEvent(
+    public ResponseEntity<EventDTO> attend(
             @RequestHeader(name = "Authorization") String bearerToken,
             @PathVariable String id
     ) {
         Event updatedEvent = eventService.attend(bearerToken, id);
         return new ResponseEntity<>(eventMapper.toDto(updatedEvent, new EventDTO()), HttpStatus.OK);
+    }
+
+    @PostMapping("/events/{id}/cancel-attendance")
+    public ResponseEntity cancelAttendance(
+            @RequestHeader(name = "Authorization") String bearerToken,
+            @PathVariable String id
+    ) throws BadRequestException {
+        eventService.cancelAttendance(bearerToken, id);
+        return ResponseEntity.ok().build();
     }
 
 
