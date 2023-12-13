@@ -18,7 +18,5 @@ public interface EventService {
 
     Event update(String bearerToken, String id, Map<Object, Object> updatedFields);
 
-    Event attend(String bearerToken, String id);
-
-    void cancelAttendance(String bearerToken, String id) throws BadRequestException;
+    Event attend(String bearerToken, String id) throws BadRequestException;
 }

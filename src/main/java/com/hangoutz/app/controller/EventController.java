@@ -54,18 +54,9 @@ public class EventController {
     public ResponseEntity<EventDTO> attend(
             @RequestHeader(name = "Authorization") String bearerToken,
             @PathVariable String id
-    ) {
+    ) throws BadRequestException {
         Event updatedEvent = eventService.attend(bearerToken, id);
         return new ResponseEntity<>(eventMapper.toDto(updatedEvent, new EventDTO()), HttpStatus.OK);
-    }
-
-    @PostMapping("/events/{id}/cancel-attendance")
-    public ResponseEntity cancelAttendance(
-            @RequestHeader(name = "Authorization") String bearerToken,
-            @PathVariable String id
-    ) throws BadRequestException {
-        eventService.cancelAttendance(bearerToken, id);
-        return ResponseEntity.ok().build();
     }
 
 

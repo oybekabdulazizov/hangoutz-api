@@ -88,31 +88,25 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event attend(String bearerToken, String id) {
+    public Event attend(String bearerToken, String id) throws BadRequestException {
         User currentUser = getCurrentUser(bearerToken);
         Event event = findById(id);
 
-        currentUser.attendEvent(event);
-        userService.save(currentUser);
-
-        event.addAttendee(currentUser);
-        eventDAO.save(event);
-
-        return event;
-    }
-
-    @Override
-    @Transactional
-    public void cancelAttendance(String bearerToken, String id) throws BadRequestException {
-        User currentUser = getCurrentUser(bearerToken);
-        Event event = findById(id);
-
-        if (currentUser.getId().equals(event.getHost().getId())) {
-            throw new BadRequestException("You, as the host, must be present at the event");
+        // this works like a toggle:
+        //  - if user is attending, it cancels the attendance
+        //  - if user is not in the attendees list, they get added into it
+        //  - hosts' are not allowed cancel attendance to an event
+        if (event.getAttendees().contains(currentUser)) {
+            if (currentUser.getId().equals(event.getHost().getId())) {
+                throw new BadRequestException("You, as the host, must be present at the event");
+            }
+            event.removeAttendee(currentUser);
+        } else {
+            event.addAttendee(currentUser);
         }
 
-        event.removeAttendee(currentUser);
         eventDAO.save(event);
+        return event;
     }
 
     private User getCurrentUser(String bearerToken) {
