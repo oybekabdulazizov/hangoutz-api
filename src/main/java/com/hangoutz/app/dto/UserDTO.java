@@ -63,4 +63,6 @@ class EventProfile {
     private String city;
 
     private String venue;
+
+    private boolean cancelled;
 }

@@ -59,6 +59,15 @@ public class EventController {
         return new ResponseEntity<>(eventMapper.toDto(updatedEvent, new EventDTO()), HttpStatus.OK);
     }
 
+    @PostMapping("/events/{id}/cancel")
+    public ResponseEntity<EventDTO> cancel(
+            @RequestHeader(name = "Authorization") String bearerToken,
+            @PathVariable String id
+    ) {
+        Event updatedEvent = eventService.cancel(bearerToken, id);
+        return new ResponseEntity<>(eventMapper.toDto(updatedEvent, new EventDTO()), HttpStatus.OK);
+    }
+
 
     @PutMapping("/events/{id}")
     public ResponseEntity<EventDTO> update(

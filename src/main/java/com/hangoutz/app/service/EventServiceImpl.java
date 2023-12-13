@@ -98,13 +98,24 @@ public class EventServiceImpl implements EventService {
         //  - hosts' are not allowed cancel attendance to an event
         if (event.getAttendees().contains(currentUser)) {
             if (currentUser.getId().equals(event.getHost().getId())) {
-                throw new BadRequestException("You, as the host, must be present at the event");
+                throw new BadRequestException("You, as the host, must be present at the event. Cancelling can be an option");
             }
             event.removeAttendee(currentUser);
         } else {
             event.addAttendee(currentUser);
         }
 
+        eventDAO.save(event);
+        return event;
+    }
+
+    @Override
+    @Transactional
+    public Event cancel(String bearerToken, String id) {
+        Event event = findById(id);
+        checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
+
+        event.setCancelled(!event.isCancelled());
         eventDAO.save(event);
         return event;
     }
@@ -117,7 +128,7 @@ public class EventServiceImpl implements EventService {
 
     private void checkTokenValidity(String jwt, User user) {
         if (!jwtService.isTokenValid(jwt, user)) {
-            throw new BadCredentialsException("Invalid token");
+            throw new BadCredentialsException("Invalid token. You are not authorized to perform this operation");
         }
     }
 }

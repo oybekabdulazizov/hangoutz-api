@@ -64,6 +64,9 @@ public class Event {
     @Column(name = "venue")
     private String venue;
 
+    @Column(name = "cancelled")
+    private boolean cancelled;
+
 
     public void addAttendee(User attendee) {
         if (attendees == null) {
@@ -91,6 +94,7 @@ public class Event {
         this.host = host;
     }
 
+
     @Override
     public String toString() {
         return "Event{" +
@@ -101,6 +105,8 @@ public class Event {
                 ", category='" + category + '\'' +
                 ", city='" + city + '\'' +
                 ", venue='" + venue + '\'' +
+                ", isCancelled=" + cancelled +
+                ", attendeesCount=" + attendees.size() +
                 ", hostUserId='" + host.getId() + '\'' +
                 '}';
     }
