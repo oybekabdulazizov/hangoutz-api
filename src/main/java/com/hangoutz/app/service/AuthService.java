@@ -8,9 +8,9 @@ import org.apache.coyote.BadRequestException;
 
 public interface AuthService {
 
-    JwtAuthResponseDTO signUp(SignUpRequestDTO request);
+    JwtAuthResponseDTO signUp(SignUpRequestDTO newUser) throws BadRequestException;
 
-    JwtAuthResponseDTO signIn(SignInRequestDTO request);
+    JwtAuthResponseDTO signIn(SignInRequestDTO existingUser);
 
-    String resetPassword(String token, ResetPasswordDTO request) throws BadRequestException;
+    String resetPassword(String token, ResetPasswordDTO passwordResetRequest) throws BadRequestException;
 }
