@@ -69,11 +69,19 @@ public class User implements UserDetails {
     private Role role;
 
 
-    public void attendToEvent(Event event) {
+    public void attendEvent(Event event) {
         if (attendingEvents == null) {
             attendingEvents = new ArrayList<>();
         }
         attendingEvents.add(event);
+    }
+
+    public void cancelAttendanceToEvent(Event event) {
+        if (attendingEvents == null) {
+            attendingEvents = new ArrayList<>();
+        } else {
+            attendingEvents.remove(event);
+        }
     }
 
     public void hostEvent(Event event) {

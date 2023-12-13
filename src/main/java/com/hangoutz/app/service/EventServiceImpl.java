@@ -49,7 +49,6 @@ public class EventServiceImpl implements EventService {
 
         User host = userService.findByEmail(jwtService.extractUsername(jwt));
 
-        host.hostEvent(newEvent);
         newEvent.setHost(host);
         newEvent.addAttendee(host);
         eventDAO.save(newEvent);
@@ -109,6 +108,9 @@ public class EventServiceImpl implements EventService {
         User currentUser = userService.findByEmail(currentUserUsername);
         Event event = findById(id);
 
+        currentUser.attendEvent(event);
+        userService.save(currentUser);
+
         event.addAttendee(currentUser);
         eventDAO.save(event);
 
@@ -126,6 +128,9 @@ public class EventServiceImpl implements EventService {
         if (currentUser.getId().equals(event.getHost().getId())) {
             throw new BadRequestException("You, as the host, must be present at the event");
         }
+
+        currentUser.cancelAttendanceToEvent(event);
+        userService.save(currentUser);
 
         event.removeAttendee(currentUser);
         eventDAO.save(event);
