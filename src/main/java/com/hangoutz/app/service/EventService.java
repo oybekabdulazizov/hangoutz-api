@@ -16,4 +16,6 @@ public interface EventService {
     void delete(String bearerToken, String id);
 
     Event update(String bearerToken, String id, Map<Object, Object> updatedFields);
+
+    Event attend(String bearerToken, String id);
 }

@@ -49,6 +49,16 @@ public class EventController {
     }
 
 
+    @PostMapping("/events/{id}/attend")
+    public ResponseEntity<EventDTO> attendEvent(
+            @RequestHeader(name = "Authorization") String bearerToken,
+            @PathVariable String id
+    ) {
+        Event updatedEvent = eventService.attend(bearerToken, id);
+        return new ResponseEntity<>(eventMapper.toDto(updatedEvent, new EventDTO()), HttpStatus.OK);
+    }
+
+
     @PutMapping("/events/{id}")
     public ResponseEntity<EventDTO> update(
             @RequestHeader(name = "Authorization") String bearerToken,

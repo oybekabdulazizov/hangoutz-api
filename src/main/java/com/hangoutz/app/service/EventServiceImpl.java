@@ -99,4 +99,18 @@ public class EventServiceImpl implements EventService {
         });
         return eventDAO.update(event);
     }
+
+    @Override
+    @Transactional
+    public Event attend(String bearerToken, String id) {
+        String jwt = jwtService.extractJwt(bearerToken);
+        String currentUserUsername = jwtService.extractUsername(jwt);
+        User currentUser = userService.findByEmail(currentUserUsername);
+        Event event = findById(id);
+
+        event.addAttendee(currentUser);
+        eventDAO.save(event);
+
+        return event;
+    }
 }
