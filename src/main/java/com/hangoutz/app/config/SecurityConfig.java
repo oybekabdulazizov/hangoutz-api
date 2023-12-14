@@ -3,7 +3,6 @@ package com.hangoutz.app.config;
 import com.hangoutz.app.filter.JwtAuthFilter;
 import com.hangoutz.app.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,9 +27,6 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-
-    @Qualifier("delegatedAuthenticationEntryPoint")
-    private final AuthEntryPoint authEntryPoint;
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -58,8 +54,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(handler -> handler.authenticationEntryPoint(authEntryPoint));
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
