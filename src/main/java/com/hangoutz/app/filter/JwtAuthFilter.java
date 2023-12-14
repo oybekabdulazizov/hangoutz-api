@@ -14,8 +14,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,8 +28,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Component
 @RequiredArgsConstructor
@@ -91,12 +89,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             LocalDateTime expiredAt = LocalDateTime.parse(ldtString, format);
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType(APPLICATION_JSON_VALUE);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getOutputStream().println("{ \"error\": \"Your token expired at " + expiredAt + "\" }");
-        } catch (AuthenticationException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType(APPLICATION_JSON_VALUE);
-            response.getWriter().write("\t\t\tAuthentication failed");
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.hangoutz.app.config;
 
+import com.hangoutz.app.exception.CustomAccessDeniedHandler;
 import com.hangoutz.app.filter.JwtAuthFilter;
 import com.hangoutz.app.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -53,6 +55,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/events/**", "/api/v1/users/**").permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(handler -> {
+                    handler.accessDeniedHandler(customAccessDeniedHandler);
+                })
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

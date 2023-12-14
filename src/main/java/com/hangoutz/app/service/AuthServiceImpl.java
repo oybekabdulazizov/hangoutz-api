@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("User with this email already exists.");
         }
 
-        Role role = newUser.getEmail().contains("@admin.") ? Role.ROLE_ADMIN : Role.ROLE_USER;
+        Role role = newUser.getEmail().contains("@hangoutz.com") ? Role.ROLE_ADMIN : Role.ROLE_USER;
         User user = userMapper.toModel(newUser, new User());
 
         user.setPassword(passwordEncoder.encode(newUser.getPassword()));
