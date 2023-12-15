@@ -44,9 +44,9 @@ public class EventController {
     public ResponseEntity<EventDTO> create(
             @RequestHeader(name = "Authorization") String bearerToken,
             @Valid @RequestBody NewEventDTO newEventDTO
-    ) {
-        Event savedEvent = eventService.save(bearerToken, eventMapper.newDtoToModel(newEventDTO));
-        return new ResponseEntity<>(eventMapper.toDto(savedEvent, new EventDTO()), HttpStatus.CREATED);
+    ) throws BadRequestException {
+        EventDTO event = eventMapper.toDto(eventService.save(bearerToken, newEventDTO), new EventDTO());
+        return new ResponseEntity<>(event, HttpStatus.CREATED);
     }
 
 

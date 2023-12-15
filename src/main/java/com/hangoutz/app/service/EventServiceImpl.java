@@ -1,7 +1,9 @@
 package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.EventDAO;
+import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.exception.NotFoundException;
+import com.hangoutz.app.model.Category;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
@@ -24,6 +26,7 @@ public class EventServiceImpl implements EventService {
     private final EventDAO eventDAO;
     private final JwtService jwtService;
     private final UserService userService;
+    private final CategoryService categoryService;
 
     @Override
     public List<Event> findAll() {
@@ -41,13 +44,28 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event save(String bearerToken, Event newEvent) {
+    public Event save(String bearerToken, NewEventDTO newEventDTO) throws BadRequestException {
         User currentUser = getCurrentUser(bearerToken);
         checkTokenValidity(jwtService.extractJwt(bearerToken), currentUser);
 
-        newEvent.setHost(currentUser);
+        Category category = categoryService.findByName(newEventDTO.getCategory().toLowerCase());
+        if (category == null) {
+            throw new BadRequestException("Category not found. You may wanna use 'other'");
+        }
+
+
+        Event newEvent = Event.builder()
+                              .title(newEventDTO.getTitle())
+                              .city(newEventDTO.getCity())
+                              .venue(newEventDTO.getVenue())
+                              .category(category)
+                              .dateTime(newEventDTO.getDateTime())
+                              .host(currentUser)
+                              .description(newEventDTO.getDescription())
+                              .build();
         newEvent.addAttendee(currentUser);
         eventDAO.save(newEvent);
+        System.out.println(category.getEvents());
 
         return newEvent;
     }

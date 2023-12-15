@@ -1,5 +1,6 @@
 package com.hangoutz.app.service;
 
+import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.model.Event;
 import org.apache.coyote.BadRequestException;
 
@@ -12,7 +13,7 @@ public interface EventService {
 
     Event findById(String id);
 
-    Event save(String bearerToken, Event event);
+    Event save(String bearerToken, NewEventDTO newEventDTO) throws BadRequestException;
 
     void delete(String bearerToken, String id);
 
