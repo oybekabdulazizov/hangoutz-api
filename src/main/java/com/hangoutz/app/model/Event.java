@@ -40,6 +40,15 @@ public class Event {
     @JoinColumn(name = "host_user_id")
     private User host;
 
+    @ManyToOne(
+            cascade = {
+                    CascadeType.MERGE,
+                    CascadeType.DETACH,
+                    CascadeType.PERSIST,
+                    CascadeType.REFRESH})
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
@@ -55,8 +64,8 @@ public class Event {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "category")
-    private String category;
+/*    @Column(name = "category")
+    private String category;*/
 
     @Column(name = "city")
     private String city;
@@ -102,7 +111,7 @@ public class Event {
                 ", title='" + title + '\'' +
                 ", dateTime=" + dateTime +
                 ", description='" + description + '\'' +
-                ", category='" + category + '\'' +
+                ", categoryId='" + category.getId() + '\'' +
                 ", city='" + city + '\'' +
                 ", venue='" + venue + '\'' +
                 ", isCancelled=" + cancelled +
