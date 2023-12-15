@@ -5,10 +5,9 @@ import com.hangoutz.app.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -16,6 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryController {
 
     private final CategoryService categoryService;
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<Category>> findAll() {
+        List<Category> events = categoryService.findAll();
+        HttpStatus httpStatus = events.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        return new ResponseEntity<>(events, httpStatus);
+    }
+
+    @GetMapping("/categories/{id}")
+    public ResponseEntity<Category> findById(@PathVariable String id) {
+        return new ResponseEntity<>(categoryService.findById(id), HttpStatus.OK);
+    }
 
     @PostMapping("/categories")
     public ResponseEntity<Category> create(@RequestBody Category category) {
