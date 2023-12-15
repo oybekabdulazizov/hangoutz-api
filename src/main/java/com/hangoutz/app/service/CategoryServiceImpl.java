@@ -31,8 +31,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public Category findByName(String name) {
+        return categoryDAO.findByName(name);
+    }
+
+    @Override
     public void checkByName(String name) throws BadRequestException {
-        Category categoryFromDb = categoryDAO.findByName(name);
+        Category categoryFromDb = findByName(name);
         if (categoryFromDb != null) {
             throw new BadRequestException("This category already exists");
         }

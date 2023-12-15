@@ -11,6 +11,8 @@ public interface CategoryService {
 
     Category findById(String id);
 
+    Category findByName(String name);
+
     void checkByName(String name) throws BadRequestException;
 
     Category create(Category newCategory) throws BadRequestException;
