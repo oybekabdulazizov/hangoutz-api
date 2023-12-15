@@ -23,8 +23,6 @@ public class EventDTO {
 
     private String description;
 
-    private String category;
-
     private String city;
 
     private String venue;
@@ -32,6 +30,8 @@ public class EventDTO {
     private boolean cancelled;
 
     private AttendeeProfile host;
+
+    private CategoryProfile category;
 
     private List<AttendeeProfile> attendees;
 
@@ -67,4 +67,17 @@ class AttendeeProfile {
     private String lastname;
 
     private String email;
+}
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
+@ToString
+class CategoryProfile {
+
+    private String id;
+
+    private String name;
 }
