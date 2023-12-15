@@ -3,6 +3,7 @@ package com.hangoutz.app.controller;
 import com.hangoutz.app.model.Category;
 import com.hangoutz.app.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class CategoryController {
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<Category> create(@RequestBody Category category) {
+    public ResponseEntity<Category> create(@RequestBody Category category) throws BadRequestException {
         return new ResponseEntity<>(categoryService.create(category), HttpStatus.OK);
     }
 }

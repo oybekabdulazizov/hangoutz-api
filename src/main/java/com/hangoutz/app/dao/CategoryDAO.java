@@ -10,5 +10,7 @@ public interface CategoryDAO {
 
     Category findById(String id);
 
+    Category findByName(String name);
+
     void save(Category category);
 }

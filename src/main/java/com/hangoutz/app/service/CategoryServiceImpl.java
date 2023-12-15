@@ -5,6 +5,7 @@ import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.model.Category;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,7 +32,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public Category create(Category newCategory) {
+    public Category create(Category newCategory) throws BadRequestException {
+        Category categoryFromDb = categoryDAO.findByName(newCategory.getName());
+        if (categoryFromDb != null) {
+            throw new BadRequestException("This category already exists");
+        }
         categoryDAO.save(newCategory);
         return newCategory;
     }

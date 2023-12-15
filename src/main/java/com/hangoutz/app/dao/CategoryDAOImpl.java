@@ -26,6 +26,13 @@ public class CategoryDAOImpl implements CategoryDAO {
     }
 
     @Override
+    public Category findByName(String name) {
+        TypedQuery<Category> query = em.createQuery("from Category where name = :name", Category.class);
+        query.setParameter("name", name.toLowerCase());
+        return query.getResultList().isEmpty() ? null : query.getSingleResult();
+    }
+
+    @Override
     public void save(Category newCategory) {
         em.persist(newCategory);
     }
