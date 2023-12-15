@@ -1,5 +1,7 @@
 package com.hangoutz.app.controller;
 
+import com.hangoutz.app.dto.CategoryFormDTO;
+import com.hangoutz.app.mappers.CategoryMapper;
 import com.hangoutz.app.model.Category;
 import com.hangoutz.app.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final CategoryMapper categoryMapper;
+
 
     @GetMapping("/categories")
     public ResponseEntity<List<Category>> findAll() {
@@ -32,14 +36,17 @@ public class CategoryController {
 
     @PostMapping("/categories")
     @PreAuthorize(value = "hasRole('ADMIN')")
-    public ResponseEntity<Category> create(@RequestBody Category category) throws BadRequestException {
-        return new ResponseEntity<>(categoryService.create(category), HttpStatus.OK);
+    public ResponseEntity<Category> create(@RequestBody CategoryFormDTO categoryFormDTO) throws BadRequestException {
+        Category category = categoryService.create(categoryMapper.formDtoToModel(categoryFormDTO));
+        return new ResponseEntity<>(category, HttpStatus.OK);
     }
 
     @PutMapping("/categories/{id}")
     @PreAuthorize(value = "hasRole('ADMIN')")
-    public ResponseEntity<Category> update(@PathVariable String id, @RequestBody Category category) throws BadRequestException {
-        return new ResponseEntity<>(categoryService.update(id, category), HttpStatus.OK);
+    public ResponseEntity<Category> update(@PathVariable String id, @RequestBody CategoryFormDTO categoryFormDTO)
+            throws BadRequestException {
+        Category updatedCategory = categoryService.update(id, categoryMapper.formDtoToModel(categoryFormDTO));
+        return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
     }
 
     @DeleteMapping("/categories/{id}")
