@@ -53,4 +53,11 @@ public class CategoryServiceImpl implements CategoryService {
         existingCategory.setName(category.getName());
         return categoryDAO.save(existingCategory);
     }
+
+    @Override
+    @Transactional
+    public void delete(String id) {
+        Category category = findById(id);
+        categoryDAO.delete(category);
+    }
 }

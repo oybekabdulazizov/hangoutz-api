@@ -37,4 +37,9 @@ public class CategoryDAOImpl implements CategoryDAO {
         em.persist(newCategory);
         return newCategory;
     }
+
+    @Override
+    public void delete(Category category) {
+        em.remove(category);
+    }
 }

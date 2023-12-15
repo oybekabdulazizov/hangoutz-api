@@ -38,4 +38,10 @@ public class CategoryController {
     public ResponseEntity<Category> update(@PathVariable String id, @RequestBody Category category) throws BadRequestException {
         return new ResponseEntity<>(categoryService.update(id, category), HttpStatus.OK);
     }
+
+    @DeleteMapping("/categories/{id}")
+    public ResponseEntity delete(@PathVariable String id) {
+        categoryService.delete(id);
+        return ResponseEntity.ok().build();
+    }
 }

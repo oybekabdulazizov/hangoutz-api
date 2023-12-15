@@ -16,4 +16,6 @@ public interface CategoryService {
     Category create(Category newCategory) throws BadRequestException;
 
     Category update(String id, Category category) throws BadRequestException;
+
+    void delete(String id);
 }

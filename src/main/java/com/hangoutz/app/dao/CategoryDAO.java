@@ -13,4 +13,6 @@ public interface CategoryDAO {
     Category findByName(String name);
 
     Category save(Category category);
+
+    void delete(Category category);
 }
