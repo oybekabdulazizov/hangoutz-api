@@ -12,5 +12,5 @@ public interface CategoryDAO {
 
     Category findByName(String name);
 
-    void save(Category category);
+    Category save(Category category);
 }

@@ -33,7 +33,8 @@ public class CategoryDAOImpl implements CategoryDAO {
     }
 
     @Override
-    public void save(Category newCategory) {
+    public Category save(Category newCategory) {
         em.persist(newCategory);
+        return newCategory;
     }
 }

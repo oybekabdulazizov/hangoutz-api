@@ -31,13 +31,26 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @Transactional
-    public Category create(Category newCategory) throws BadRequestException {
-        Category categoryFromDb = categoryDAO.findByName(newCategory.getName());
+    public void checkByName(String name) throws BadRequestException {
+        Category categoryFromDb = categoryDAO.findByName(name);
         if (categoryFromDb != null) {
             throw new BadRequestException("This category already exists");
         }
-        categoryDAO.save(newCategory);
-        return newCategory;
+    }
+
+    @Override
+    @Transactional
+    public Category create(Category newCategory) throws BadRequestException {
+        checkByName(newCategory.getName());
+        return categoryDAO.save(newCategory);
+    }
+
+    @Override
+    @Transactional
+    public Category update(String id, Category category) throws BadRequestException {
+        Category existingCategory = findById(id);
+        checkByName(category.getName());
+        existingCategory.setName(category.getName());
+        return categoryDAO.save(existingCategory);
     }
 }

@@ -33,4 +33,9 @@ public class CategoryController {
     public ResponseEntity<Category> create(@RequestBody Category category) throws BadRequestException {
         return new ResponseEntity<>(categoryService.create(category), HttpStatus.OK);
     }
+
+    @PutMapping("/categories/{id}")
+    public ResponseEntity<Category> update(@PathVariable String id, @RequestBody Category category) throws BadRequestException {
+        return new ResponseEntity<>(categoryService.update(id, category), HttpStatus.OK);
+    }
 }
