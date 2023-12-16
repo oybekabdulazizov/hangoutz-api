@@ -1,7 +1,9 @@
 package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.UserDAO;
+import com.hangoutz.app.dto.UserDTO;
 import com.hangoutz.app.exception.NotFoundException;
+import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,40 +25,37 @@ import java.util.Map;
 public class UserServiceImpl implements UserService {
 
     private final UserDAO userDAO;
+    private final UserMapper userMapper;
 
     @Override
-    public List<User> findAll() {
-        return userDAO.findAll();
+    public List<UserDTO> findAll() {
+        List<UserDTO> users = userDAO.findAll().stream()
+                                     .map((user) -> userMapper.toDto(user, new UserDTO())).toList();
+        return users;
     }
 
     @Override
-    public User findById(String id) {
-        User user = userDAO.findById(id);
-        if (user == null) {
-            throw new NotFoundException("User not found");
-        }
-        return user;
+    public UserDTO findById(String id) {
+        User user = checkByIdIfUserExists(id);
+        return userMapper.toDto(user, new UserDTO());
     }
 
     @Override
-    public User findByEmail(String email) {
-        User user = userDAO.findByEmail(email);
-        if (user == null) {
-            throw new NotFoundException("User not found");
-        }
-        return user;
+    public UserDTO findByEmail(String email) {
+        User user = checkByUsernameIfUserExists(email);
+        return userMapper.toDto(user, new UserDTO());
     }
 
     @Override
     @Transactional
     public void delete(String id) {
-        userDAO.delete(findById(id));
+        userDAO.delete(checkByIdIfUserExists(id));
     }
 
     @Override
     @Transactional
-    public User update(String id, Map<Object, Object> updatedFields) {
-        User user = findById(id);
+    public UserDTO update(String id, Map<Object, Object> updatedFields) {
+        User user = checkByIdIfUserExists(id);
         updatedFields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(User.class, (String) key);
             if (field != null && !(key.equals("id") || key.equals("password"))) {
@@ -79,7 +78,7 @@ public class UserServiceImpl implements UserService {
                 }
             }
         });
-        return userDAO.update(user);
+        return userMapper.toDto(userDAO.update(user), new UserDTO());
     }
 
     @Override
@@ -90,5 +89,22 @@ public class UserServiceImpl implements UserService {
                 return userDAO.findByEmail(username);
             }
         };
+    }
+
+
+    private User checkByUsernameIfUserExists(String username) {
+        User user = userDAO.findByEmail(username);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        return user;
+    }
+
+    private User checkByIdIfUserExists(String id) {
+        User user = userDAO.findById(id);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        return user;
     }
 }

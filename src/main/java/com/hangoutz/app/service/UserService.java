@@ -1,6 +1,6 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.model.User;
+import com.hangoutz.app.dto.UserDTO;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -8,15 +8,15 @@ import java.util.Map;
 
 public interface UserService {
 
-    List<User> findAll();
+    List<UserDTO> findAll();
 
-    User findById(String id);
+    UserDTO findById(String id);
 
-    User findByEmail(String email);
+    UserDTO findByEmail(String email);
 
     void delete(String id);
 
-    User update(String id, Map<Object, Object> updatedFields);
+    UserDTO update(String id, Map<Object, Object> updatedFields);
 
     UserDetailsService userDetailsService();
 }

@@ -2,6 +2,7 @@ package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.CategoryDAO;
 import com.hangoutz.app.dao.EventDAO;
+import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.exception.NotFoundException;
@@ -28,7 +29,7 @@ public class EventServiceImpl implements EventService {
 
     private final EventDAO eventDAO;
     private final JwtService jwtService;
-    private final UserService userService;
+    private final UserDAO userDAO;
     private final CategoryDAO categoryDAO;
     private final EventMapper eventMapper;
 
@@ -153,8 +154,16 @@ public class EventServiceImpl implements EventService {
 
     private User getCurrentUser(String bearerToken) {
         String jwt = jwtService.extractJwt(bearerToken);
-        String currentUserUsername = jwtService.extractUsername(jwt);
-        return userService.findByEmail(currentUserUsername);
+        User user = checkByUsernameIfUserExists(jwtService.extractUsername(jwt));
+        return user;
+    }
+
+    private User checkByUsernameIfUserExists(String username) {
+        User user = userDAO.findByEmail(username);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        return user;
     }
 
     private void checkTokenValidity(String jwt, User user) {

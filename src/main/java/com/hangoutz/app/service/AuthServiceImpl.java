@@ -5,6 +5,7 @@ import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
+import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
@@ -60,7 +61,10 @@ public class AuthServiceImpl implements AuthService {
         } catch (InternalAuthenticationServiceException ex) {
             throw new InternalAuthenticationServiceException("Username or password is incorrect");
         }
-        var user = userService.findByEmail(existingUser.getEmail());
+        var user = userDAO.findByEmail(existingUser.getEmail());
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
         String jwt = jwtService.generateToken(user);
         return new JwtAuthResponseDTO(jwt, getExpirationTime(jwt));
     }
