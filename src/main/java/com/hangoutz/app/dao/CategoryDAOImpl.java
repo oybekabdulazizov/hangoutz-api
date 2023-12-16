@@ -39,6 +39,11 @@ public class CategoryDAOImpl implements CategoryDAO {
     }
 
     @Override
+    public Category update(Category category) {
+        return em.merge(category);
+    }
+
+    @Override
     public void delete(Category category) {
         em.remove(category);
     }

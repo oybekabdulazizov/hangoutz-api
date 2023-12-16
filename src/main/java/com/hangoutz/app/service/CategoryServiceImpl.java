@@ -56,7 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
         checkByNameIfCategoryAlreadyExists(updatedCategoryDTO.getName());
         Category existingCategory = checkByIdIfCategoryExists(id);
         existingCategory.setName(updatedCategoryDTO.getName());
-        return categoryMapper.toDto(categoryDAO.save(existingCategory), new CategoryDTO());
+        return categoryMapper.toDto(categoryDAO.update(existingCategory), new CategoryDTO());
     }
 
     @Override
