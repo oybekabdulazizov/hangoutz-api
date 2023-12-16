@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 public class NewEventDTO {
-    
+
     @NotBlank(message = "title is required")
     private String title;
 
@@ -31,7 +31,4 @@ public class NewEventDTO {
 
     @NotBlank(message = "city is required")
     private String city;
-
-    @NotBlank(message = "venue is required")
-    private String venue;
 }

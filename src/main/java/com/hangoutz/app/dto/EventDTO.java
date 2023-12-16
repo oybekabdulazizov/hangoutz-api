@@ -25,8 +25,6 @@ public class EventDTO {
 
     private String city;
 
-    private String venue;
-
     private boolean cancelled;
 
     private AttendeeProfile host;
@@ -44,7 +42,6 @@ public class EventDTO {
                 ", description='" + description + '\'' +
                 ", category='" + category + '\'' +
                 ", city='" + city + '\'' +
-                ", venue='" + venue + '\'' +
                 ", cancelled=" + cancelled +
                 ", host='" + host + '\'' +
                 ", attendees=" + attendees +

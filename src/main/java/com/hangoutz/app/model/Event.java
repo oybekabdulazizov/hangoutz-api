@@ -64,14 +64,8 @@ public class Event {
     @Column(name = "description")
     private String description;
 
-/*    @Column(name = "category")
-    private String category;*/
-
     @Column(name = "city")
     private String city;
-
-    @Column(name = "venue")
-    private String venue;
 
     @Column(name = "cancelled")
     private boolean cancelled;
@@ -113,7 +107,6 @@ public class Event {
                 ", description='" + description + '\'' +
                 ", categoryId='" + category.getId() + '\'' +
                 ", city='" + city + '\'' +
-                ", venue='" + venue + '\'' +
                 ", isCancelled=" + cancelled +
                 ", attendeesCount=" + attendees.size() +
                 ", hostUserId='" + host.getId() + '\'' +
