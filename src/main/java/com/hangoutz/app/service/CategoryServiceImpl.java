@@ -1,6 +1,7 @@
 package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.CategoryDAO;
+import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.model.Category;
 import jakarta.transaction.Transactional;
@@ -15,6 +16,7 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryDAO categoryDAO;
+    private final EventDAO eventDAO;
 
     @Override
     public List<Category> findAll() {
@@ -63,6 +65,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void delete(String id) {
         Category category = findById(id);
+        category.getEvents().forEach((event) -> {
+            event.setCategory(null);
+            eventDAO.update(event);
+        });
+        category.setEvents(null);
         categoryDAO.delete(category);
     }
 }
