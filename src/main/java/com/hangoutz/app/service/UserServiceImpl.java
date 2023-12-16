@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
         User user = findById(id);
         updatedFields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(User.class, (String) key);
-            if (field != null && !key.equals("id")) {
+            if (field != null && !(key.equals("id") || key.equals("password"))) {
                 field.setAccessible(true);
                 if (value == null || value.toString().isBlank()) {
                     throw new IllegalArgumentException(key + " is required");
