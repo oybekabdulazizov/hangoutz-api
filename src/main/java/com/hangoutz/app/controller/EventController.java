@@ -74,7 +74,7 @@ public class EventController {
             @RequestHeader(name = "Authorization") String bearerToken,
             @PathVariable String id,
             @RequestBody Map<Object, Object> updatedFields
-    ) {
+    ) throws BadRequestException {
         Event updatedEvent = eventService.update(bearerToken, id, updatedFields);
         return new ResponseEntity<>(eventMapper.toDto(updatedEvent, new EventDTO()), HttpStatus.OK);
     }

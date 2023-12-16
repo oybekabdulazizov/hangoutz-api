@@ -50,9 +50,7 @@ public class EventServiceImpl implements EventService {
         checkTokenValidity(jwtService.extractJwt(bearerToken), currentUser);
 
         Category category = categoryDAO.findByName(newEventDTO.getCategory().toLowerCase());
-        if (category == null) {
-            throw new BadRequestException("Category not found. You may wanna use 'other'");
-        }
+        checkCategoryExists(category.getName());
 
         Event newEvent = Event.builder()
                               .title(newEventDTO.getTitle())
@@ -98,12 +96,10 @@ public class EventServiceImpl implements EventService {
                     ReflectionUtils.setField(field, event, ldt);
                 } else if (key == "category") {
                     Category category = categoryDAO.findByName(value.toString().toLowerCase());
-                    if (category == null) {
-                        try {
-                            throw new BadRequestException("Category not found. You may wanna use 'other'");
-                        } catch (BadRequestException e) {
-                            throw new RuntimeException(e);
-                        }
+                    try {
+                        checkCategoryExists(category.getName());
+                    } catch (BadRequestException e) {
+                        throw new RuntimeException(e);
                     }
                     ReflectionUtils.setField(field, event, category);
                 } else {
@@ -146,6 +142,12 @@ public class EventServiceImpl implements EventService {
         event.setCancelled(!event.isCancelled());
         eventDAO.save(event);
         return event;
+    }
+
+    private void checkCategoryExists(String name) throws BadRequestException {
+        if (name == null) {
+            throw new BadRequestException("Category not found. You may wanna use 'other'");
+        }
     }
 
     private User getCurrentUser(String bearerToken) {
