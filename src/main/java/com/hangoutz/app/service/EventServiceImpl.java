@@ -45,7 +45,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event save(String bearerToken, NewEventDTO newEventDTO) throws BadRequestException {
+    public Event create(String bearerToken, NewEventDTO newEventDTO) throws BadRequestException {
         User currentUser = getCurrentUser(bearerToken);
         checkTokenValidity(jwtService.extractJwt(bearerToken), currentUser);
 

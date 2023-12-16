@@ -13,7 +13,7 @@ public interface EventService {
 
     Event findById(String id);
 
-    Event save(String bearerToken, NewEventDTO newEventDTO) throws BadRequestException;
+    Event create(String bearerToken, NewEventDTO newEventDTO) throws BadRequestException;
 
     void delete(String bearerToken, String id);
 
