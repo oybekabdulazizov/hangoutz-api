@@ -18,6 +18,7 @@ public class CategoryMapper {
                     mapper.map(src -> src.getHost().getId(), EventDTO::setHostUserId);
                 })*/
                 .map(category, categoryDTO);
+        categoryDTO.setNumberOfEvents(category.getEvents().size());
         return categoryDTO;
     }
 

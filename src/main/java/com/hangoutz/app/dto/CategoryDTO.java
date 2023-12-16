@@ -13,6 +13,8 @@ public class CategoryDTO {
 
     private String name;
 
+    private int numberOfEvents;
+
     @Override
     public String toString() {
         return "CategoryDTO{" +
