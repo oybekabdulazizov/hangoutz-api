@@ -53,7 +53,6 @@ public class EventServiceImpl implements EventService {
             throw new BadRequestException("Category not found. You may wanna use 'other'");
         }
 
-
         Event newEvent = Event.builder()
                               .title(newEventDTO.getTitle())
                               .city(newEventDTO.getCity())
@@ -96,6 +95,16 @@ public class EventServiceImpl implements EventService {
                     DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                     LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
                     ReflectionUtils.setField(field, event, ldt);
+                } else if (key == "category") {
+                    Category category = categoryService.findByName(value.toString().toLowerCase());
+                    if (category == null) {
+                        try {
+                            throw new BadRequestException("Category not found. You may wanna use 'other'");
+                        } catch (BadRequestException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    ReflectionUtils.setField(field, event, category);
                 } else {
                     ReflectionUtils.setField(field, event, value);
                 }
