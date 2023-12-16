@@ -34,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
 
     @Override
+    @Transactional
     public JwtAuthResponseDTO signUp(SignUpRequestDTO newUser) throws BadRequestException {
         if (userDAO.findByEmail(newUser.getEmail()) != null) {
             throw new BadRequestException("User with this email already exists.");
@@ -44,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
 
         user.setPassword(passwordEncoder.encode(newUser.getPassword()));
         user.setRole(role);
-        userService.create(user);
+        userDAO.save(user);
 
         String jwt = jwtService.generateToken(user);
         return new JwtAuthResponseDTO(jwt, getExpirationTime(jwt));

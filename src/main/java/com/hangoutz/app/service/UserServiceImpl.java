@@ -49,12 +49,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public User create(User user) {
-        return userDAO.save(user);
-    }
-
-    @Override
-    @Transactional
     public void delete(String id) {
         userDAO.delete(findById(id));
     }

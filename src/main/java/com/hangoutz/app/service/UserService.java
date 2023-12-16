@@ -14,8 +14,6 @@ public interface UserService {
 
     User findByEmail(String email);
 
-    User create(User user);
-
     void delete(String id);
 
     User update(String id, Map<Object, Object> updatedFields);
