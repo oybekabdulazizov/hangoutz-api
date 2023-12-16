@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         Role role = newUser.getEmail().contains("@hangoutz.com") ? Role.ROLE_ADMIN : Role.ROLE_USER;
-        User user = userMapper.toModel(newUser, new User());
+        User user = userMapper.toModel(newUser);
 
         user.setPassword(passwordEncoder.encode(newUser.getPassword()));
         user.setRole(role);

@@ -11,17 +11,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EventMapper {
 
-    public EventDTO toDto(Event event, EventDTO eventDTO) {
-        new ModelMapper()
-                .typeMap(Event.class, EventDTO.class)
-                /*.addMappings(mapper -> {
-                    mapper.map(src -> src.getHost().getId(), EventDTO::setHostUserId);
-                })*/
-                .map(event, eventDTO);
-        return eventDTO;
+    public EventDTO toDto(Event event) {
+        return new ModelMapper().map(event, EventDTO.class);
     }
 
-    public Event newDtoToModel(NewEventDTO newEventDTO) {
+    public Event toModel(NewEventDTO newEventDTO) {
         return new ModelMapper().map(newEventDTO, Event.class);
     }
 }

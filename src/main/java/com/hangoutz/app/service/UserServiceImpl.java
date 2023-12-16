@@ -30,20 +30,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDTO> findAll() {
         List<UserDTO> users = userDAO.findAll().stream()
-                                     .map((user) -> userMapper.toDto(user, new UserDTO())).toList();
+                                     .map((user) -> userMapper.toDto(user)).toList();
         return users;
     }
 
     @Override
     public UserDTO findById(String id) {
         User user = checkByIdIfUserExists(id);
-        return userMapper.toDto(user, new UserDTO());
+        return userMapper.toDto(user);
     }
 
     @Override
     public UserDTO findByEmail(String email) {
         User user = checkByUsernameIfUserExists(email);
-        return userMapper.toDto(user, new UserDTO());
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
                 }
             }
         });
-        return userMapper.toDto(userDAO.update(user), new UserDTO());
+        return userMapper.toDto(userDAO.update(user));
     }
 
     @Override

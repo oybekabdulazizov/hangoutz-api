@@ -37,14 +37,14 @@ public class EventServiceImpl implements EventService {
     public List<EventDTO> findAll() {
         List<EventDTO> events = eventDAO
                 .findAll().stream()
-                .map((event) -> eventMapper.toDto(event, new EventDTO())).toList();
+                .map((event) -> eventMapper.toDto(event)).toList();
         return events;
     }
 
     @Override
     public EventDTO findById(String id) {
         Event existingCategory = checkByIdIfEventExists(id);
-        return eventMapper.toDto(existingCategory, new EventDTO());
+        return eventMapper.toDto(existingCategory);
     }
 
     @Override
@@ -56,11 +56,11 @@ public class EventServiceImpl implements EventService {
         Category category = checkByNameIfCategoryExists(newEventDTO.getCategory());
         checkByNameIfCategoryExists(category.getName());
 
-        Event newEvent = eventMapper.newDtoToModel(newEventDTO);
+        Event newEvent = eventMapper.toModel(newEventDTO);
         newEvent.setCategory(category);
         newEvent.setHost(currentUser);
         newEvent.addAttendee(currentUser);
-        return eventMapper.toDto(eventDAO.save(newEvent), new EventDTO());
+        return eventMapper.toDto(eventDAO.save(newEvent));
     }
 
     @Override
@@ -101,7 +101,7 @@ public class EventServiceImpl implements EventService {
                 }
             }
         });
-        return eventMapper.toDto(eventDAO.update(event), new EventDTO());
+        return eventMapper.toDto(eventDAO.update(event));
     }
 
     @Override
@@ -123,7 +123,7 @@ public class EventServiceImpl implements EventService {
             event.addAttendee(currentUser);
         }
 
-        return eventMapper.toDto(eventDAO.save(event), new EventDTO());
+        return eventMapper.toDto(eventDAO.save(event));
     }
 
     @Override
@@ -133,7 +133,7 @@ public class EventServiceImpl implements EventService {
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         event.setCancelled(!event.isCancelled());
-        return eventMapper.toDto(eventDAO.save(event), new EventDTO());
+        return eventMapper.toDto(eventDAO.save(event));
     }
 
     private Category checkByNameIfCategoryExists(String name) throws BadRequestException {

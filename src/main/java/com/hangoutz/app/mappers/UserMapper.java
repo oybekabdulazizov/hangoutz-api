@@ -9,17 +9,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-    public UserDTO toDto(User user, UserDTO userDTO) {
+    public UserDTO toDto(User model) {
+        UserDTO dto = new UserDTO();
         new ModelMapper()
                 .typeMap(User.class, UserDTO.class)
-                .map(user, userDTO);
-        return userDTO;
+                .map(model, dto);
+        return dto;
     }
 
-    public User toModel(SignUpRequestDTO newUser, User user) {
+    public User toModel(SignUpRequestDTO dto) {
+        User model = new User();
         new ModelMapper()
                 .typeMap(SignUpRequestDTO.class, User.class)
-                .map(newUser, user);
-        return user;
+                .map(dto, model);
+        return model;
     }
 }

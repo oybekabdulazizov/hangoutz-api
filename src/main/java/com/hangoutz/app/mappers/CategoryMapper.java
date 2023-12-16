@@ -11,18 +11,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CategoryMapper {
 
-    public CategoryDTO toDto(Category category, CategoryDTO categoryDTO) {
-        new ModelMapper()
-                .typeMap(Category.class, CategoryDTO.class)
-                /*.addMappings(mapper -> {
-                    mapper.map(src -> src.getHost().getId(), EventDTO::setHostUserId);
-                })*/
-                .map(category, categoryDTO);
-        categoryDTO.setNumberOfEvents(category.getEvents().size());
-        return categoryDTO;
+    public CategoryDTO toDto(Category category) {
+        CategoryDTO dto = new ModelMapper().map(category, CategoryDTO.class);
+        dto.setNumberOfEvents(category.getEvents().size());
+        return dto;
     }
 
-    public Category formDtoToModel(CategoryFormDTO categoryFormDTO) {
-        return new ModelMapper().map(categoryFormDTO, Category.class);
+    public Category toModel(CategoryFormDTO categoryDto) {
+        return new ModelMapper().map(categoryDto, Category.class);
     }
 }

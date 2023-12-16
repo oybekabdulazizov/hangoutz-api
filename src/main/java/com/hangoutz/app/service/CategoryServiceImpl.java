@@ -26,28 +26,28 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryDTO> findAll() {
         List<CategoryDTO> categories = categoryDAO
                 .findAll().stream()
-                .map((category -> categoryMapper.toDto(category, new CategoryDTO()))).toList();
+                .map((category -> categoryMapper.toDto(category))).toList();
         return categories;
     }
 
     @Override
     public CategoryDTO findById(String id) {
         Category existingCategory = checkByIdIfCategoryExists(id);
-        return categoryMapper.toDto(existingCategory, new CategoryDTO());
+        return categoryMapper.toDto(existingCategory);
     }
 
     @Override
     public CategoryDTO findByName(String name) {
         Category existingCategory = checkByNameIfCategoryExists(name);
-        return categoryMapper.toDto(existingCategory, new CategoryDTO());
+        return categoryMapper.toDto(existingCategory);
     }
 
     @Override
     @Transactional
     public CategoryDTO create(CategoryFormDTO newCategoryDTO) throws BadRequestException {
         checkByNameIfCategoryAlreadyExists(newCategoryDTO.getName());
-        Category newCategory = categoryMapper.formDtoToModel(newCategoryDTO);
-        return categoryMapper.toDto(categoryDAO.save(newCategory), new CategoryDTO());
+        Category newCategory = categoryMapper.toModel(newCategoryDTO);
+        return categoryMapper.toDto(categoryDAO.save(newCategory));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
         checkByNameIfCategoryAlreadyExists(updatedCategoryDTO.getName());
         Category existingCategory = checkByIdIfCategoryExists(id);
         existingCategory.setName(updatedCategoryDTO.getName());
-        return categoryMapper.toDto(categoryDAO.update(existingCategory), new CategoryDTO());
+        return categoryMapper.toDto(categoryDAO.update(existingCategory));
     }
 
     @Override
