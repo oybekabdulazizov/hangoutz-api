@@ -2,8 +2,10 @@ package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.CategoryDAO;
 import com.hangoutz.app.dao.EventDAO;
+import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.exception.NotFoundException;
+import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Category;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.model.User;
@@ -28,59 +30,50 @@ public class EventServiceImpl implements EventService {
     private final JwtService jwtService;
     private final UserService userService;
     private final CategoryDAO categoryDAO;
+    private final EventMapper eventMapper;
 
     @Override
-    public List<Event> findAll() {
-        return eventDAO.findAll();
+    public List<EventDTO> findAll() {
+        List<EventDTO> events = eventDAO
+                .findAll().stream()
+                .map((event) -> eventMapper.toDto(event, new EventDTO())).toList();
+        return events;
     }
 
     @Override
-    public Event findById(String id) {
-        Event event = eventDAO.findById(id);
-        if (event == null) {
-            throw new NotFoundException("Event not found");
-        }
-        return event;
+    public EventDTO findById(String id) {
+        Event existingCategory = checkByIdIfEventExists(id);
+        return eventMapper.toDto(existingCategory, new EventDTO());
     }
 
     @Override
     @Transactional
-    public Event create(String bearerToken, NewEventDTO newEventDTO) throws BadRequestException {
+    public EventDTO create(String bearerToken, NewEventDTO newEventDTO) throws BadRequestException {
         User currentUser = getCurrentUser(bearerToken);
         checkTokenValidity(jwtService.extractJwt(bearerToken), currentUser);
 
-        Category category = categoryDAO.findByName(newEventDTO.getCategory().toLowerCase());
-        checkCategoryExists(category.getName());
+        Category category = checkByNameIfCategoryExists(newEventDTO.getCategory());
+        checkByNameIfCategoryExists(category.getName());
 
-        Event newEvent = Event.builder()
-                              .title(newEventDTO.getTitle())
-                              .city(newEventDTO.getCity())
-                              .venue(newEventDTO.getVenue())
-                              .category(category)
-                              .dateTime(newEventDTO.getDateTime())
-                              .host(currentUser)
-                              .description(newEventDTO.getDescription())
-                              .build();
+        Event newEvent = eventMapper.newDtoToModel(newEventDTO);
+        newEvent.setCategory(category);
+        newEvent.setHost(currentUser);
         newEvent.addAttendee(currentUser);
-        eventDAO.save(newEvent);
-        System.out.println(category.getEvents());
-
-        return newEvent;
+        return eventMapper.toDto(eventDAO.save(newEvent), new EventDTO());
     }
 
     @Override
     @Transactional
     public void delete(String bearerToken, String id) {
-        Event event = findById(id);
+        Event event = checkByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
-
         eventDAO.delete(event);
     }
 
     @Override
     @Transactional
-    public Event update(String bearerToken, String id, Map<Object, Object> updatedFields) {
-        Event event = findById(id);
+    public EventDTO update(String bearerToken, String id, Map<Object, Object> updatedFields) {
+        Event event = checkByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         updatedFields.forEach((key, value) -> {
@@ -97,7 +90,7 @@ public class EventServiceImpl implements EventService {
                 } else if (key == "category") {
                     Category category = categoryDAO.findByName(value.toString().toLowerCase());
                     try {
-                        checkCategoryExists(category.getName());
+                        checkByNameIfCategoryExists(category.getName());
                     } catch (BadRequestException e) {
                         throw new RuntimeException(e);
                     }
@@ -107,14 +100,14 @@ public class EventServiceImpl implements EventService {
                 }
             }
         });
-        return eventDAO.update(event);
+        return eventMapper.toDto(eventDAO.update(event), new EventDTO());
     }
 
     @Override
     @Transactional
-    public Event attend(String bearerToken, String id) throws BadRequestException {
+    public EventDTO attend(String bearerToken, String id) throws BadRequestException {
         User currentUser = getCurrentUser(bearerToken);
-        Event event = findById(id);
+        Event event = checkByIdIfEventExists(id);
 
         // this works like a toggle:
         //  - if user is attending, it cancels the attendance
@@ -129,25 +122,33 @@ public class EventServiceImpl implements EventService {
             event.addAttendee(currentUser);
         }
 
-        eventDAO.save(event);
-        return event;
+        return eventMapper.toDto(eventDAO.save(event), new EventDTO());
     }
 
     @Override
     @Transactional
-    public Event cancel(String bearerToken, String id) {
-        Event event = findById(id);
+    public EventDTO cancel(String bearerToken, String id) {
+        Event event = checkByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         event.setCancelled(!event.isCancelled());
-        eventDAO.save(event);
-        return event;
+        return eventMapper.toDto(eventDAO.save(event), new EventDTO());
     }
 
-    private void checkCategoryExists(String name) throws BadRequestException {
-        if (name == null) {
+    private Category checkByNameIfCategoryExists(String name) throws BadRequestException {
+        Category category = categoryDAO.findByName(name.toLowerCase());
+        if (category == null) {
             throw new BadRequestException("Category not found. You may wanna use 'other'");
         }
+        return category;
+    }
+
+    private Event checkByIdIfEventExists(String id) {
+        Event event = eventDAO.findById(id);
+        if (event == null) {
+            throw new NotFoundException("Event not found");
+        }
+        return event;
     }
 
     private User getCurrentUser(String bearerToken) {

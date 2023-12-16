@@ -26,8 +26,9 @@ public class EventDAOImpl implements EventDAO {
     }
 
     @Override
-    public void save(Event event) {
+    public Event save(Event event) {
         em.persist(event);
+        return event;
     }
 
     @Override

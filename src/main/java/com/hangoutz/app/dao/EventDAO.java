@@ -10,7 +10,7 @@ public interface EventDAO {
 
     Event findById(String id);
 
-    void save(Event event);
+    Event save(Event event);
 
     void delete(Event event);
 

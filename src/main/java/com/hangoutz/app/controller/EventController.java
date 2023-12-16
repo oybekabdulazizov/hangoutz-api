@@ -2,8 +2,6 @@ package com.hangoutz.app.controller;
 
 import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
-import com.hangoutz.app.mappers.EventMapper;
-import com.hangoutz.app.model.Event;
 import com.hangoutz.app.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,22 +19,18 @@ import java.util.Map;
 public class EventController {
 
     private final EventService eventService;
-    private final EventMapper eventMapper;
 
 
     @GetMapping("/events")
     public ResponseEntity<List<EventDTO>> findAll() {
-        List<EventDTO> events = eventService
-                .findAll().stream()
-                .map((event) -> eventMapper.toDto(event, new EventDTO())).toList();
-        HttpStatus httpStatus = events.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
-        return new ResponseEntity<>(events, httpStatus);
+        List<EventDTO> events = eventService.findAll();
+        return events.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(events);
     }
 
 
     @GetMapping("/events/{id}")
     public ResponseEntity<EventDTO> findById(@PathVariable String id) {
-        return new ResponseEntity<>(eventMapper.toDto(eventService.findById(id), new EventDTO()), HttpStatus.OK);
+        return new ResponseEntity<>(eventService.findById(id), HttpStatus.OK);
     }
 
 
@@ -45,8 +39,7 @@ public class EventController {
             @RequestHeader(name = "Authorization") String bearerToken,
             @Valid @RequestBody NewEventDTO newEventDTO
     ) throws BadRequestException {
-        EventDTO event = eventMapper.toDto(eventService.create(bearerToken, newEventDTO), new EventDTO());
-        return new ResponseEntity<>(event, HttpStatus.CREATED);
+        return new ResponseEntity<>(eventService.create(bearerToken, newEventDTO), HttpStatus.CREATED);
     }
 
 
@@ -55,8 +48,7 @@ public class EventController {
             @RequestHeader(name = "Authorization") String bearerToken,
             @PathVariable String id
     ) throws BadRequestException {
-        Event updatedEvent = eventService.attend(bearerToken, id);
-        return new ResponseEntity<>(eventMapper.toDto(updatedEvent, new EventDTO()), HttpStatus.OK);
+        return new ResponseEntity<>(eventService.attend(bearerToken, id), HttpStatus.OK);
     }
 
     @PostMapping("/events/{id}/cancel")
@@ -64,8 +56,7 @@ public class EventController {
             @RequestHeader(name = "Authorization") String bearerToken,
             @PathVariable String id
     ) {
-        Event updatedEvent = eventService.cancel(bearerToken, id);
-        return new ResponseEntity<>(eventMapper.toDto(updatedEvent, new EventDTO()), HttpStatus.OK);
+        return new ResponseEntity<>(eventService.cancel(bearerToken, id), HttpStatus.OK);
     }
 
 
@@ -75,8 +66,7 @@ public class EventController {
             @PathVariable String id,
             @RequestBody Map<Object, Object> updatedFields
     ) throws BadRequestException {
-        Event updatedEvent = eventService.update(bearerToken, id, updatedFields);
-        return new ResponseEntity<>(eventMapper.toDto(updatedEvent, new EventDTO()), HttpStatus.OK);
+        return new ResponseEntity<>(eventService.update(bearerToken, id, updatedFields), HttpStatus.OK);
     }
 
 
