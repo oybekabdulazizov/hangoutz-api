@@ -15,9 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 public class NewEventDTO {
-
-    private String id;
-
+    
     @NotBlank(message = "title is required")
     private String title;
 

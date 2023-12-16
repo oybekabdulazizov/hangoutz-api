@@ -1,5 +1,6 @@
 package com.hangoutz.app.service;
 
+import com.hangoutz.app.dao.CategoryDAO;
 import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.exception.NotFoundException;
@@ -26,7 +27,7 @@ public class EventServiceImpl implements EventService {
     private final EventDAO eventDAO;
     private final JwtService jwtService;
     private final UserService userService;
-    private final CategoryService categoryService;
+    private final CategoryDAO categoryDAO;
 
     @Override
     public List<Event> findAll() {
@@ -48,7 +49,7 @@ public class EventServiceImpl implements EventService {
         User currentUser = getCurrentUser(bearerToken);
         checkTokenValidity(jwtService.extractJwt(bearerToken), currentUser);
 
-        Category category = categoryService.findByName(newEventDTO.getCategory().toLowerCase());
+        Category category = categoryDAO.findByName(newEventDTO.getCategory().toLowerCase());
         if (category == null) {
             throw new BadRequestException("Category not found. You may wanna use 'other'");
         }
@@ -96,7 +97,7 @@ public class EventServiceImpl implements EventService {
                     LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
                     ReflectionUtils.setField(field, event, ldt);
                 } else if (key == "category") {
-                    Category category = categoryService.findByName(value.toString().toLowerCase());
+                    Category category = categoryDAO.findByName(value.toString().toLowerCase());
                     if (category == null) {
                         try {
                             throw new BadRequestException("Category not found. You may wanna use 'other'");
