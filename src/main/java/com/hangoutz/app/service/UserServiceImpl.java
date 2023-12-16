@@ -5,6 +5,7 @@ import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -73,6 +74,12 @@ public class UserServiceImpl implements UserService {
                     DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                     LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
                     ReflectionUtils.setField(field, user, ldt);
+                } else if (userDAO.findByEmail(value.toString()) != null) {
+                    try {
+                        throw new BadRequestException("User with this email already exists.");
+                    } catch (BadRequestException e) {
+                        throw new RuntimeException(e);
+                    }
                 } else {
                     ReflectionUtils.setField(field, user, value);
                 }
