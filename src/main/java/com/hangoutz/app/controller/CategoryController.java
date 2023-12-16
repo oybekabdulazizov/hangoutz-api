@@ -2,8 +2,6 @@ package com.hangoutz.app.controller;
 
 import com.hangoutz.app.dto.CategoryDTO;
 import com.hangoutz.app.dto.CategoryFormDTO;
-import com.hangoutz.app.mappers.CategoryMapper;
-import com.hangoutz.app.model.Category;
 import com.hangoutz.app.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,41 +19,34 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryService categoryService;
-    private final CategoryMapper categoryMapper;
 
 
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryDTO>> findAll() {
-        List<CategoryDTO> categories = categoryService
-                .findAll().stream()
-                .map((category -> categoryMapper.toDto(category, new CategoryDTO()))).toList();
-        HttpStatus httpStatus = categories.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
-        return new ResponseEntity<>(categories, httpStatus);
+        List<CategoryDTO> categories = categoryService.findAll();
+        return categories.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(categories);
     }
 
     @GetMapping("/categories/{id}")
     public ResponseEntity<CategoryDTO> findById(@PathVariable String id) {
-        CategoryDTO category = categoryMapper.toDto(categoryService.findById(id), new CategoryDTO());
-        return new ResponseEntity<>(category, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.findById(id), HttpStatus.OK);
     }
 
     @PostMapping("/categories")
     @PreAuthorize(value = "hasRole('ADMIN')")
-    public ResponseEntity<CategoryDTO> create(@Valid @RequestBody CategoryFormDTO categoryFormDTO)
+    public ResponseEntity<CategoryDTO> create(@Valid @RequestBody CategoryFormDTO newCategoryDTO)
             throws BadRequestException {
-        Category category = categoryService.create(categoryMapper.formDtoToModel(categoryFormDTO));
-        return new ResponseEntity<>(categoryMapper.toDto(category, new CategoryDTO()), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.create(newCategoryDTO), HttpStatus.OK);
     }
 
     @PutMapping("/categories/{id}")
     @PreAuthorize(value = "hasRole('ADMIN')")
     public ResponseEntity<CategoryDTO> update(
             @PathVariable String id,
-            @Valid @RequestBody CategoryFormDTO categoryFormDTO
+            @Valid @RequestBody CategoryFormDTO updatedCategoryDTO
     )
             throws BadRequestException {
-        Category updatedCategory = categoryService.update(id, categoryMapper.formDtoToModel(categoryFormDTO));
-        return new ResponseEntity<>(categoryMapper.toDto(updatedCategory, new CategoryDTO()), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.update(id, updatedCategoryDTO), HttpStatus.OK);
     }
 
     @DeleteMapping("/categories/{id}")

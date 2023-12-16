@@ -1,21 +1,22 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.model.Category;
+import com.hangoutz.app.dto.CategoryDTO;
+import com.hangoutz.app.dto.CategoryFormDTO;
 import org.apache.coyote.BadRequestException;
 
 import java.util.List;
 
 public interface CategoryService {
 
-    List<Category> findAll();
+    List<CategoryDTO> findAll();
 
-    Category findById(String id);
+    CategoryDTO findById(String id);
 
-    Category findByName(String name);
+    CategoryDTO findByName(String name);
 
-    Category create(Category newCategory) throws BadRequestException;
+    CategoryDTO create(CategoryFormDTO newCategoryDTO) throws BadRequestException;
 
-    Category update(String id, Category category) throws BadRequestException;
+    CategoryDTO update(String id, CategoryFormDTO updatedCategoryDTO) throws BadRequestException;
 
     void delete(String id);
 }
