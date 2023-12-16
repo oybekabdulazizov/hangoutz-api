@@ -38,8 +38,9 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void save(User user) {
-        em.persist(user);
+    public User save(User newUser) {
+        em.persist(newUser);
+        return newUser;
     }
 
     @Override

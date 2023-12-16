@@ -38,8 +38,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByEmailAndHandle(String email) {
-        User user = findByEmail(email);
+    public User findByEmail(String email) {
+        User user = userDAO.findByEmail(email);
         if (user == null) {
             throw new NotFoundException("User not found");
         }
@@ -47,14 +47,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userDAO.findByEmail(email);
-    }
-
-    @Override
     @Transactional
-    public void save(User user) {
-        userDAO.save(user);
+    public User create(User user) {
+        return userDAO.save(user);
     }
 
     @Override
@@ -84,12 +79,6 @@ public class UserServiceImpl implements UserService {
             }
         });
         return userDAO.update(user);
-    }
-
-    @Override
-    @Transactional
-    public void update(User user) {
-        userDAO.update(user);
     }
 
     @Override

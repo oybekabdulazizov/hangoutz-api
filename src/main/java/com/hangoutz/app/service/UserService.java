@@ -12,17 +12,13 @@ public interface UserService {
 
     User findById(String id);
 
-    User findByEmailAndHandle(String email);
-
     User findByEmail(String email);
 
-    void save(User user);
+    User create(User user);
 
     void delete(String id);
 
     User update(String id, Map<Object, Object> updatedFields);
-
-    void update(User user);
 
     UserDetailsService userDetailsService();
 }

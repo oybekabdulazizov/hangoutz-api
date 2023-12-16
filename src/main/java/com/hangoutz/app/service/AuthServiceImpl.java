@@ -1,5 +1,6 @@
 package com.hangoutz.app.service;
 
+import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
@@ -7,6 +8,7 @@ import com.hangoutz.app.dto.SignUpRequestDTO;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 public class AuthServiceImpl implements AuthService {
 
     private final UserService userService;
+    private final UserDAO userDAO;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -32,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtAuthResponseDTO signUp(SignUpRequestDTO newUser) throws BadRequestException {
-        if (userService.findByEmail(newUser.getEmail()) != null) {
+        if (userDAO.findByEmail(newUser.getEmail()) != null) {
             throw new BadRequestException("User with this email already exists.");
         }
 
@@ -41,14 +44,10 @@ public class AuthServiceImpl implements AuthService {
 
         user.setPassword(passwordEncoder.encode(newUser.getPassword()));
         user.setRole(role);
-        userService.save(user);
+        userService.create(user);
 
         String jwt = jwtService.generateToken(user);
-        return JwtAuthResponseDTO
-                .builder()
-                .token(jwt)
-                .expiresAt(getExpirationTime(jwt))
-                .build();
+        return new JwtAuthResponseDTO(jwt, getExpirationTime(jwt));
     }
 
     @Override
@@ -60,16 +59,13 @@ public class AuthServiceImpl implements AuthService {
         } catch (InternalAuthenticationServiceException ex) {
             throw new InternalAuthenticationServiceException("Username or password is incorrect");
         }
-        var user = userService.findByEmailAndHandle(existingUser.getEmail());
+        var user = userService.findByEmail(existingUser.getEmail());
         String jwt = jwtService.generateToken(user);
-        return JwtAuthResponseDTO
-                .builder()
-                .token(jwt)
-                .expiresAt(getExpirationTime(jwt))
-                .build();
+        return new JwtAuthResponseDTO(jwt, getExpirationTime(jwt));
     }
 
     @Override
+    @Transactional
     public String resetPassword(String bearerToken, ResetPasswordDTO passwordResetRequest) throws BadRequestException {
         String jwt = jwtService.extractJwt(bearerToken);
         String requesterUsernameFromToken = jwtService.extractUsername(jwt);
@@ -90,7 +86,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         user.setPassword(passwordEncoder.encode(passwordResetRequest.getNewPassword()));
-        userService.update(user);
+        userDAO.update(user);
         return "The password has been reset successfully!";
     }
 
