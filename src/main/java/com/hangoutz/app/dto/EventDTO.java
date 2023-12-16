@@ -31,7 +31,7 @@ public class EventDTO {
 
     private AttendeeProfile host;
 
-    private CategoryProfile category;
+    private SimpleCategoryDTO category;
 
     private List<AttendeeProfile> attendees;
 
@@ -67,17 +67,4 @@ class AttendeeProfile {
     private String lastname;
 
     private String email;
-}
-
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Getter
-@Setter
-@ToString
-class CategoryProfile {
-
-    private String id;
-
-    private String name;
 }
