@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,14 +32,12 @@ public class CategoryController {
     }
 
     @PostMapping("/categories")
-    @PreAuthorize(value = "hasRole('ADMIN')")
     public ResponseEntity<CategoryDTO> create(@Valid @RequestBody CategoryFormDTO newCategoryDTO)
             throws BadRequestException {
         return new ResponseEntity<>(categoryService.create(newCategoryDTO), HttpStatus.OK);
     }
 
     @PutMapping("/categories/{id}")
-    @PreAuthorize(value = "hasRole('ADMIN')")
     public ResponseEntity<CategoryDTO> update(
             @PathVariable String id,
             @Valid @RequestBody CategoryFormDTO updatedCategoryDTO
@@ -50,7 +47,6 @@ public class CategoryController {
     }
 
     @DeleteMapping("/categories/{id}")
-    @PreAuthorize(value = "hasRole('ADMIN')")
     public ResponseEntity delete(@PathVariable String id) {
         categoryService.delete(id);
         return ResponseEntity.ok().build();
