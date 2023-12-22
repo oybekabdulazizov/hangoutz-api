@@ -32,10 +32,11 @@ public class AuthController {
 
 
     @PutMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(
+    public ResponseEntity resetPassword(
             @RequestHeader(name = "Authorization") String bearerToken,
             @Valid @RequestBody ResetPasswordDTO request
     ) {
-        return new ResponseEntity<>(authService.resetPassword(bearerToken, request), HttpStatus.OK);
+        authService.resetPassword(bearerToken, request);
+        return ResponseEntity.ok().build();
     }
 }

@@ -5,7 +5,9 @@ import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
+import com.hangoutz.app.exception.AuthException;
 import com.hangoutz.app.exception.BadRequestException;
+import com.hangoutz.app.exception.ExceptionMessage;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
@@ -13,7 +15,6 @@ import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +27,7 @@ import java.time.format.DateTimeFormatter;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    
+
     private final UserDAO userDAO;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -37,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public JwtAuthResponseDTO signUp(SignUpRequestDTO newUser) {
         if (userDAO.findByEmail(newUser.getEmail()) != null) {
-            throw new BadRequestException("User with this email already exists.");
+            throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
         }
 
         Role role = newUser.getEmail().contains("@hangoutz.com") ? Role.ROLE_ADMIN : Role.ROLE_USER;
@@ -58,11 +59,11 @@ public class AuthServiceImpl implements AuthService {
                     new UsernamePasswordAuthenticationToken(existingUser.getEmail(), existingUser.getPassword())
             );
         } catch (InternalAuthenticationServiceException ex) {
-            throw new InternalAuthenticationServiceException("Username or password is incorrect");
+            throw new AuthException(ExceptionMessage.BAD_CREDENTIALS);
         }
         var user = userDAO.findByEmail(existingUser.getEmail());
         if (user == null) {
-            throw new NotFoundException("User not found");
+            throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
         }
         String jwt = jwtService.generateToken(user);
         return new JwtAuthResponseDTO(jwt, getExpirationTime(jwt));
@@ -70,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String resetPassword(String bearerToken, ResetPasswordDTO passwordResetRequest) {
+    public void resetPassword(String bearerToken, ResetPasswordDTO passwordResetRequest) {
         String jwt = jwtService.extractJwt(bearerToken);
         String requesterUsernameFromToken = jwtService.extractUsername(jwt);
 
@@ -80,18 +81,15 @@ public class AuthServiceImpl implements AuthService {
                 || !user.getUsername().equals(requesterUsernameFromToken)
                 || !passwordEncoder.matches(passwordResetRequest.getOldPassword(), user.getPassword())
         ) {
-            throw new BadCredentialsException("Username or password is incorrect");
+            throw new AuthException(ExceptionMessage.BAD_CREDENTIALS);
         }
-        if (jwtService.isTokenExpired(jwt)) {
-            throw new BadCredentialsException("Invalid token");
-        }
+
         if (!passwordResetRequest.getNewPassword().equals(passwordResetRequest.getConfirmNewPassword())) {
-            throw new BadRequestException("New password and its confirmation must match");
+            throw new BadRequestException(ExceptionMessage.PASSWORDS_MUST_MATCH);
         }
 
         user.setPassword(passwordEncoder.encode(passwordResetRequest.getNewPassword()));
         userDAO.update(user);
-        return "The password has been reset successfully!";
     }
 
     private LocalDateTime getExpirationTime(String token) {

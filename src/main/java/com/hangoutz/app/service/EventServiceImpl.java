@@ -5,7 +5,9 @@ import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
+import com.hangoutz.app.exception.AuthException;
 import com.hangoutz.app.exception.BadRequestException;
+import com.hangoutz.app.exception.ExceptionMessage;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Category;
@@ -13,7 +15,6 @@ import com.hangoutz.app.model.Event;
 import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
@@ -51,7 +52,6 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDTO create(String bearerToken, NewEventDTO newEventDTO) {
         User currentUser = getCurrentUser(bearerToken);
-        checkTokenValidity(jwtService.extractJwt(bearerToken), currentUser);
 
         Category category = checkByNameIfCategoryExists(newEventDTO.getCategory());
         checkByNameIfCategoryExists(category.getName());
@@ -82,7 +82,7 @@ public class EventServiceImpl implements EventService {
             if (field != null && !(key.equals("id") || key.equals("hostUserId"))) {
                 field.setAccessible(true);
                 if (value == null || value.toString().isBlank()) {
-                    throw new IllegalArgumentException(key + " is required");
+                    throw new BadRequestException(key + " is required");
                 }
                 if (key == "dateTime") {
                     DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -90,11 +90,7 @@ public class EventServiceImpl implements EventService {
                     ReflectionUtils.setField(field, event, ldt);
                 } else if (key == "category") {
                     Category category = categoryDAO.findByName(value.toString().toLowerCase());
-                    try {
-                        checkByNameIfCategoryExists(category.getName());
-                    } catch (BadRequestException e) {
-                        throw new RuntimeException(e);
-                    }
+                    checkByNameIfCategoryExists(category.getName());
                     ReflectionUtils.setField(field, event, category);
                 } else {
                     ReflectionUtils.setField(field, event, value);
@@ -110,13 +106,14 @@ public class EventServiceImpl implements EventService {
         User currentUser = getCurrentUser(bearerToken);
         Event event = checkByIdIfEventExists(id);
 
-        // this works like a toggle:
+        // this works like a toggle for attendees:
         //  - if user is attending, it cancels the attendance
         //  - if user is not in the attendees list, they get added into it
-        //  - hosts' are not allowed cancel attendance to an event
+        //
+        //  PS. hosts' are not allowed to cancel attendance to an event
         if (event.getAttendees().contains(currentUser)) {
             if (currentUser.getId().equals(event.getHost().getId())) {
-                throw new BadRequestException("You, as the host, must be present at the event. Cancelling can be an option");
+                throw new BadRequestException(ExceptionMessage.HOST_MUST_BE_PRESENT);
             }
             event.removeAttendee(currentUser);
         } else {
@@ -139,7 +136,7 @@ public class EventServiceImpl implements EventService {
     private Category checkByNameIfCategoryExists(String name) {
         Category category = categoryDAO.findByName(name.toLowerCase());
         if (category == null) {
-            throw new NotFoundException("Category not found");
+            throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
         }
         return category;
     }
@@ -147,7 +144,7 @@ public class EventServiceImpl implements EventService {
     private Event checkByIdIfEventExists(String id) {
         Event event = eventDAO.findById(id);
         if (event == null) {
-            throw new NotFoundException("Event not found");
+            throw new NotFoundException(ExceptionMessage.EVENT_NOT_FOUND);
         }
         return event;
     }
@@ -161,14 +158,14 @@ public class EventServiceImpl implements EventService {
     private User checkByUsernameIfUserExists(String username) {
         User user = userDAO.findByEmail(username);
         if (user == null) {
-            throw new NotFoundException("User not found");
+            throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
         }
         return user;
     }
 
     private void checkTokenValidity(String jwt, User user) {
         if (!jwtService.isTokenValid(jwt, user)) {
-            throw new BadCredentialsException("Invalid token. You are not authorized to perform this operation");
+            throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
         }
     }
 }

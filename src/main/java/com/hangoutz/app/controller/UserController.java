@@ -1,6 +1,7 @@
 package com.hangoutz.app.controller;
 
 import com.hangoutz.app.dto.UserDTO;
+import com.hangoutz.app.exception.BadRequestException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -37,9 +38,8 @@ public class UserController {
 
     @GetMapping("/users/find-by-email")
     public ResponseEntity<UserDTO> findByEmail(@RequestParam String email) {
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Request parameter 'email' cannot be null or blank");
-        }
+        if (email == null || email.isBlank())
+            throw new BadRequestException("Request parameter 'email' cannot be null or blank");
         return new ResponseEntity<>(userService.findByEmail(email), HttpStatus.OK);
     }
 

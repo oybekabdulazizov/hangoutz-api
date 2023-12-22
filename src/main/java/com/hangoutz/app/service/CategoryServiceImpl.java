@@ -5,6 +5,7 @@ import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.dto.CategoryDTO;
 import com.hangoutz.app.dto.CategoryFormDTO;
 import com.hangoutz.app.exception.BadRequestException;
+import com.hangoutz.app.exception.ExceptionMessage;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.CategoryMapper;
 import com.hangoutz.app.model.Category;
@@ -74,14 +75,14 @@ public class CategoryServiceImpl implements CategoryService {
     private void checkByNameIfCategoryAlreadyExists(String name) {
         Category categoryFromDb = categoryDAO.findByName(name);
         if (categoryFromDb != null) {
-            throw new BadRequestException("Category already exists");
+            throw new BadRequestException(ExceptionMessage.CATEGORY_ALREADY_EXISTS);
         }
     }
 
     private Category checkByNameIfCategoryExists(String name) {
         Category existingCategory = categoryDAO.findByName(name);
         if (existingCategory == null) {
-            throw new NotFoundException("Category not found");
+            throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
         }
         return existingCategory;
     }
@@ -89,7 +90,7 @@ public class CategoryServiceImpl implements CategoryService {
     private Category checkByIdIfCategoryExists(String id) {
         Category category = categoryDAO.findById(id);
         if (category == null) {
-            throw new NotFoundException("Category not found");
+            throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
         }
         return category;
     }

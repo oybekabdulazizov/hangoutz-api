@@ -3,6 +3,7 @@ package com.hangoutz.app.service;
 import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.UserDTO;
 import com.hangoutz.app.exception.BadRequestException;
+import com.hangoutz.app.exception.ExceptionMessage;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.User;
@@ -61,14 +62,14 @@ public class UserServiceImpl implements UserService {
             if (field != null && !(key.equals("id") || key.equals("password"))) {
                 field.setAccessible(true);
                 if (value == null || value.toString().isBlank()) {
-                    throw new IllegalArgumentException(key + " is required");
+                    throw new BadRequestException(key + " is required");
                 }
                 if (key == "dateOfBirth") {
                     DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                     LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
                     ReflectionUtils.setField(field, user, ldt);
                 } else if (userDAO.findByEmail(value.toString()) != null) {
-                    throw new BadRequestException("User with this email already exists.");
+                    throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
                 } else {
                     ReflectionUtils.setField(field, user, value);
                 }
@@ -91,7 +92,7 @@ public class UserServiceImpl implements UserService {
     private User checkByUsernameIfUserExists(String username) {
         User user = userDAO.findByEmail(username);
         if (user == null) {
-            throw new NotFoundException("User not found");
+            throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
         }
         return user;
     }
@@ -99,7 +100,7 @@ public class UserServiceImpl implements UserService {
     private User checkByIdIfUserExists(String id) {
         User user = userDAO.findById(id);
         if (user == null) {
-            throw new NotFoundException("User not found");
+            throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
         }
         return user;
     }
