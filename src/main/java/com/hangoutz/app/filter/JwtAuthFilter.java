@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -42,7 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @Nonnull FilterChain filterChain
     ) throws ServletException, IOException {
-        final String bearerToken = request.getHeader("Authorization");
+        final String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String jwt;
         final String userEmail;
 
@@ -52,18 +53,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         jwt = jwtService.extractJwt(bearerToken);
-        if (tokenExpired(response, jwt)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            ExceptionResponseDTO res = ExceptionResponseDTO.builder()
-                                                           .message("Token expired")
-                                                           .status(HttpServletResponse.SC_UNAUTHORIZED)
-                                                           .build();
-            new ObjectMapper().writeValue(response.getOutputStream(), res);
+        Date expirtyDate = getExpiryDate(jwt);
+        if (expirtyDate == null || expirtyDate.before(new Date())) {
+            returnInvalidTokenResponse(response);
+            return;
+        }
+        userEmail = getUsername(jwt);
+        if (userEmail == null) {
+            returnInvalidTokenResponse(response);
             return;
         }
 
-        userEmail = getUsername(response, jwt);
         if (userEmail != null
                 && !userEmail.isBlank()
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -84,27 +84,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean tokenExpired(HttpServletResponse response, String jwt) throws IOException {
-        Date expiryTime = new Date();
+    private Date getExpiryDate(String jwt) {
         try {
             DecodedJWT decodedJWT = JWT.decode(jwt);
-            expiryTime = decodedJWT.getExpiresAt();
+            return decodedJWT.getExpiresAt();
         } catch (JWTDecodeException ex) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Failed to parse your token");
+            return null;
         }
-
-        return expiryTime.before(new Date());
     }
 
-    private String getUsername(HttpServletResponse response, String jwt) throws IOException {
-        String username = "";
+    private String getUsername(String jwt) {
         try {
-            username = jwtService.extractUsername(jwt);
+            return jwtService.extractUsername(jwt);
         } catch (MalformedJwtException ex) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid JWT");
+            return null;
         }
-        return username;
+    }
+
+    private void returnInvalidTokenResponse(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        ExceptionResponseDTO res = ExceptionResponseDTO.builder()
+                                                       .message("Invalid token")
+                                                       .status(HttpServletResponse.SC_UNAUTHORIZED)
+                                                       .build();
+        new ObjectMapper().writeValue(response.getOutputStream(), res);
     }
 }
