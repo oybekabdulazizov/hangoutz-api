@@ -5,13 +5,13 @@ import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
+import com.hangoutz.app.exception.BadRequestException;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public JwtAuthResponseDTO signUp(SignUpRequestDTO newUser) throws BadRequestException {
+    public JwtAuthResponseDTO signUp(SignUpRequestDTO newUser) {
         if (userDAO.findByEmail(newUser.getEmail()) != null) {
             throw new BadRequestException("User with this email already exists.");
         }
@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String resetPassword(String bearerToken, ResetPasswordDTO passwordResetRequest) throws BadRequestException {
+    public String resetPassword(String bearerToken, ResetPasswordDTO passwordResetRequest) {
         String jwt = jwtService.extractJwt(bearerToken);
         String requesterUsernameFromToken = jwtService.extractUsername(jwt);
 

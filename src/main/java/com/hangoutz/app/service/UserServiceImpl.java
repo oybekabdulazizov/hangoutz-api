@@ -2,12 +2,12 @@ package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.UserDTO;
+import com.hangoutz.app.exception.BadRequestException;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -68,11 +68,7 @@ public class UserServiceImpl implements UserService {
                     LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
                     ReflectionUtils.setField(field, user, ldt);
                 } else if (userDAO.findByEmail(value.toString()) != null) {
-                    try {
-                        throw new BadRequestException("User with this email already exists.");
-                    } catch (BadRequestException e) {
-                        throw new RuntimeException(e);
-                    }
+                    throw new BadRequestException("User with this email already exists.");
                 } else {
                     ReflectionUtils.setField(field, user, value);
                 }

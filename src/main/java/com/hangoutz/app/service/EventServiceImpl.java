@@ -5,6 +5,7 @@ import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
+import com.hangoutz.app.exception.BadRequestException;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Category;
@@ -12,7 +13,6 @@ import com.hangoutz.app.model.Event;
 import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
@@ -49,7 +49,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDTO create(String bearerToken, NewEventDTO newEventDTO) throws BadRequestException {
+    public EventDTO create(String bearerToken, NewEventDTO newEventDTO) {
         User currentUser = getCurrentUser(bearerToken);
         checkTokenValidity(jwtService.extractJwt(bearerToken), currentUser);
 
@@ -106,7 +106,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDTO attend(String bearerToken, String id) throws BadRequestException {
+    public EventDTO attend(String bearerToken, String id) {
         User currentUser = getCurrentUser(bearerToken);
         Event event = checkByIdIfEventExists(id);
 
@@ -136,10 +136,10 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toDto(eventDAO.save(event));
     }
 
-    private Category checkByNameIfCategoryExists(String name) throws BadRequestException {
+    private Category checkByNameIfCategoryExists(String name) {
         Category category = categoryDAO.findByName(name.toLowerCase());
         if (category == null) {
-            throw new BadRequestException("Category not found. You may wanna use 'other'");
+            throw new NotFoundException("Category not found");
         }
         return category;
     }

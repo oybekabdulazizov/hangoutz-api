@@ -1,7 +1,6 @@
 package com.hangoutz.app.exception;
 
 import com.hangoutz.app.dto.ExceptionResponseDTO;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

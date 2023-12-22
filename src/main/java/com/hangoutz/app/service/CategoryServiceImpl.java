@@ -4,12 +4,12 @@ import com.hangoutz.app.dao.CategoryDAO;
 import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.dto.CategoryDTO;
 import com.hangoutz.app.dto.CategoryFormDTO;
+import com.hangoutz.app.exception.BadRequestException;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.CategoryMapper;
 import com.hangoutz.app.model.Category;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryDTO create(CategoryFormDTO newCategoryDTO) throws BadRequestException {
+    public CategoryDTO create(CategoryFormDTO newCategoryDTO) {
         checkByNameIfCategoryAlreadyExists(newCategoryDTO.getName());
         Category newCategory = categoryMapper.toModel(newCategoryDTO);
         return categoryMapper.toDto(categoryDAO.save(newCategory));
@@ -52,7 +52,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryDTO update(String id, CategoryFormDTO updatedCategoryDTO) throws BadRequestException {
+    public CategoryDTO update(String id, CategoryFormDTO updatedCategoryDTO) {
         checkByNameIfCategoryAlreadyExists(updatedCategoryDTO.getName());
         Category existingCategory = checkByIdIfCategoryExists(id);
         existingCategory.setName(updatedCategoryDTO.getName());
@@ -71,10 +71,10 @@ public class CategoryServiceImpl implements CategoryService {
         categoryDAO.delete(existingCategory);
     }
 
-    private void checkByNameIfCategoryAlreadyExists(String name) throws BadRequestException {
+    private void checkByNameIfCategoryAlreadyExists(String name) {
         Category categoryFromDb = categoryDAO.findByName(name);
         if (categoryFromDb != null) {
-            throw new BadRequestException("This category already exists");
+            throw new BadRequestException("Category already exists");
         }
     }
 

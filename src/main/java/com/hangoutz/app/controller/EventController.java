@@ -5,7 +5,6 @@ import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +37,7 @@ public class EventController {
     public ResponseEntity<EventDTO> create(
             @RequestHeader(name = "Authorization") String bearerToken,
             @Valid @RequestBody NewEventDTO newEventDTO
-    ) throws BadRequestException {
+    ) {
         return new ResponseEntity<>(eventService.create(bearerToken, newEventDTO), HttpStatus.CREATED);
     }
 
@@ -47,7 +46,7 @@ public class EventController {
     public ResponseEntity<EventDTO> attend(
             @RequestHeader(name = "Authorization") String bearerToken,
             @PathVariable String id
-    ) throws BadRequestException {
+    ) {
         return new ResponseEntity<>(eventService.attend(bearerToken, id), HttpStatus.OK);
     }
 
@@ -65,7 +64,7 @@ public class EventController {
             @RequestHeader(name = "Authorization") String bearerToken,
             @PathVariable String id,
             @RequestBody Map<Object, Object> updatedFields
-    ) throws BadRequestException {
+    ) {
         return new ResponseEntity<>(eventService.update(bearerToken, id, updatedFields), HttpStatus.OK);
     }
 

@@ -7,7 +7,6 @@ import com.hangoutz.app.dto.SignUpRequestDTO;
 import com.hangoutz.app.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,7 @@ public class AuthController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<JwtAuthResponseDTO> singUp(@RequestBody SignUpRequestDTO request) throws BadRequestException {
+    public ResponseEntity<JwtAuthResponseDTO> singUp(@RequestBody SignUpRequestDTO request) {
         return new ResponseEntity<>(authService.signUp(request), HttpStatus.OK);
     }
 
@@ -36,7 +35,7 @@ public class AuthController {
     public ResponseEntity<String> resetPassword(
             @RequestHeader(name = "Authorization") String bearerToken,
             @Valid @RequestBody ResetPasswordDTO request
-    ) throws BadRequestException {
+    ) {
         return new ResponseEntity<>(authService.resetPassword(bearerToken, request), HttpStatus.OK);
     }
 }

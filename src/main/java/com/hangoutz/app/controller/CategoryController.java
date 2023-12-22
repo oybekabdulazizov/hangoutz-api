@@ -5,7 +5,6 @@ import com.hangoutz.app.dto.CategoryFormDTO;
 import com.hangoutz.app.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +31,7 @@ public class CategoryController {
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<CategoryDTO> create(@Valid @RequestBody CategoryFormDTO newCategoryDTO)
-            throws BadRequestException {
+    public ResponseEntity<CategoryDTO> create(@Valid @RequestBody CategoryFormDTO newCategoryDTO) {
         return new ResponseEntity<>(categoryService.create(newCategoryDTO), HttpStatus.OK);
     }
 
@@ -41,8 +39,7 @@ public class CategoryController {
     public ResponseEntity<CategoryDTO> update(
             @PathVariable String id,
             @Valid @RequestBody CategoryFormDTO updatedCategoryDTO
-    )
-            throws BadRequestException {
+    ) {
         return new ResponseEntity<>(categoryService.update(id, updatedCategoryDTO), HttpStatus.OK);
     }
 
