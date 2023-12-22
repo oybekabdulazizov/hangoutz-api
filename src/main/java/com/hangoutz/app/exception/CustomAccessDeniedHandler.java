@@ -1,5 +1,7 @@
 package com.hangoutz.app.exception;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hangoutz.app.dto.ExceptionResponseDTO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,7 +24,10 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             throws IOException, ServletException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getOutputStream()
-                .println("{ \"error\": \"" + accessDeniedException.getMessage() + "\" }");
+        ExceptionResponseDTO res = ExceptionResponseDTO.builder()
+                                                       .message(accessDeniedException.getMessage())
+                                                       .status(HttpServletResponse.SC_UNAUTHORIZED)
+                                                       .build();
+        new ObjectMapper().writeValue(response.getOutputStream(), res);
     }
 }

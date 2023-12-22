@@ -3,9 +3,11 @@ package com.hangoutz.app.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hangoutz.app.dto.ExceptionResponseDTO;
 import com.hangoutz.app.service.JwtService;
 import com.hangoutz.app.service.UserService;
-import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,9 +26,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 @Component
@@ -53,44 +52,59 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         jwt = jwtService.extractJwt(bearerToken);
-
-        try {
-            userEmail = jwtService.extractUsername(jwt);
-            if (userEmail != null
-                    && !userEmail.isBlank()
-                    && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
-
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-                    SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails,
-                                                                    null,
-                                                                    userDetails.getAuthorities());
-
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    securityContext.setAuthentication(authToken);
-                    SecurityContextHolder.setContext(securityContext);
-                }
-            }
-            filterChain.doFilter(request, response);
-        } catch (ExpiredJwtException e) {
-            Date dateTime = new Date();
-            try {
-                DecodedJWT decodedJWT = JWT.decode(jwt);
-                dateTime = decodedJWT.getExpiresAt();
-            } catch (JWTDecodeException ex) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Failed to parse your token");
-            }
-            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            LocalDateTime ldt = dateTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            String ldtString = ldt.format(format);
-            LocalDateTime expiredAt = LocalDateTime.parse(ldtString, format);
-
+        if (tokenExpired(response, jwt)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getOutputStream().println("{ \"error\": \"Your token expired at " + expiredAt + "\" }");
+            ExceptionResponseDTO res = ExceptionResponseDTO.builder()
+                                                           .message("Token expired")
+                                                           .status(HttpServletResponse.SC_UNAUTHORIZED)
+                                                           .build();
+            new ObjectMapper().writeValue(response.getOutputStream(), res);
+            return;
         }
+
+        userEmail = getUsername(response, jwt);
+        if (userEmail != null
+                && !userEmail.isBlank()
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
+
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userDetails,
+                                                                null,
+                                                                userDetails.getAuthorities());
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                securityContext.setAuthentication(authToken);
+                SecurityContextHolder.setContext(securityContext);
+            }
+        }
+        filterChain.doFilter(request, response);
+    }
+
+    private boolean tokenExpired(HttpServletResponse response, String jwt) throws IOException {
+        Date expiryTime = new Date();
+        try {
+            DecodedJWT decodedJWT = JWT.decode(jwt);
+            expiryTime = decodedJWT.getExpiresAt();
+        } catch (JWTDecodeException ex) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Failed to parse your token");
+        }
+
+        return expiryTime.before(new Date());
+    }
+
+    private String getUsername(HttpServletResponse response, String jwt) throws IOException {
+        String username = "";
+        try {
+            username = jwtService.extractUsername(jwt);
+        } catch (MalformedJwtException ex) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid JWT");
+        }
+        return username;
     }
 }

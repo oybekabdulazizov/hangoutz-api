@@ -1,5 +1,6 @@
 package com.hangoutz.app.exception;
 
+import com.hangoutz.app.dto.ExceptionResponseDTO;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,51 +32,45 @@ public class ExceptionHandler {
         return new ResponseEntity<>(errResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
-        Map<String, Object> errors = new HashMap<>();
-        errors.put("title", ex.getMessage());
-        errors.put("status", HttpStatus.BAD_REQUEST.toString());
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            IllegalArgumentException.class,
+            BadRequestException.class
+    })
+    public ResponseEntity<ExceptionResponseDTO> handleIllegalArgumentException(Exception ex) {
+        ExceptionResponseDTO res = ExceptionResponseDTO.builder()
+                                                       .message(ex.getMessage())
+                                                       .status(HttpStatus.BAD_REQUEST.value())
+                                                       .build();
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFoundException(NotFoundException ex) {
-        Map<String, Object> errors = new HashMap<>();
-        errors.put("title", ex.getMessage());
-        errors.put("status", HttpStatus.NOT_FOUND.toString());
-        return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ExceptionResponseDTO> handleNotFoundException(NotFoundException ex) {
+        ExceptionResponseDTO res = ExceptionResponseDTO.builder()
+                                                       .message(ex.getMessage())
+                                                       .status(HttpStatus.NOT_FOUND.value())
+                                                       .build();
+        return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(DateTimeParseException.class)
-    public ResponseEntity<Map<String, Object>> handleDateTimeParseException(DateTimeParseException ex) {
-        Map<String, Object> errors = new HashMap<>();
-        errors.put("title", "Invalid date format. Please use: yyyy-MM-dd HH:mm");
-        errors.put("status", HttpStatus.BAD_REQUEST.toString());
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ExceptionResponseDTO> handleDateTimeParseException(DateTimeParseException ex) {
+        ExceptionResponseDTO res = ExceptionResponseDTO.builder()
+                                                       .message("Invalid date format. Please use: yyyy-MM-dd HH:mm")
+                                                       .status(HttpStatus.BAD_REQUEST.value())
+                                                       .build();
+        return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleBadCredentialsException(BadCredentialsException ex) {
-        Map<String, Object> errors = new HashMap<>();
-        errors.put("title", ex.getMessage());
-        errors.put("status", HttpStatus.UNAUTHORIZED.toString());
-        return new ResponseEntity<>(errors, HttpStatus.UNAUTHORIZED);
-    }
-
-    @org.springframework.web.bind.annotation.ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<Map<String, Object>> handleBadRequestException(BadRequestException ex) {
-        Map<String, Object> errors = new HashMap<>();
-        errors.put("title", ex.getMessage());
-        errors.put("status", HttpStatus.BAD_REQUEST.toString());
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @org.springframework.web.bind.annotation.ExceptionHandler(InternalAuthenticationServiceException.class)
-    public ResponseEntity<Map<String, Object>> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException ex) {
-        Map<String, Object> errors = new HashMap<>();
-        errors.put("title", ex.getMessage());
-        errors.put("status", HttpStatus.FORBIDDEN.toString());
-        return new ResponseEntity<>(errors, HttpStatus.FORBIDDEN);
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            BadCredentialsException.class,
+            InternalAuthenticationServiceException.class
+    })
+    public ResponseEntity<ExceptionResponseDTO> handleAuthException(Exception ex) {
+        ExceptionResponseDTO res = ExceptionResponseDTO.builder()
+                                                       .message(ex.getMessage())
+                                                       .status(HttpStatus.UNAUTHORIZED.value())
+                                                       .build();
+        return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
     }
 }
