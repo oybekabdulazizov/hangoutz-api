@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.ExceptionResponseDTO;
 import com.hangoutz.app.service.JwtService;
 import com.hangoutz.app.service.UserService;
@@ -36,6 +37,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserService userService;
+    private final UserDAO userDAO;
 
     @Override
     protected void doFilterInternal(
@@ -64,10 +66,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (userEmail != null
-                && !userEmail.isBlank()
+        if (!userEmail.isBlank()
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
+//            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
+            UserDetails userDetails = userDAO.findByEmail(userEmail);
+            if (userDetails == null) {
+                returnInvalidTokenResponse(response);
+                return;
+            }
 
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
