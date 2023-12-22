@@ -26,8 +26,7 @@ import java.time.format.DateTimeFormatter;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-
-    private final UserService userService;
+    
     private final UserDAO userDAO;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -76,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
         String requesterUsernameFromToken = jwtService.extractUsername(jwt);
 
         // find the user using the passwordResetRequest properties
-        User user = (User) userService.userDetailsService().loadUserByUsername(passwordResetRequest.getEmail());
+        User user = userDAO.findByEmail(passwordResetRequest.getEmail());
         if (user == null
                 || !user.getUsername().equals(requesterUsernameFromToken)
                 || !passwordEncoder.matches(passwordResetRequest.getOldPassword(), user.getPassword())
