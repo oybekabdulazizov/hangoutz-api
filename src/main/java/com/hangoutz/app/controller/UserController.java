@@ -7,7 +7,6 @@ import com.hangoutz.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -51,7 +50,6 @@ public class UserController {
 
 
     @DeleteMapping("/users/{id}")
-    @PreAuthorize(value = "hasRole('ADMIN')")
     public ResponseEntity delete(@PathVariable String id) {
         userService.delete(id);
         return ResponseEntity.ok().build();

@@ -5,6 +5,7 @@ import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class EventController {
 
     @PostMapping("/events")
     public ResponseEntity<EventDTO> create(
-            @RequestHeader(name = "Authorization") String bearerToken,
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
             @Valid @RequestBody NewEventDTO newEventDTO
     ) {
         return new ResponseEntity<>(eventService.create(bearerToken, newEventDTO), HttpStatus.CREATED);
@@ -44,7 +45,7 @@ public class EventController {
 
     @PostMapping("/events/{id}/attend")
     public ResponseEntity<EventDTO> attend(
-            @RequestHeader(name = "Authorization") String bearerToken,
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
             @PathVariable String id
     ) {
         return new ResponseEntity<>(eventService.attend(bearerToken, id), HttpStatus.OK);
@@ -52,7 +53,7 @@ public class EventController {
 
     @PostMapping("/events/{id}/cancel")
     public ResponseEntity<EventDTO> cancel(
-            @RequestHeader(name = "Authorization") String bearerToken,
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
             @PathVariable String id
     ) {
         return new ResponseEntity<>(eventService.cancel(bearerToken, id), HttpStatus.OK);
@@ -61,7 +62,7 @@ public class EventController {
 
     @PutMapping("/events/{id}")
     public ResponseEntity<EventDTO> update(
-            @RequestHeader(name = "Authorization") String bearerToken,
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
             @PathVariable String id,
             @RequestBody Map<Object, Object> updatedFields
     ) {
@@ -70,8 +71,11 @@ public class EventController {
 
 
     @DeleteMapping("/events/{eventId}")
-    @ResponseStatus(value = HttpStatus.OK)
-    public void delete(@RequestHeader(name = "Authorization") String bearerToken, @PathVariable String eventId) {
+    public ResponseEntity delete(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
+            @PathVariable String eventId
+    ) {
         eventService.delete(bearerToken, eventId);
+        return ResponseEntity.ok().build();
     }
 }
