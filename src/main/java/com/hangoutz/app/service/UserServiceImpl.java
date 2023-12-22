@@ -2,10 +2,12 @@ package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.UserDTO;
+import com.hangoutz.app.exception.AuthException;
 import com.hangoutz.app.exception.BadRequestException;
 import com.hangoutz.app.exception.ExceptionMessage;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
+import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserDAO userDAO;
     private final UserMapper userMapper;
+    private final JwtService jwtService;
 
     @Override
     public List<UserDTO> findAll() {
@@ -49,7 +52,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void delete(String id) {
+    public void delete(String bearerToken, String id) {
+        String currentUserUsername = jwtService.extractUsername(jwtService.extractJwt(bearerToken));
+        User currentUser = checkByUsernameIfUserExists(currentUserUsername);
+        if (currentUser.getRole() != Role.ROLE_ADMIN) {
+            throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
+        }
         userDAO.delete(checkByIdIfUserExists(id));
     }
 

@@ -14,7 +14,7 @@ public interface UserService {
 
     UserDTO findByEmail(String email);
 
-    void delete(String id);
+    void delete(String bearerToken, String id);
 
     UserDTO update(String id, Map<Object, Object> updatedFields);
 
