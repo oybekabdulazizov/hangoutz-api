@@ -45,8 +45,12 @@ public class UserController {
 
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<UserDTO> update(@PathVariable String id, @RequestBody Map<Object, Object> updatedFields) {
-        return new ResponseEntity<>(userService.update(id, updatedFields), HttpStatus.OK);
+    public ResponseEntity<UserDTO> update(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
+            @PathVariable String id,
+            @RequestBody Map<Object, Object> updatedFields
+    ) {
+        return new ResponseEntity<>(userService.update(bearerToken, id, updatedFields), HttpStatus.OK);
     }
 
 

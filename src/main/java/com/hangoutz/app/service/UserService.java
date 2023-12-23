@@ -16,7 +16,7 @@ public interface UserService {
 
     void delete(String bearerToken, String id);
 
-    UserDTO update(String id, Map<Object, Object> updatedFields);
+    UserDTO update(String bearerToken, String id, Map<Object, Object> updatedFields);
 
     UserDetailsService userDetailsService();
 }

@@ -63,11 +63,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO update(String id, Map<Object, Object> updatedFields) {
-        User user = checkByIdIfUserExists(id);
+    public UserDTO update(String bearerToken, String id, Map<Object, Object> updatedFields) {
+        String currentUserUsername = jwtService.extractUsername(jwtService.extractJwt(bearerToken));
+        User currentUser = checkByUsernameIfUserExists(currentUserUsername);
+        User userToBeUpdated = checkByIdIfUserExists(id);
+
+        if (currentUser.getRole() != Role.ROLE_ADMIN && currentUser.getId() != userToBeUpdated.getId()) {
+            throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
+        }
+
         updatedFields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(User.class, (String) key);
-            if (field != null && !(key.equals("id") || key.equals("password"))) {
+            if (field != null && !(key.equals("id") || key.equals("password") || key.equals("role"))) {
                 field.setAccessible(true);
                 if (value == null || value.toString().isBlank()) {
                     throw new BadRequestException(key + " is required");
@@ -75,15 +82,15 @@ public class UserServiceImpl implements UserService {
                 if (key == "dateOfBirth") {
                     DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                     LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
-                    ReflectionUtils.setField(field, user, ldt);
+                    ReflectionUtils.setField(field, userToBeUpdated, ldt);
                 } else if (userDAO.findByEmail(value.toString()) != null) {
                     throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
                 } else {
-                    ReflectionUtils.setField(field, user, value);
+                    ReflectionUtils.setField(field, userToBeUpdated, value);
                 }
             }
         });
-        return userMapper.toDto(userDAO.update(user));
+        return userMapper.toDto(userDAO.update(userToBeUpdated));
     }
 
     @Override
