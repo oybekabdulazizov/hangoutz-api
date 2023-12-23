@@ -9,6 +9,8 @@ public interface ExceptionMessage {
     String CATEGORY_ALREADY_EXISTS = "Category already exists";
     String INVALID_DATE_FORMAT = "Invalid date format. Please use: yyyy-MM-dd HH:mm";
     String HOST_MUST_BE_PRESENT = "You, as the host, must be present at the event. Cancelling can be an option";
+    String INTERNAL_ERROR = "Internal error occurred";
+
 
     /* auth related messages */
     String INVALID_TOKEN = "Invalid token";

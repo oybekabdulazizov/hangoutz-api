@@ -5,10 +5,7 @@ import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
-import com.hangoutz.app.exception.AuthException;
-import com.hangoutz.app.exception.BadRequestException;
-import com.hangoutz.app.exception.ExceptionMessage;
-import com.hangoutz.app.exception.NotFoundException;
+import com.hangoutz.app.exception.*;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
@@ -16,6 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -58,6 +56,8 @@ public class AuthServiceImpl implements AuthService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(existingUser.getEmail(), existingUser.getPassword())
             );
+        } catch (InternalAuthenticationServiceException ex) {
+            throw new InternalServerException(ExceptionMessage.INTERNAL_ERROR);
         } catch (BadCredentialsException ex) {
             throw new AuthException(ExceptionMessage.BAD_CREDENTIALS);
         }

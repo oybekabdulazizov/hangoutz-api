@@ -68,4 +68,15 @@ public class ExceptionHandler {
                                                        .build();
         return new ResponseEntity<>(res, HttpStatus.UNAUTHORIZED);
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            InternalServerException.class,
+    })
+    public ResponseEntity<ExceptionResponseDTO> Handle(InternalServerException ex) {
+        ExceptionResponseDTO res = ExceptionResponseDTO.builder()
+                                                       .message(ex.getMessage())
+                                                       .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                                                       .build();
+        return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
