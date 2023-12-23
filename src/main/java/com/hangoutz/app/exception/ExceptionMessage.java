@@ -10,6 +10,7 @@ public interface ExceptionMessage {
     String INVALID_DATE_FORMAT = "Invalid date format. Please use: yyyy-MM-dd HH:mm";
     String HOST_MUST_BE_PRESENT = "You, as the host, must be present at the event. Cancelling can be an option";
     String INTERNAL_ERROR = "Internal error occurred";
+    String NULL_POINTER_EXCEPTION = "Null pointer exception";
 
 
     /* auth related messages */
