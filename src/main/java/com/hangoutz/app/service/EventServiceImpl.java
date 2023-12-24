@@ -52,14 +52,13 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDTO create(String bearerToken, NewEventDTO newEventDTO) {
         User currentUser = getCurrentUser(bearerToken);
-
         Category category = checkByNameIfCategoryExists(newEventDTO.getCategory());
-        checkByNameIfCategoryExists(category.getName());
-
         Event newEvent = eventMapper.toModel(newEventDTO);
+
         newEvent.setCategory(category);
         newEvent.setHost(currentUser);
         newEvent.addAttendee(currentUser);
+
         return eventMapper.toDto(eventDAO.save(newEvent));
     }
 
@@ -89,8 +88,7 @@ public class EventServiceImpl implements EventService {
                     LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
                     ReflectionUtils.setField(field, event, ldt);
                 } else if (key == "category") {
-                    Category category = categoryDAO.findByName(value.toString().toLowerCase());
-                    checkByNameIfCategoryExists(category.getName());
+                    Category category = checkByNameIfCategoryExists(value.toString().toLowerCase());
                     ReflectionUtils.setField(field, event, category);
                 } else {
                     ReflectionUtils.setField(field, event, value);
@@ -133,19 +131,17 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toDto(eventDAO.save(event));
     }
 
+
     private Category checkByNameIfCategoryExists(String name) {
         Category category = categoryDAO.findByName(name.toLowerCase());
-        if (category == null) {
-            throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
-        }
+        if (category == null) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
+
         return category;
     }
 
     private Event checkByIdIfEventExists(String id) {
         Event event = eventDAO.findById(id);
-        if (event == null) {
-            throw new NotFoundException(ExceptionMessage.EVENT_NOT_FOUND);
-        }
+        if (event == null) throw new NotFoundException(ExceptionMessage.EVENT_NOT_FOUND);
         return event;
     }
 
@@ -157,15 +153,12 @@ public class EventServiceImpl implements EventService {
 
     private User checkByUsernameIfUserExists(String username) {
         User user = userDAO.findByEmail(username);
-        if (user == null) {
-            throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
-        }
+        if (user == null) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
         return user;
     }
 
     private void checkTokenValidity(String jwt, User user) {
-        if (!jwtService.isTokenValid(jwt, user)) {
+        if (!jwtService.isTokenValid(jwt, user))
             throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
-        }
     }
 }
