@@ -16,6 +16,6 @@ public class JwtAuthResponseDTO {
 
     private String token;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime expiresAt;
 }

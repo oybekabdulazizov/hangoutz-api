@@ -18,7 +18,7 @@ public class EventDTO {
 
     private String title;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dateTime;
 
     private String description;

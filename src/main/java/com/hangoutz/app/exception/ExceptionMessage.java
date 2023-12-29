@@ -7,7 +7,7 @@ public interface ExceptionMessage {
     String EVENT_NOT_FOUND = "Event not found";
     String EMAIL_TAKEN = "Email taken";
     String CATEGORY_ALREADY_EXISTS = "Category already exists";
-    String INVALID_DATE_FORMAT = "Invalid date format. Please use: yyyy-MM-dd HH:mm";
+    String INVALID_DATE_FORMAT = "Invalid date format. Please use 'yyyy-MM-ddTHH:mm(:SS)' as 'T' is just a delimiter";
     String HOST_MUST_BE_PRESENT = "You, as the host, must be present at the event. Cancelling can be an option";
     String INTERNAL_ERROR = "Internal error occurred";
     String NULL_POINTER_EXCEPTION = "Null pointer exception";

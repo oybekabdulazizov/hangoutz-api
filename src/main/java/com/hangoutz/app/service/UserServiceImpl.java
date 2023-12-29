@@ -19,7 +19,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -80,9 +79,7 @@ public class UserServiceImpl implements UserService {
                     throw new BadRequestException(key + " is required");
                 }
                 if (key == "dateOfBirth") {
-                    DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                    LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
-                    ReflectionUtils.setField(field, userToBeUpdated, ldt);
+                    ReflectionUtils.setField(field, userToBeUpdated, LocalDateTime.parse(value.toString()));
                 } else if (userDAO.findByEmail(value.toString()) != null) {
                     throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
                 } else {

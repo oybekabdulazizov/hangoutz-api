@@ -19,7 +19,7 @@ public class UserDTO {
 
     private String lastname;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dateOfBirth;
 
     private String email;
@@ -53,7 +53,7 @@ class EventProfile {
 
     private String title;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dateTime;
 
     private String description;

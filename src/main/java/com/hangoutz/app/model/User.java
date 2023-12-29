@@ -55,7 +55,7 @@ public class User implements UserDetails {
     private String lastname;
 
     @Column(name = "date_of_birth")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dateOfBirth;
 
     @Column(name = "email", unique = true)

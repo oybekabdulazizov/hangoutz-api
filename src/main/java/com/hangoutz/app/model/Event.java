@@ -58,7 +58,7 @@ public class Event {
     private String title;
 
     @Column(name = "date_time")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dateTime;
 
     @Column(name = "description")

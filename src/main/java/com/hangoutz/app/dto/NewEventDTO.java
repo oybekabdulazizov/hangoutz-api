@@ -20,7 +20,7 @@ public class NewEventDTO {
     private String title;
 
     @NotNull(message = "date time is required")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dateTime;
 
     @NotBlank(message = "description is required")

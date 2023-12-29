@@ -23,7 +23,7 @@ public class SignUpRequestDTO {
     private String lastname;
 
     @NotNull(message = "date of birth is required")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dateOfBirth;
 
     @NotBlank(message = "email is required")

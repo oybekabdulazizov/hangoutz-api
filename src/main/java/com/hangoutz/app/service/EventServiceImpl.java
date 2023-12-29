@@ -20,7 +20,6 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -84,9 +83,7 @@ public class EventServiceImpl implements EventService {
                     throw new BadRequestException(key + " is required");
                 }
                 if (key == "dateTime") {
-                    DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-                    LocalDateTime ldt = LocalDateTime.parse(value.toString(), dateTimeFormat);
-                    ReflectionUtils.setField(field, event, ldt);
+                    ReflectionUtils.setField(field, event, LocalDateTime.parse(value.toString()));
                 } else if (key == "category") {
                     Category category = checkByNameIfCategoryExists(value.toString().toLowerCase());
                     ReflectionUtils.setField(field, event, category);

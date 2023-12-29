@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -93,11 +92,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private LocalDateTime getExpirationTime(String token) {
-        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime ldt = jwtService.extractExpiration(token).toInstant()
-                                      .atZone(ZoneId.systemDefault()).toLocalDateTime();
-        String ldt_str = ldt.format(dateTimeFormat);
-        LocalDateTime expiresAt = LocalDateTime.parse(ldt_str, dateTimeFormat);
-        return expiresAt;
+        return jwtService.extractExpiration(token).toInstant()
+                         .atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 }
