@@ -1,6 +1,5 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.exception.AuthException;
@@ -12,6 +11,7 @@ import com.hangoutz.app.model.Category;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.model.User;
 import com.hangoutz.app.repository.CategoryRepository;
+import com.hangoutz.app.repository.EventRepository;
 import com.hangoutz.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    private final EventDAO eventDAO;
+    private final EventRepository eventRepository;
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -36,7 +36,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventDTO> findAll() {
-        List<EventDTO> events = eventDAO
+        List<EventDTO> events = eventRepository
                 .findAll().stream()
                 .map((event) -> eventMapper.toDto(event)).toList();
         return events;
@@ -59,7 +59,7 @@ public class EventServiceImpl implements EventService {
         newEvent.setHost(currentUser);
         newEvent.addAttendee(currentUser);
 
-        return eventMapper.toDto(eventDAO.save(newEvent));
+        return eventMapper.toDto(eventRepository.save(newEvent));
     }
 
     @Override
@@ -67,7 +67,7 @@ public class EventServiceImpl implements EventService {
     public void delete(String bearerToken, String id) {
         Event event = checkByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
-        eventDAO.delete(event);
+        eventRepository.delete(event);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class EventServiceImpl implements EventService {
                 }
             }
         });
-        return eventMapper.toDto(eventDAO.update(event));
+        return eventMapper.toDto(eventRepository.save(event));
     }
 
     @Override
@@ -116,7 +116,7 @@ public class EventServiceImpl implements EventService {
             event.addAttendee(currentUser);
         }
 
-        return eventMapper.toDto(eventDAO.save(event));
+        return eventMapper.toDto(eventRepository.save(event));
     }
 
     @Override
@@ -126,7 +126,7 @@ public class EventServiceImpl implements EventService {
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         event.setCancelled(!event.isCancelled());
-        return eventMapper.toDto(eventDAO.save(event));
+        return eventMapper.toDto(eventRepository.save(event));
     }
 
 
@@ -137,9 +137,9 @@ public class EventServiceImpl implements EventService {
     }
 
     private Event checkByIdIfEventExists(String id) {
-        Event event = eventDAO.findById(id);
-        if (event == null) throw new NotFoundException(ExceptionMessage.EVENT_NOT_FOUND);
-        return event;
+        Optional<Event> event = eventRepository.findById(id);
+        if (event.isEmpty()) throw new NotFoundException(ExceptionMessage.EVENT_NOT_FOUND);
+        return event.get();
     }
 
     private User getCurrentUser(String bearerToken) {
