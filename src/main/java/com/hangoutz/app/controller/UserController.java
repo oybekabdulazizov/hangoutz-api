@@ -2,7 +2,6 @@ package com.hangoutz.app.controller;
 
 import com.hangoutz.app.dto.UserDTO;
 import com.hangoutz.app.exception.BadRequestException;
-import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +19,6 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final UserMapper userMapper;
 
 
     @GetMapping("/users")
@@ -55,11 +53,11 @@ public class UserController {
 
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity delete(
+    @ResponseStatus(code = HttpStatus.OK)
+    public void delete(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
             @PathVariable String id
     ) {
         userService.delete(bearerToken, id);
-        return ResponseEntity.ok().build();
     }
 }
