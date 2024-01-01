@@ -1,6 +1,5 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.UserDTO;
 import com.hangoutz.app.exception.AuthException;
 import com.hangoutz.app.exception.BadRequestException;
@@ -9,6 +8,7 @@ import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
+import com.hangoutz.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,19 +21,20 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserDAO userDAO;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final JwtService jwtService;
 
     @Override
     public List<UserDTO> findAll() {
-        List<UserDTO> users = userDAO.findAll().stream()
-                                     .map((user) -> userMapper.toDto(user)).toList();
+        List<UserDTO> users = userRepository.findAll().stream()
+                                            .map((user) -> userMapper.toDto(user)).toList();
         return users;
     }
 
@@ -57,7 +58,7 @@ public class UserServiceImpl implements UserService {
         if (currentUser.getRole() != Role.ROLE_ADMIN) {
             throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
         }
-        userDAO.delete(checkByIdIfUserExists(id));
+        userRepository.delete(checkByIdIfUserExists(id));
     }
 
     @Override
@@ -80,14 +81,14 @@ public class UserServiceImpl implements UserService {
                 }
                 if (key == "dateOfBirth") {
                     ReflectionUtils.setField(field, userToBeUpdated, LocalDateTime.parse(value.toString()));
-                } else if (userDAO.findByEmail(value.toString()) != null) {
+                } else if (userRepository.findByEmail(value.toString()).isPresent()) {
                     throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
                 } else {
                     ReflectionUtils.setField(field, userToBeUpdated, value);
                 }
             }
         });
-        return userMapper.toDto(userDAO.update(userToBeUpdated));
+        return userMapper.toDto(userRepository.save(userToBeUpdated));
     }
 
     @Override
@@ -95,25 +96,21 @@ public class UserServiceImpl implements UserService {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                return userDAO.findByEmail(username);
+                return userRepository.findByEmail(username).orElse(null);
             }
         };
     }
 
 
     private User checkByUsernameIfUserExists(String username) {
-        User user = userDAO.findByEmail(username);
-        if (user == null) {
-            throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
-        }
-        return user;
+        Optional<User> user = userRepository.findByEmail(username);
+        if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
+        return user.get();
     }
 
     private User checkByIdIfUserExists(String id) {
-        User user = userDAO.findById(id);
-        if (user == null) {
-            throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
-        }
-        return user;
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
+        return user.get();
     }
 }

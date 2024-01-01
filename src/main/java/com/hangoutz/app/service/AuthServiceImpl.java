@@ -1,6 +1,5 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
@@ -9,6 +8,7 @@ import com.hangoutz.app.exception.*;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
+import com.hangoutz.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,12 +20,13 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserDAO userDAO;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -34,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public JwtAuthResponseDTO signUp(SignUpRequestDTO newUser) {
-        if (userDAO.findByEmail(newUser.getEmail()) != null) {
+        if (userRepository.findByEmail(newUser.getEmail()).isPresent()) {
             throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
         }
 
@@ -43,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
 
         user.setPassword(passwordEncoder.encode(newUser.getPassword()));
         user.setRole(role);
-        userDAO.save(user);
+        userRepository.save(user);
 
         String jwt = jwtService.generateToken(user);
         return new JwtAuthResponseDTO(jwt, getExpirationTime(jwt));
@@ -60,25 +61,23 @@ public class AuthServiceImpl implements AuthService {
         } catch (BadCredentialsException ex) {
             throw new AuthException(ExceptionMessage.BAD_CREDENTIALS);
         }
-        var user = userDAO.findByEmail(existingUser.getEmail());
-        if (user == null) {
-            throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
-        }
-        String jwt = jwtService.generateToken(user);
+        var user = userRepository.findByEmail(existingUser.getEmail());
+        if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
+        String jwt = jwtService.generateToken(user.get());
         return new JwtAuthResponseDTO(jwt, getExpirationTime(jwt));
     }
 
     @Override
     @Transactional
     public void resetPassword(String bearerToken, ResetPasswordDTO passwordResetRequest) {
-        String jwt = jwtService.extractJwt(bearerToken);
-        String requesterUsernameFromToken = jwtService.extractUsername(jwt);
+//        String jwt = jwtService.extractJwt(bearerToken);
+//        String requesterUsernameFromToken = jwtService.extractUsername(jwt);
 
         // find the user using the passwordResetRequest properties
-        User user = userDAO.findByEmail(passwordResetRequest.getEmail());
-        if (user == null
-                || !user.getUsername().equals(requesterUsernameFromToken)
-                || !passwordEncoder.matches(passwordResetRequest.getOldPassword(), user.getPassword())
+        Optional<User> user = userRepository.findByEmail(passwordResetRequest.getEmail());
+        if (user.isEmpty()
+//                || !user.getUsername().equals(requesterUsernameFromToken)
+                || !passwordEncoder.matches(passwordResetRequest.getOldPassword(), user.get().getPassword())
         ) {
             throw new AuthException(ExceptionMessage.BAD_CREDENTIALS);
         }
@@ -87,8 +86,8 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException(ExceptionMessage.PASSWORDS_MUST_MATCH);
         }
 
-        user.setPassword(passwordEncoder.encode(passwordResetRequest.getNewPassword()));
-        userDAO.update(user);
+        user.get().setPassword(passwordEncoder.encode(passwordResetRequest.getNewPassword()));
+        userRepository.save(user.get());
     }
 
     private LocalDateTime getExpirationTime(String token) {

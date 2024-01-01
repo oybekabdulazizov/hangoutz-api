@@ -2,7 +2,6 @@ package com.hangoutz.app.service;
 
 import com.hangoutz.app.dao.CategoryDAO;
 import com.hangoutz.app.dao.EventDAO;
-import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.exception.AuthException;
@@ -13,6 +12,7 @@ import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Category;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.model.User;
+import com.hangoutz.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,14 +22,15 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
     private final EventDAO eventDAO;
     private final JwtService jwtService;
-    private final UserDAO userDAO;
+    private final UserRepository userRepository;
     private final CategoryDAO categoryDAO;
     private final EventMapper eventMapper;
 
@@ -149,9 +150,9 @@ public class EventServiceImpl implements EventService {
     }
 
     private User checkByUsernameIfUserExists(String username) {
-        User user = userDAO.findByEmail(username);
-        if (user == null) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
-        return user;
+        Optional<User> user = userRepository.findByEmail(username);
+        if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
+        return user.get();
     }
 
     private void checkTokenValidity(String jwt, User user) {
