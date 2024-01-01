@@ -1,97 +1,92 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.dao.CategoryDAO;
-import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.dto.CategoryDTO;
-import com.hangoutz.app.dto.CategoryFormDTO;
+import com.hangoutz.app.dto.NewCategoryDTO;
 import com.hangoutz.app.exception.BadRequestException;
 import com.hangoutz.app.exception.ExceptionMessage;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.CategoryMapper;
 import com.hangoutz.app.model.Category;
+import com.hangoutz.app.repository.CategoryRepository;
+import com.hangoutz.app.repository.EventRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
-    private final CategoryDAO categoryDAO;
+    private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-    private final EventDAO eventDAO;
+    private final EventRepository eventRepository;
 
     @Override
     public List<CategoryDTO> findAll() {
-        List<CategoryDTO> categories = categoryDAO
-                .findAll().stream()
-                .map((category -> categoryMapper.toDto(category))).toList();
-        return categories;
+        return categoryRepository.findAll().stream().map(categoryMapper::toDto).toList();
     }
 
     @Override
     public CategoryDTO findById(String id) {
-        Category existingCategory = checkByIdIfCategoryExists(id);
-        return categoryMapper.toDto(existingCategory);
+        return categoryMapper.toDto(getByIdIfCategoryExists(id));
     }
 
     @Override
     public CategoryDTO findByName(String name) {
-        Category existingCategory = checkByNameIfCategoryExists(name);
-        return categoryMapper.toDto(existingCategory);
+        return categoryMapper.toDto(getByNameIfCategoryExists(name));
     }
 
     @Override
     @Transactional
-    public CategoryDTO create(CategoryFormDTO newCategoryDTO) {
+    public CategoryDTO create(NewCategoryDTO newCategoryDTO) {
         checkByNameIfCategoryAlreadyExists(newCategoryDTO.getName());
         Category newCategory = categoryMapper.toModel(newCategoryDTO);
-        return categoryMapper.toDto(categoryDAO.save(newCategory));
+        return categoryMapper.toDto(categoryRepository.save(newCategory));
     }
 
     @Override
     @Transactional
-    public CategoryDTO update(String id, CategoryFormDTO updatedCategoryDTO) {
-        checkByNameIfCategoryAlreadyExists(updatedCategoryDTO.getName());
-        Category existingCategory = checkByIdIfCategoryExists(id);
-        existingCategory.setName(updatedCategoryDTO.getName());
-        return categoryMapper.toDto(categoryDAO.update(existingCategory));
+    public CategoryDTO update(String id, Map<String, String> updatedFields) {
+        Category categoryToBeUpdated = getByIdIfCategoryExists(id);
+        String categoryName = updatedFields.get("name");
+        if (categoryName != null && !categoryName.isBlank()) {
+            checkByNameIfCategoryAlreadyExists(categoryName);
+            categoryToBeUpdated.setName(categoryName);
+            categoryRepository.save(categoryToBeUpdated);
+        }
+        return categoryMapper.toDto(categoryToBeUpdated);
     }
 
     @Override
     @Transactional
     public void delete(String id) {
-        Category existingCategory = checkByIdIfCategoryExists(id);
+        Category existingCategory = getByIdIfCategoryExists(id);
         existingCategory.getEvents().forEach((event) -> {
             event.setCategory(null);
-            eventDAO.update(event);
+            eventRepository.save(event);
         });
         existingCategory.setEvents(null);
-        categoryDAO.delete(existingCategory);
+        categoryRepository.delete(existingCategory);
     }
 
     private void checkByNameIfCategoryAlreadyExists(String name) {
-        Category categoryFromDb = categoryDAO.findByName(name);
-        if (categoryFromDb != null) {
-            throw new BadRequestException(ExceptionMessage.CATEGORY_ALREADY_EXISTS);
-        }
+        Optional<Category> categoryFromDb = categoryRepository.findByName(name);
+        if (categoryFromDb.isPresent()) throw new BadRequestException(ExceptionMessage.CATEGORY_ALREADY_EXISTS);
     }
 
-    private Category checkByNameIfCategoryExists(String name) {
-        Category existingCategory = categoryDAO.findByName(name);
-        if (existingCategory == null) {
-            throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
-        }
-        return existingCategory;
+    private Category getByNameIfCategoryExists(String name) {
+        Optional<Category> existingCategory = categoryRepository.findByName(name);
+        if (existingCategory.isEmpty()) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
+        return existingCategory.get();
     }
 
-    private Category checkByIdIfCategoryExists(String id) {
-        Category category = categoryDAO.findById(id);
-        if (category == null) {
-            throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
-        }
-        return category;
+    private Category getByIdIfCategoryExists(String id) {
+        Optional<Category> category = categoryRepository.findById(id);
+        if (category.isEmpty()) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
+        return category.get();
     }
 }

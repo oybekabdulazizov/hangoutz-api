@@ -1,8 +1,5 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.dao.CategoryDAO;
-import com.hangoutz.app.dao.EventDAO;
-import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
 import com.hangoutz.app.exception.AuthException;
@@ -13,6 +10,9 @@ import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Category;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.model.User;
+import com.hangoutz.app.repository.CategoryRepository;
+import com.hangoutz.app.repository.EventRepository;
+import com.hangoutz.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,57 +22,54 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    private final EventDAO eventDAO;
+    private final EventRepository eventRepository;
     private final JwtService jwtService;
-    private final UserDAO userDAO;
-    private final CategoryDAO categoryDAO;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
 
     @Override
     public List<EventDTO> findAll() {
-        List<EventDTO> events = eventDAO
-                .findAll().stream()
-                .map((event) -> eventMapper.toDto(event)).toList();
-        return events;
+        return eventRepository.findAll().stream().map(eventMapper::toDto).toList();
     }
 
     @Override
     public EventDTO findById(String id) {
-        Event existingCategory = checkByIdIfEventExists(id);
-        return eventMapper.toDto(existingCategory);
+        return eventMapper.toDto(getByIdIfEventExists(id));
     }
 
     @Override
     @Transactional
     public EventDTO create(String bearerToken, NewEventDTO newEventDTO) {
         User currentUser = getCurrentUser(bearerToken);
-        Category category = checkByNameIfCategoryExists(newEventDTO.getCategory());
+        Category category = getByNameIfCategoryExists(newEventDTO.getCategory());
         Event newEvent = eventMapper.toModel(newEventDTO);
 
         newEvent.setCategory(category);
         newEvent.setHost(currentUser);
         newEvent.addAttendee(currentUser);
 
-        return eventMapper.toDto(eventDAO.save(newEvent));
+        return eventMapper.toDto(eventRepository.save(newEvent));
     }
 
     @Override
     @Transactional
     public void delete(String bearerToken, String id) {
-        Event event = checkByIdIfEventExists(id);
+        Event event = getByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
-        eventDAO.delete(event);
+        eventRepository.delete(event);
     }
 
     @Override
     @Transactional
     public EventDTO update(String bearerToken, String id, Map<Object, Object> updatedFields) {
-        Event event = checkByIdIfEventExists(id);
+        Event event = getByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         updatedFields.forEach((key, value) -> {
@@ -85,21 +82,21 @@ public class EventServiceImpl implements EventService {
                 if (key == "dateTime") {
                     ReflectionUtils.setField(field, event, LocalDateTime.parse(value.toString()));
                 } else if (key == "category") {
-                    Category category = checkByNameIfCategoryExists(value.toString().toLowerCase());
+                    Category category = getByNameIfCategoryExists(value.toString().toLowerCase());
                     ReflectionUtils.setField(field, event, category);
                 } else {
                     ReflectionUtils.setField(field, event, value);
                 }
             }
         });
-        return eventMapper.toDto(eventDAO.update(event));
+        return eventMapper.toDto(eventRepository.save(event));
     }
 
     @Override
     @Transactional
     public EventDTO attend(String bearerToken, String id) {
         User currentUser = getCurrentUser(bearerToken);
-        Event event = checkByIdIfEventExists(id);
+        Event event = getByIdIfEventExists(id);
 
         // this works like a toggle for attendees:
         //  - if user is attending, it cancels the attendance
@@ -115,43 +112,41 @@ public class EventServiceImpl implements EventService {
             event.addAttendee(currentUser);
         }
 
-        return eventMapper.toDto(eventDAO.save(event));
+        return eventMapper.toDto(eventRepository.save(event));
     }
 
     @Override
     @Transactional
     public EventDTO cancel(String bearerToken, String id) {
-        Event event = checkByIdIfEventExists(id);
+        Event event = getByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         event.setCancelled(!event.isCancelled());
-        return eventMapper.toDto(eventDAO.save(event));
+        return eventMapper.toDto(eventRepository.save(event));
     }
 
 
-    private Category checkByNameIfCategoryExists(String name) {
-        Category category = categoryDAO.findByName(name.toLowerCase());
-        if (category == null) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
-
-        return category;
+    private Category getByNameIfCategoryExists(String name) {
+        Optional<Category> category = categoryRepository.findByName(name.toLowerCase());
+        if (category.isEmpty()) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
+        return category.get();
     }
 
-    private Event checkByIdIfEventExists(String id) {
-        Event event = eventDAO.findById(id);
-        if (event == null) throw new NotFoundException(ExceptionMessage.EVENT_NOT_FOUND);
-        return event;
+    private Event getByIdIfEventExists(String id) {
+        Optional<Event> event = eventRepository.findById(id);
+        if (event.isEmpty()) throw new NotFoundException(ExceptionMessage.EVENT_NOT_FOUND);
+        return event.get();
     }
 
     private User getCurrentUser(String bearerToken) {
         String jwt = jwtService.extractJwt(bearerToken);
-        User user = checkByUsernameIfUserExists(jwtService.extractUsername(jwt));
-        return user;
+        return checkByUsernameIfUserExists(jwtService.extractUsername(jwt));
     }
 
     private User checkByUsernameIfUserExists(String username) {
-        User user = userDAO.findByEmail(username);
-        if (user == null) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
-        return user;
+        Optional<User> user = userRepository.findByEmail(username);
+        if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
+        return user.get();
     }
 
     private void checkTokenValidity(String jwt, User user) {

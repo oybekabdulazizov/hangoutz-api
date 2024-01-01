@@ -71,11 +71,11 @@ public class EventController {
 
 
     @DeleteMapping("/events/{eventId}")
-    public ResponseEntity delete(
+    @ResponseStatus(code = HttpStatus.OK)
+    public void delete(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
             @PathVariable String eventId
     ) {
         eventService.delete(bearerToken, eventId);
-        return ResponseEntity.ok().build();
     }
 }

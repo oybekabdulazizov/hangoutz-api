@@ -7,7 +7,6 @@ import com.hangoutz.app.dto.SignUpRequestDTO;
 import com.hangoutz.app.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,24 +19,21 @@ public class AuthController {
     private final AuthService authService;
 
 
-    @PostMapping("/signup")
-    public ResponseEntity<JwtAuthResponseDTO> singUp(@RequestBody SignUpRequestDTO request) {
+    @PostMapping("/sign-up")
+    public ResponseEntity<JwtAuthResponseDTO> signUp(@Valid @RequestBody SignUpRequestDTO request) {
         return new ResponseEntity<>(authService.signUp(request), HttpStatus.OK);
     }
 
 
-    @PostMapping("/signin")
-    public ResponseEntity<JwtAuthResponseDTO> singIn(@RequestBody SignInRequestDTO request) {
+    @PostMapping("/sign-in")
+    public ResponseEntity<JwtAuthResponseDTO> signIn(@Valid @RequestBody SignInRequestDTO request) {
         return new ResponseEntity<>(authService.signIn(request), HttpStatus.OK);
     }
 
 
-    @PutMapping("/reset-password")
-    public ResponseEntity resetPassword(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
-            @Valid @RequestBody ResetPasswordDTO request
-    ) {
-        authService.resetPassword(bearerToken, request);
-        return ResponseEntity.ok().build();
+    @PostMapping("/reset-password")
+    @ResponseStatus(code = HttpStatus.OK)
+    public void resetPassword(@Valid @RequestBody ResetPasswordDTO request) {
+        authService.resetPassword(request);
     }
 }

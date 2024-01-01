@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class CategoryFormDTO {
+public class NewCategoryDTO {
 
     @NotBlank(message = "category name is required")
     private String name;

@@ -1,6 +1,5 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.dao.UserDAO;
 import com.hangoutz.app.dto.UserDTO;
 import com.hangoutz.app.exception.AuthException;
 import com.hangoutz.app.exception.BadRequestException;
@@ -9,6 +8,7 @@ import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
+import com.hangoutz.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,53 +21,45 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserDAO userDAO;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final JwtService jwtService;
 
     @Override
     public List<UserDTO> findAll() {
-        List<UserDTO> users = userDAO.findAll().stream()
-                                     .map((user) -> userMapper.toDto(user)).toList();
-        return users;
+        return userRepository.findAll().stream().map(userMapper::toDto).toList();
     }
 
     @Override
     public UserDTO findById(String id) {
-        User user = checkByIdIfUserExists(id);
-        return userMapper.toDto(user);
+        return userMapper.toDto(getByIdIfUserExists(id));
     }
 
     @Override
     public UserDTO findByEmail(String email) {
-        User user = checkByUsernameIfUserExists(email);
-        return userMapper.toDto(user);
+        return userMapper.toDto(getByUsernameIfUserExists(email));
     }
 
     @Override
     @Transactional
-    public void delete(String bearerToken, String id) {
-        String currentUserUsername = jwtService.extractUsername(jwtService.extractJwt(bearerToken));
-        User currentUser = checkByUsernameIfUserExists(currentUserUsername);
-        if (currentUser.getRole() != Role.ROLE_ADMIN) {
-            throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
-        }
-        userDAO.delete(checkByIdIfUserExists(id));
+    public void delete(String id) {
+        userRepository.delete(getByIdIfUserExists(id));
     }
 
     @Override
     @Transactional
     public UserDTO update(String bearerToken, String id, Map<Object, Object> updatedFields) {
         String currentUserUsername = jwtService.extractUsername(jwtService.extractJwt(bearerToken));
-        User currentUser = checkByUsernameIfUserExists(currentUserUsername);
-        User userToBeUpdated = checkByIdIfUserExists(id);
+        User currentUser = getByUsernameIfUserExists(currentUserUsername);
+        User userToBeUpdated = getByIdIfUserExists(id);
 
-        if (currentUser.getRole() != Role.ROLE_ADMIN && currentUser.getId() != userToBeUpdated.getId()) {
+        if (currentUser.getRole() != Role.ROLE_ADMIN && !currentUser.getId().equals(userToBeUpdated.getId())) {
             throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
         }
 
@@ -80,14 +72,14 @@ public class UserServiceImpl implements UserService {
                 }
                 if (key == "dateOfBirth") {
                     ReflectionUtils.setField(field, userToBeUpdated, LocalDateTime.parse(value.toString()));
-                } else if (userDAO.findByEmail(value.toString()) != null) {
+                } else if (userRepository.findByEmail(value.toString()).isPresent()) {
                     throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
                 } else {
                     ReflectionUtils.setField(field, userToBeUpdated, value);
                 }
             }
         });
-        return userMapper.toDto(userDAO.update(userToBeUpdated));
+        return userMapper.toDto(userRepository.save(userToBeUpdated));
     }
 
     @Override
@@ -95,25 +87,21 @@ public class UserServiceImpl implements UserService {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                return userDAO.findByEmail(username);
+                return userRepository.findByEmail(username).orElse(null);
             }
         };
     }
 
 
-    private User checkByUsernameIfUserExists(String username) {
-        User user = userDAO.findByEmail(username);
-        if (user == null) {
-            throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
-        }
-        return user;
+    private User getByUsernameIfUserExists(String username) {
+        Optional<User> user = userRepository.findByEmail(username);
+        if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
+        return user.get();
     }
 
-    private User checkByIdIfUserExists(String id) {
-        User user = userDAO.findById(id);
-        if (user == null) {
-            throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
-        }
-        return user;
+    private User getByIdIfUserExists(String id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
+        return user.get();
     }
 }
