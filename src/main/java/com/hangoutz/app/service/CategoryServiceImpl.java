@@ -26,22 +26,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDTO> findAll() {
-        List<CategoryDTO> categories = categoryRepository
-                .findAll().stream()
-                .map((category -> categoryMapper.toDto(category))).toList();
-        return categories;
+        return categoryRepository.findAll().stream().map(categoryMapper::toDto).toList();
     }
 
     @Override
     public CategoryDTO findById(String id) {
-        Category existingCategory = checkByIdIfCategoryExists(id);
-        return categoryMapper.toDto(existingCategory);
+        return categoryMapper.toDto(getByIdIfCategoryExists(id));
     }
 
     @Override
     public CategoryDTO findByName(String name) {
-        Category existingCategory = checkByNameIfCategoryExists(name);
-        return categoryMapper.toDto(existingCategory);
+        return categoryMapper.toDto(getByNameIfCategoryExists(name));
     }
 
     @Override
@@ -56,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDTO update(String id, CategoryFormDTO updatedCategoryDTO) {
         checkByNameIfCategoryAlreadyExists(updatedCategoryDTO.getName());
-        Category existingCategory = checkByIdIfCategoryExists(id);
+        Category existingCategory = getByIdIfCategoryExists(id);
         existingCategory.setName(updatedCategoryDTO.getName());
         return categoryMapper.toDto(categoryRepository.save(existingCategory));
     }
@@ -64,7 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void delete(String id) {
-        Category existingCategory = checkByIdIfCategoryExists(id);
+        Category existingCategory = getByIdIfCategoryExists(id);
         existingCategory.getEvents().forEach((event) -> {
             event.setCategory(null);
             eventRepository.save(event);
@@ -78,13 +73,13 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryFromDb.isPresent()) throw new BadRequestException(ExceptionMessage.CATEGORY_ALREADY_EXISTS);
     }
 
-    private Category checkByNameIfCategoryExists(String name) {
+    private Category getByNameIfCategoryExists(String name) {
         Optional<Category> existingCategory = categoryRepository.findByName(name);
         if (existingCategory.isEmpty()) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
         return existingCategory.get();
     }
 
-    private Category checkByIdIfCategoryExists(String id) {
+    private Category getByIdIfCategoryExists(String id) {
         Optional<Category> category = categoryRepository.findById(id);
         if (category.isEmpty()) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
         return category.get();

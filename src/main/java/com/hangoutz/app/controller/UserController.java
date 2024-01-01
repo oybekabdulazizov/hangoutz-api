@@ -54,10 +54,7 @@ public class UserController {
 
     @DeleteMapping("/users/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public void delete(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
-            @PathVariable String id
-    ) {
-        userService.delete(bearerToken, id);
+    public void delete(@PathVariable String id) {
+        userService.delete(id);
     }
 }

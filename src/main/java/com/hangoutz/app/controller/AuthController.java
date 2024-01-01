@@ -19,14 +19,14 @@ public class AuthController {
     private final AuthService authService;
 
 
-    @PostMapping("/signup")
-    public ResponseEntity<JwtAuthResponseDTO> singUp(@Valid @RequestBody SignUpRequestDTO request) {
+    @PostMapping("/sign-up")
+    public ResponseEntity<JwtAuthResponseDTO> signUp(@Valid @RequestBody SignUpRequestDTO request) {
         return new ResponseEntity<>(authService.signUp(request), HttpStatus.OK);
     }
 
 
-    @PostMapping("/signin")
-    public ResponseEntity<JwtAuthResponseDTO> singIn(@Valid @RequestBody SignInRequestDTO request) {
+    @PostMapping("/sign-in")
+    public ResponseEntity<JwtAuthResponseDTO> signIn(@Valid @RequestBody SignInRequestDTO request) {
         return new ResponseEntity<>(authService.signIn(request), HttpStatus.OK);
     }
 

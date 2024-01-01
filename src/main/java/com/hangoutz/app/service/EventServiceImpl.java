@@ -36,23 +36,19 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventDTO> findAll() {
-        List<EventDTO> events = eventRepository
-                .findAll().stream()
-                .map((event) -> eventMapper.toDto(event)).toList();
-        return events;
+        return eventRepository.findAll().stream().map(eventMapper::toDto).toList();
     }
 
     @Override
     public EventDTO findById(String id) {
-        Event existingCategory = checkByIdIfEventExists(id);
-        return eventMapper.toDto(existingCategory);
+        return eventMapper.toDto(getByIdIfEventExists(id));
     }
 
     @Override
     @Transactional
     public EventDTO create(String bearerToken, NewEventDTO newEventDTO) {
         User currentUser = getCurrentUser(bearerToken);
-        Category category = checkByNameIfCategoryExists(newEventDTO.getCategory());
+        Category category = getByNameIfCategoryExists(newEventDTO.getCategory());
         Event newEvent = eventMapper.toModel(newEventDTO);
 
         newEvent.setCategory(category);
@@ -65,7 +61,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void delete(String bearerToken, String id) {
-        Event event = checkByIdIfEventExists(id);
+        Event event = getByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
         eventRepository.delete(event);
     }
@@ -73,7 +69,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDTO update(String bearerToken, String id, Map<Object, Object> updatedFields) {
-        Event event = checkByIdIfEventExists(id);
+        Event event = getByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         updatedFields.forEach((key, value) -> {
@@ -86,7 +82,7 @@ public class EventServiceImpl implements EventService {
                 if (key == "dateTime") {
                     ReflectionUtils.setField(field, event, LocalDateTime.parse(value.toString()));
                 } else if (key == "category") {
-                    Category category = checkByNameIfCategoryExists(value.toString().toLowerCase());
+                    Category category = getByNameIfCategoryExists(value.toString().toLowerCase());
                     ReflectionUtils.setField(field, event, category);
                 } else {
                     ReflectionUtils.setField(field, event, value);
@@ -100,7 +96,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDTO attend(String bearerToken, String id) {
         User currentUser = getCurrentUser(bearerToken);
-        Event event = checkByIdIfEventExists(id);
+        Event event = getByIdIfEventExists(id);
 
         // this works like a toggle for attendees:
         //  - if user is attending, it cancels the attendance
@@ -122,7 +118,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDTO cancel(String bearerToken, String id) {
-        Event event = checkByIdIfEventExists(id);
+        Event event = getByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         event.setCancelled(!event.isCancelled());
@@ -130,13 +126,13 @@ public class EventServiceImpl implements EventService {
     }
 
 
-    private Category checkByNameIfCategoryExists(String name) {
+    private Category getByNameIfCategoryExists(String name) {
         Optional<Category> category = categoryRepository.findByName(name.toLowerCase());
         if (category.isEmpty()) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
         return category.get();
     }
 
-    private Event checkByIdIfEventExists(String id) {
+    private Event getByIdIfEventExists(String id) {
         Optional<Event> event = eventRepository.findById(id);
         if (event.isEmpty()) throw new NotFoundException(ExceptionMessage.EVENT_NOT_FOUND);
         return event.get();
@@ -144,8 +140,7 @@ public class EventServiceImpl implements EventService {
 
     private User getCurrentUser(String bearerToken) {
         String jwt = jwtService.extractJwt(bearerToken);
-        User user = checkByUsernameIfUserExists(jwtService.extractUsername(jwt));
-        return user;
+        return checkByUsernameIfUserExists(jwtService.extractUsername(jwt));
     }
 
     private User checkByUsernameIfUserExists(String username) {

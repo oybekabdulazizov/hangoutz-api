@@ -33,42 +33,33 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> findAll() {
-        List<UserDTO> users = userRepository.findAll().stream()
-                                            .map((user) -> userMapper.toDto(user)).toList();
-        return users;
+        return userRepository.findAll().stream().map(userMapper::toDto).toList();
     }
 
     @Override
     public UserDTO findById(String id) {
-        User user = checkByIdIfUserExists(id);
-        return userMapper.toDto(user);
+        return userMapper.toDto(getByIdIfUserExists(id));
     }
 
     @Override
     public UserDTO findByEmail(String email) {
-        User user = checkByUsernameIfUserExists(email);
-        return userMapper.toDto(user);
+        return userMapper.toDto(getByUsernameIfUserExists(email));
     }
 
     @Override
     @Transactional
-    public void delete(String bearerToken, String id) {
-        String currentUserUsername = jwtService.extractUsername(jwtService.extractJwt(bearerToken));
-        User currentUser = checkByUsernameIfUserExists(currentUserUsername);
-        if (currentUser.getRole() != Role.ROLE_ADMIN) {
-            throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
-        }
-        userRepository.delete(checkByIdIfUserExists(id));
+    public void delete(String id) {
+        userRepository.delete(getByIdIfUserExists(id));
     }
 
     @Override
     @Transactional
     public UserDTO update(String bearerToken, String id, Map<Object, Object> updatedFields) {
         String currentUserUsername = jwtService.extractUsername(jwtService.extractJwt(bearerToken));
-        User currentUser = checkByUsernameIfUserExists(currentUserUsername);
-        User userToBeUpdated = checkByIdIfUserExists(id);
+        User currentUser = getByUsernameIfUserExists(currentUserUsername);
+        User userToBeUpdated = getByIdIfUserExists(id);
 
-        if (currentUser.getRole() != Role.ROLE_ADMIN && currentUser.getId() != userToBeUpdated.getId()) {
+        if (currentUser.getRole() != Role.ROLE_ADMIN && !currentUser.getId().equals(userToBeUpdated.getId())) {
             throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
         }
 
@@ -102,13 +93,13 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private User checkByUsernameIfUserExists(String username) {
+    private User getByUsernameIfUserExists(String username) {
         Optional<User> user = userRepository.findByEmail(username);
         if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
         return user.get();
     }
 
-    private User checkByIdIfUserExists(String id) {
+    private User getByIdIfUserExists(String id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
         return user.get();
