@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,7 +29,7 @@ public class Event {
             joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> attendees;
+    private Set<User> attendees = new HashSet<>();
 
     @ManyToOne(
             cascade = {
@@ -72,18 +72,13 @@ public class Event {
 
 
     public void addAttendee(User attendee) {
-        if (attendees == null) {
-            attendees = new ArrayList<>();
-        }
-        attendees.add(attendee);
+        if (attendee != null)
+            attendees.add(attendee);
     }
 
     public void removeAttendee(User attendee) {
-        if (attendees == null) {
-            attendees = new ArrayList<>();
-        } else {
+        if (attendee != null)
             attendees.remove(attendee);
-        }
     }
 
 

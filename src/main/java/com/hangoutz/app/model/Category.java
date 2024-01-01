@@ -34,14 +34,16 @@ public class Category {
 
 
     public void addEvent(Event event) {
-        events.add(event);
+        if (event != null)
+            events.add(event);
     }
 
     public void removeEvent(Event event) {
-        events.remove(event);
+        if (event != null)
+            events.remove(event);
     }
 
-    
+
     @Override
     public String toString() {
         return "Category{" +

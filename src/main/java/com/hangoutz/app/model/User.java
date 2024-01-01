@@ -9,7 +9,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,7 +34,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
-    private List<Event> attendingEvents;
+    private Set<Event> attendingEvents = new HashSet<>();
 
     @OneToMany(
             mappedBy = "host",
@@ -41,7 +44,7 @@ public class User implements UserDetails {
                     CascadeType.DETACH,
                     CascadeType.PERSIST,
                     CascadeType.REFRESH})
-    private Set<Event> hostingEvents;
+    private Set<Event> hostingEvents = new HashSet<>();
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -70,25 +73,18 @@ public class User implements UserDetails {
 
 
     public void attendEvent(Event event) {
-        if (attendingEvents == null) {
-            attendingEvents = new ArrayList<>();
-        }
-        attendingEvents.add(event);
+        if (event != null)
+            attendingEvents.add(event);
     }
 
     public void cancelAttendanceToEvent(Event event) {
-        if (attendingEvents == null) {
-            attendingEvents = new ArrayList<>();
-        } else {
+        if (event != null)
             attendingEvents.remove(event);
-        }
     }
 
     public void hostEvent(Event event) {
-        if (hostingEvents == null) {
-            hostingEvents = new HashSet<>();
-        }
-        hostingEvents.add(event);
+        if (event != null)
+            hostingEvents.add(event);
     }
 
 
