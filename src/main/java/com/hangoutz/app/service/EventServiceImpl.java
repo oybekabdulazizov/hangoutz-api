@@ -1,6 +1,5 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.dao.CategoryDAO;
 import com.hangoutz.app.dao.EventDAO;
 import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
@@ -12,6 +11,7 @@ import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Category;
 import com.hangoutz.app.model.Event;
 import com.hangoutz.app.model.User;
+import com.hangoutz.app.repository.CategoryRepository;
 import com.hangoutz.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class EventServiceImpl implements EventService {
     private final EventDAO eventDAO;
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final CategoryDAO categoryDAO;
+    private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
 
     @Override
@@ -131,10 +131,9 @@ public class EventServiceImpl implements EventService {
 
 
     private Category checkByNameIfCategoryExists(String name) {
-        Category category = categoryDAO.findByName(name.toLowerCase());
-        if (category == null) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
-
-        return category;
+        Optional<Category> category = categoryRepository.findByName(name.toLowerCase());
+        if (category.isEmpty()) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
+        return category.get();
     }
 
     private Event checkByIdIfEventExists(String id) {
