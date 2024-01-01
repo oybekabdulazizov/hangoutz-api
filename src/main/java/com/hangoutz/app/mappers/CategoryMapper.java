@@ -1,7 +1,7 @@
 package com.hangoutz.app.mappers;
 
 import com.hangoutz.app.dto.CategoryDTO;
-import com.hangoutz.app.dto.CategoryFormDTO;
+import com.hangoutz.app.dto.NewCategoryDTO;
 import com.hangoutz.app.model.Category;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -17,7 +17,7 @@ public class CategoryMapper {
         return dto;
     }
 
-    public Category toModel(CategoryFormDTO categoryDto) {
+    public Category toModel(NewCategoryDTO categoryDto) {
         return new ModelMapper().map(categoryDto, Category.class);
     }
 }

@@ -1,7 +1,7 @@
 package com.hangoutz.app.controller;
 
 import com.hangoutz.app.dto.CategoryDTO;
-import com.hangoutz.app.dto.CategoryFormDTO;
+import com.hangoutz.app.dto.NewCategoryDTO;
 import com.hangoutz.app.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -31,16 +32,16 @@ public class CategoryController {
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<CategoryDTO> create(@Valid @RequestBody CategoryFormDTO newCategoryDTO) {
+    public ResponseEntity<CategoryDTO> create(@Valid @RequestBody NewCategoryDTO newCategoryDTO) {
         return new ResponseEntity<>(categoryService.create(newCategoryDTO), HttpStatus.OK);
     }
 
     @PutMapping("/categories/{id}")
     public ResponseEntity<CategoryDTO> update(
             @PathVariable String id,
-            @Valid @RequestBody CategoryFormDTO updatedCategoryDTO
+            @RequestBody Map<String, String> updatedFields
     ) {
-        return new ResponseEntity<>(categoryService.update(id, updatedCategoryDTO), HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.update(id, updatedFields), HttpStatus.OK);
     }
 
     @DeleteMapping("/categories/{id}")

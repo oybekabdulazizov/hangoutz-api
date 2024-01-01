@@ -1,7 +1,7 @@
 package com.hangoutz.app.service;
 
 import com.hangoutz.app.dto.CategoryDTO;
-import com.hangoutz.app.dto.CategoryFormDTO;
+import com.hangoutz.app.dto.NewCategoryDTO;
 import com.hangoutz.app.exception.BadRequestException;
 import com.hangoutz.app.exception.ExceptionMessage;
 import com.hangoutz.app.exception.NotFoundException;
@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -41,7 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryDTO create(CategoryFormDTO newCategoryDTO) {
+    public CategoryDTO create(NewCategoryDTO newCategoryDTO) {
         checkByNameIfCategoryAlreadyExists(newCategoryDTO.getName());
         Category newCategory = categoryMapper.toModel(newCategoryDTO);
         return categoryMapper.toDto(categoryRepository.save(newCategory));
@@ -49,11 +50,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryDTO update(String id, CategoryFormDTO updatedCategoryDTO) {
-        checkByNameIfCategoryAlreadyExists(updatedCategoryDTO.getName());
-        Category existingCategory = getByIdIfCategoryExists(id);
-        existingCategory.setName(updatedCategoryDTO.getName());
-        return categoryMapper.toDto(categoryRepository.save(existingCategory));
+    public CategoryDTO update(String id, Map<String, String> updatedFields) {
+        Category categoryToBeUpdated = getByIdIfCategoryExists(id);
+        String categoryName = updatedFields.get("name");
+        if (categoryName != null && !categoryName.isBlank()) {
+            checkByNameIfCategoryAlreadyExists(categoryName);
+            categoryToBeUpdated.setName(categoryName);
+            categoryRepository.save(categoryToBeUpdated);
+        }
+        return categoryMapper.toDto(categoryToBeUpdated);
     }
 
     @Override
