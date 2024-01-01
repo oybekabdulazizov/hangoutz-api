@@ -70,15 +70,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void resetPassword(String bearerToken, ResetPasswordDTO passwordResetRequest) {
-        String jwt = jwtService.extractJwt(bearerToken);
-        String currentUserUsername = jwtService.extractUsername(jwt);
-
+    public void resetPassword(ResetPasswordDTO passwordResetRequest) {
         // find the user using the passwordResetRequest properties
         Optional<User> user = userRepository.findByEmail(passwordResetRequest.getEmail());
 
         if (user.isEmpty()
-                || !user.get().getUsername().equals(currentUserUsername)
                 || !passwordEncoder.matches(passwordResetRequest.getOldPassword(), user.get().getPassword())
         ) throw new AuthException(ExceptionMessage.BAD_CREDENTIALS);
 

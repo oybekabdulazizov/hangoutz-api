@@ -7,10 +7,12 @@ import com.hangoutz.app.dto.SignUpRequestDTO;
 import com.hangoutz.app.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
@@ -32,12 +34,11 @@ public class AuthController {
     }
 
 
-    @PutMapping("/reset-password")
+    @PostMapping("/reset-password")
     public ResponseEntity resetPassword(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
             @Valid @RequestBody ResetPasswordDTO request
     ) {
-        authService.resetPassword(bearerToken, request);
+        authService.resetPassword(request);
         return ResponseEntity.ok().build();
     }
 }
