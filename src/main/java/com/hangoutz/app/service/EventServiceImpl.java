@@ -2,10 +2,8 @@ package com.hangoutz.app.service;
 
 import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
-import com.hangoutz.app.exception.AuthException;
-import com.hangoutz.app.exception.BadRequestException;
-import com.hangoutz.app.exception.ExceptionMessage;
-import com.hangoutz.app.exception.NotFoundException;
+import com.hangoutz.app.dto.UpdateEventDTO;
+import com.hangoutz.app.exception.*;
 import com.hangoutz.app.mappers.EventMapper;
 import com.hangoutz.app.model.Category;
 import com.hangoutz.app.model.Event;
@@ -20,6 +18,7 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +32,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
+
 
     @Override
     public List<EventDTO> findAll() {
@@ -71,32 +71,27 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional
-    public EventDTO update(String bearerToken, String id, Map<Object, Object> updatedFields) {
+    public EventDTO update(String bearerToken, String id, UpdateEventDTO updatedEventDTO) {
         Event eventToBeUpdated = getByIdIfEventExists(id);
         checkTokenValidity(jwtService.extractJwt(bearerToken), eventToBeUpdated.getHost());
+        Map<String, Object> updatedFields = getMapOfObject(updatedEventDTO);
 
         updatedFields.forEach((key, value) -> {
-            Field field = ReflectionUtils.findField(Event.class, (String) key);
-            if (field != null &&
-                    !(key.equals("id") || key.equals("hostUserId")
-                            || key.equals("createdAt") || key.equals("lastModifiedAt")
-                    )) {
-                field.setAccessible(true);
-                if (value == null || value.toString().isBlank()) {
-                    throw new BadRequestException(key + " is required");
-                }
-                if (key == "startDateTime" || key == "finishDateTime") {
-                    ReflectionUtils.setField(field, eventToBeUpdated, LocalDateTime.parse(value.toString()));
-                } else if (key == "category") {
-                    Category category = getByNameIfCategoryExists(value.toString().toLowerCase());
-                    ReflectionUtils.setField(field, eventToBeUpdated, category);
-                } else {
-                    ReflectionUtils.setField(field, eventToBeUpdated, value);
-                }
-                eventToBeUpdated.setLastModifiedAt(LocalDateTime.now());
+            Field field = ReflectionUtils.findField(Event.class, key);
+            assert field != null;
+            field.setAccessible(true);
+            if (key.equals("startDateTime") || key.equals("finishDateTime")) {
+                ReflectionUtils.setField(field, eventToBeUpdated, LocalDateTime.parse(value.toString()));
+            } else if (key.equals("category")) {
+                Category category = getByNameIfCategoryExists(value.toString().toLowerCase());
+                ReflectionUtils.setField(field, eventToBeUpdated, category);
+            } else {
+                ReflectionUtils.setField(field, eventToBeUpdated, value);
             }
+            eventToBeUpdated.setLastModifiedAt(LocalDateTime.now());
+
         });
+
         return eventMapper.toDto(eventRepository.save(eventToBeUpdated));
     }
 
@@ -134,6 +129,27 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toDto(eventRepository.save(event));
     }
 
+
+    private Map<String, Object> getMapOfObject(UpdateEventDTO updatedEvent) {
+        Map<String, Object> map = new HashMap<>();
+        Field[] fields = updatedEvent.getClass().getDeclaredFields();
+        try {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                var value = field.get(updatedEvent);
+                // ignores if null, but throws an error if is blank
+                if (value != null) {
+                    if (value.toString().isBlank()) {
+                        throw new BadRequestException(field.getName() + " is required");
+                    }
+                    map.put(field.getName(), field.get(updatedEvent));
+                }
+            }
+        } catch (IllegalAccessException ex) {
+            throw new InternalServerException(ex.getMessage());
+        }
+        return map;
+    }
 
     private Category getByNameIfCategoryExists(String name) {
         Optional<Category> category = categoryRepository.findByName(name.toLowerCase());

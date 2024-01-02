@@ -2,6 +2,7 @@ package com.hangoutz.app.controller;
 
 import com.hangoutz.app.dto.EventDTO;
 import com.hangoutz.app.dto.NewEventDTO;
+import com.hangoutz.app.dto.UpdateEventDTO;
 import com.hangoutz.app.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -64,7 +64,7 @@ public class EventController {
     public ResponseEntity<EventDTO> update(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
             @PathVariable String id,
-            @RequestBody Map<Object, Object> updatedFields
+            @RequestBody UpdateEventDTO updatedFields
     ) {
         return new ResponseEntity<>(eventService.update(bearerToken, id, updatedFields), HttpStatus.OK);
     }
