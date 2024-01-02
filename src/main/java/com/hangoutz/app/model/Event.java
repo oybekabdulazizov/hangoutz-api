@@ -65,6 +65,14 @@ public class Event {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime finishDateTime;
 
+    @Column(name = "created_at")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime createdAt;
+
+    @Column(name = "last_modified_at")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime lastModifiedAt;
+
     @Column(name = "description")
     private String description;
 
@@ -104,6 +112,8 @@ public class Event {
                 ", title='" + title + '\'' +
                 ", startDateTime=" + startDateTime +
                 ", finishDateTime=" + finishDateTime +
+                ", createdAt=" + createdAt +
+                ", lastModifiedAt=" + lastModifiedAt +
                 ", description='" + description + '\'' +
                 ", categoryId='" + category.getId() + '\'' +
                 ", city='" + city + '\'' +

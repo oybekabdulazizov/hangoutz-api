@@ -51,6 +51,10 @@ public class EventServiceImpl implements EventService {
         Category category = getByNameIfCategoryExists(newEventDTO.getCategory());
         Event newEvent = eventMapper.toModel(newEventDTO);
 
+        LocalDateTime now = LocalDateTime.now();
+        newEvent.setCreatedAt(now);
+        newEvent.setLastModifiedAt(now);
+
         newEvent.setCategory(category);
         newEvent.setHost(currentUser);
         newEvent.addAttendee(currentUser);
@@ -74,7 +78,10 @@ public class EventServiceImpl implements EventService {
 
         updatedFields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Event.class, (String) key);
-            if (field != null && !(key.equals("id") || key.equals("hostUserId"))) {
+            if (field != null &&
+                    !(key.equals("id") || key.equals("hostUserId")
+                            || key.equals("createdAt") || key.equals("lastModifiedAt")
+                    )) {
                 field.setAccessible(true);
                 if (value == null || value.toString().isBlank()) {
                     throw new BadRequestException(key + " is required");
@@ -87,6 +94,7 @@ public class EventServiceImpl implements EventService {
                 } else {
                     ReflectionUtils.setField(field, eventToBeUpdated, value);
                 }
+                eventToBeUpdated.setLastModifiedAt(LocalDateTime.now());
             }
         });
         return eventMapper.toDto(eventRepository.save(eventToBeUpdated));
@@ -122,6 +130,7 @@ public class EventServiceImpl implements EventService {
         checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
 
         event.setCancelled(!event.isCancelled());
+        event.setLastModifiedAt(LocalDateTime.now());
         return eventMapper.toDto(eventRepository.save(event));
     }
 

@@ -24,6 +24,13 @@ public class EventDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime finishDateTime;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime createdAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime lastModifiedAt;
+
+
     private String description;
 
     private String city;
@@ -43,6 +50,8 @@ public class EventDTO {
                 ", title='" + title + '\'' +
                 ", startDateTime=" + startDateTime +
                 ", finishDateTime=" + finishDateTime +
+                ", createdAt=" + createdAt +
+                ", lastModifiedAt=" + lastModifiedAt +
                 ", description='" + description + '\'' +
                 ", category='" + category + '\'' +
                 ", city='" + city + '\'' +
