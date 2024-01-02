@@ -25,6 +25,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 
+import static com.hangoutz.app.service.UtilService.checkEmailIsValid;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -38,9 +40,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public JwtAuthResponseDTO signUp(SignUpRequestDTO signUpRequest) {
-        if (userRepository.findByEmail(signUpRequest.getEmail()).isPresent()) {
-            throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
-        }
+        checkEmailIsValid(signUpRequest.getEmail());
+        checkIfUserEmailAlreadyTaken(signUpRequest.getEmail());
 
         Role role = signUpRequest.getEmail().contains("@hangoutz.com") ? Role.ROLE_ADMIN : Role.ROLE_USER;
         User user = userMapper.toModel(signUpRequest);
@@ -78,13 +79,18 @@ public class AuthServiceImpl implements AuthService {
                 || !passwordEncoder.matches(passwordResetRequest.getOldPassword(), user.get().getPassword())
         ) throw new AuthException(ExceptionMessage.BAD_CREDENTIALS);
 
-
         if (!passwordResetRequest.getNewPassword().equals(passwordResetRequest.getConfirmNewPassword()))
             throw new BadRequestException(ExceptionMessage.PASSWORDS_MUST_MATCH);
 
-
         user.get().setPassword(passwordEncoder.encode(passwordResetRequest.getNewPassword()));
         userRepository.save(user.get());
+    }
+
+
+    private void checkIfUserEmailAlreadyTaken(String email) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
+        }
     }
 
     private LocalDateTime getExpirationTime(String token) {

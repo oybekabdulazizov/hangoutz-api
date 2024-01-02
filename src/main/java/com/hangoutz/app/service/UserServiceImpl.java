@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.hangoutz.app.service.UtilService.checkEmailIsValid;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -72,8 +74,12 @@ public class UserServiceImpl implements UserService {
                 }
                 if (key == "dateOfBirth") {
                     ReflectionUtils.setField(field, userToBeUpdated, LocalDateTime.parse(value.toString()));
-                } else if (userRepository.findByEmail(value.toString()).isPresent()) {
-                    throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
+                } else if (key == "email") {
+                    checkEmailIsValid(value.toString());
+                    if (userRepository.findByEmail(value.toString()).isPresent()) {
+                        throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
+                    }
+                    ReflectionUtils.setField(field, userToBeUpdated, value);
                 } else {
                     ReflectionUtils.setField(field, userToBeUpdated, value);
                 }

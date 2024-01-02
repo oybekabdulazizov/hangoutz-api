@@ -11,6 +11,7 @@ public interface ExceptionMessage {
     String HOST_MUST_BE_PRESENT = "You, as the host, must be present at the event. Cancelling can be an option";
     String INTERNAL_ERROR = "Internal error occurred";
     String NULL_POINTER_EXCEPTION = "Null pointer exception";
+    String INVALID_EMAIL = "Please provide a valid email address";
 
 
     /* auth related messages */

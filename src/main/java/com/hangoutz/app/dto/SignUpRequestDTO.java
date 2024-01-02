@@ -26,6 +26,7 @@ public class SignUpRequestDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime dateOfBirth;
 
+    //    @Email
     @NotBlank(message = "email is required")
     private String email;
 
