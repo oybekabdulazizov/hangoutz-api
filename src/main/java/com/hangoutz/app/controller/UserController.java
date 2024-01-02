@@ -1,5 +1,6 @@
 package com.hangoutz.app.controller;
 
+import com.hangoutz.app.dto.UpdateUserDTO;
 import com.hangoutz.app.dto.UserDTO;
 import com.hangoutz.app.exception.BadRequestException;
 import com.hangoutz.app.service.UserService;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -46,7 +46,7 @@ public class UserController {
     public ResponseEntity<UserDTO> update(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
             @PathVariable String id,
-            @RequestBody Map<Object, Object> updatedFields
+            @RequestBody UpdateUserDTO updatedFields
     ) {
         return new ResponseEntity<>(userService.update(bearerToken, id, updatedFields), HttpStatus.OK);
     }

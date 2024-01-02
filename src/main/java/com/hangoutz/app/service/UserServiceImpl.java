@@ -1,10 +1,8 @@
 package com.hangoutz.app.service;
 
+import com.hangoutz.app.dto.UpdateUserDTO;
 import com.hangoutz.app.dto.UserDTO;
-import com.hangoutz.app.exception.AuthException;
-import com.hangoutz.app.exception.BadRequestException;
-import com.hangoutz.app.exception.ExceptionMessage;
-import com.hangoutz.app.exception.NotFoundException;
+import com.hangoutz.app.exception.*;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
@@ -19,6 +17,7 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final JwtService jwtService;
+
 
     @Override
     public List<UserDTO> findAll() {
@@ -56,38 +56,57 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO update(String bearerToken, String id, Map<Object, Object> updatedFields) {
+    public UserDTO update(String bearerToken, String id, UpdateUserDTO updatedUserDTO) {
         String currentUserUsername = jwtService.extractUsername(jwtService.extractJwt(bearerToken));
         User currentUser = getByUsernameIfUserExists(currentUserUsername);
         User userToBeUpdated = getByIdIfUserExists(id);
 
+        // not allowed unless the requester is admin or the user account owner
         if (currentUser.getRole() != Role.ROLE_ADMIN && !currentUser.getId().equals(userToBeUpdated.getId())) {
             throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
         }
 
+        Map<String, Object> updatedFields = getMapOfObject(updatedUserDTO);
         updatedFields.forEach((key, value) -> {
-            Field field = ReflectionUtils.findField(User.class, (String) key);
-            if (field != null && !(key.equals("id") || key.equals("password") || key.equals("role"))) {
-                field.setAccessible(true);
-                if (value == null || value.toString().isBlank()) {
-                    throw new BadRequestException(key + " is required");
+            Field field = ReflectionUtils.findField(User.class, key);
+            assert field != null;
+            field.setAccessible(true);
+            if (key.equals("dateOfBirth")) {
+                ReflectionUtils.setField(field, userToBeUpdated, LocalDateTime.parse(value.toString()));
+            } else if (key.equals("email")) {
+                checkEmailIsValid(value.toString());
+                if (userRepository.findByEmail(value.toString()).isPresent()) {
+                    throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
                 }
-                if (key == "dateOfBirth") {
-                    ReflectionUtils.setField(field, userToBeUpdated, LocalDateTime.parse(value.toString()));
-                } else if (key == "email") {
-                    checkEmailIsValid(value.toString());
-                    if (userRepository.findByEmail(value.toString()).isPresent()) {
-                        throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
+                ReflectionUtils.setField(field, userToBeUpdated, value);
+            } else {
+                ReflectionUtils.setField(field, userToBeUpdated, value);
+            }
+            userToBeUpdated.setLastModifiedAt(LocalDateTime.now());
+        });
+        return userMapper.toDto(userRepository.save(userToBeUpdated));
+    }
+
+
+    private Map<String, Object> getMapOfObject(UpdateUserDTO updatedUser) {
+        Map<String, Object> map = new HashMap<>();
+        Field[] fields = updatedUser.getClass().getDeclaredFields();
+        try {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                var value = field.get(updatedUser);
+                // ignores if null, but throws an error if is blank
+                if (value != null) {
+                    if (value.toString().isBlank()) {
+                        throw new BadRequestException(field.getName() + " is required");
                     }
-                    ReflectionUtils.setField(field, userToBeUpdated, value);
-                } else {
-                    ReflectionUtils.setField(field, userToBeUpdated, value);
+                    map.put(field.getName(), field.get(updatedUser));
                 }
             }
-        });
-
-        userToBeUpdated.setLastModifiedAt(LocalDateTime.now());
-        return userMapper.toDto(userRepository.save(userToBeUpdated));
+        } catch (IllegalAccessException ex) {
+            throw new InternalServerException(ex.getMessage());
+        }
+        return map;
     }
 
     @Override
@@ -99,7 +118,6 @@ public class UserServiceImpl implements UserService {
             }
         };
     }
-
 
     private User getByUsernameIfUserExists(String username) {
         Optional<User> user = userRepository.findByEmail(username);

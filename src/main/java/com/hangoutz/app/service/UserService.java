@@ -1,10 +1,10 @@
 package com.hangoutz.app.service;
 
+import com.hangoutz.app.dto.UpdateUserDTO;
 import com.hangoutz.app.dto.UserDTO;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
-import java.util.Map;
 
 public interface UserService {
 
@@ -16,7 +16,7 @@ public interface UserService {
 
     void delete(String id);
 
-    UserDTO update(String bearerToken, String id, Map<Object, Object> updatedFields);
+    UserDTO update(String bearerToken, String id, UpdateUserDTO updatedUserDTO);
 
     UserDetailsService userDetailsService();
 }
