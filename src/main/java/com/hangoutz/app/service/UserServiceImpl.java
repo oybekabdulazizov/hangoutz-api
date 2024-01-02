@@ -85,6 +85,8 @@ public class UserServiceImpl implements UserService {
                 }
             }
         });
+
+        userToBeUpdated.setLastModifiedAt(LocalDateTime.now());
         return userMapper.toDto(userRepository.save(userToBeUpdated));
     }
 

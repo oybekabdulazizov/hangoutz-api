@@ -71,6 +71,14 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = "created_at")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime createdAt;
+
+    @Column(name = "last_modified_at")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime lastModifiedAt;
+
 
     public void attendEvent(Event event) {
         if (event != null)
@@ -136,6 +144,8 @@ public class User implements UserDetails {
                 ", name='" + name + '\'' +
                 ", lastname='" + lastname + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
+                ", createdAt=" + createdAt +
+                ", lastModifiedAt=" + lastModifiedAt +
                 ", email='" + email + '\'' +
                 ", accountNonExpired='" + isAccountNonExpired() + '\'' +
                 ", accountNonLocked='" + isAccountNonLocked() + '\'' +

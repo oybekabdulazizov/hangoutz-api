@@ -46,6 +46,10 @@ public class AuthServiceImpl implements AuthService {
         Role role = signUpRequest.getEmail().contains("@hangoutz.com") ? Role.ROLE_ADMIN : Role.ROLE_USER;
         User user = userMapper.toModel(signUpRequest);
 
+        LocalDateTime now = LocalDateTime.now();
+        user.setCreatedAt(now);
+        user.setLastModifiedAt(now);
+
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setRole(role);
         userRepository.save(user);

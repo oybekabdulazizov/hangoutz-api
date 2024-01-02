@@ -24,6 +24,12 @@ public class UserDTO {
 
     private String email;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime createdAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime lastModifiedAt;
+
     private List<EventProfile> hostingEvents;
 
     private List<EventProfile> attendingEvents;
