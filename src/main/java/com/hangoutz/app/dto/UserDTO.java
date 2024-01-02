@@ -60,7 +60,10 @@ class EventProfile {
     private String title;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime dateTime;
+    private LocalDateTime startDateTime;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime finishDateTime;
 
     private String description;
 

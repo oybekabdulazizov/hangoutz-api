@@ -69,8 +69,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDTO update(String bearerToken, String id, Map<Object, Object> updatedFields) {
-        Event event = getByIdIfEventExists(id);
-        checkTokenValidity(jwtService.extractJwt(bearerToken), event.getHost());
+        Event eventToBeUpdated = getByIdIfEventExists(id);
+        checkTokenValidity(jwtService.extractJwt(bearerToken), eventToBeUpdated.getHost());
 
         updatedFields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Event.class, (String) key);
@@ -79,17 +79,17 @@ public class EventServiceImpl implements EventService {
                 if (value == null || value.toString().isBlank()) {
                     throw new BadRequestException(key + " is required");
                 }
-                if (key == "dateTime") {
-                    ReflectionUtils.setField(field, event, LocalDateTime.parse(value.toString()));
+                if (key == "startDateTime" || key == "finishDateTime") {
+                    ReflectionUtils.setField(field, eventToBeUpdated, LocalDateTime.parse(value.toString()));
                 } else if (key == "category") {
                     Category category = getByNameIfCategoryExists(value.toString().toLowerCase());
-                    ReflectionUtils.setField(field, event, category);
+                    ReflectionUtils.setField(field, eventToBeUpdated, category);
                 } else {
-                    ReflectionUtils.setField(field, event, value);
+                    ReflectionUtils.setField(field, eventToBeUpdated, value);
                 }
             }
         });
-        return eventMapper.toDto(eventRepository.save(event));
+        return eventMapper.toDto(eventRepository.save(eventToBeUpdated));
     }
 
     @Override

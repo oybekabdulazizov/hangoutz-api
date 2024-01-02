@@ -57,9 +57,13 @@ public class Event {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "date_time")
+    @Column(name = "start_datetime")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime dateTime;
+    private LocalDateTime startDateTime;
+
+    @Column(name = "finish_datetime")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime finishDateTime;
 
     @Column(name = "description")
     private String description;
@@ -98,7 +102,8 @@ public class Event {
         return "Event{" +
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
-                ", dateTime=" + dateTime +
+                ", startDateTime=" + startDateTime +
+                ", finishDateTime=" + finishDateTime +
                 ", description='" + description + '\'' +
                 ", categoryId='" + category.getId() + '\'' +
                 ", city='" + city + '\'' +

@@ -19,9 +19,13 @@ public class NewEventDTO {
     @NotBlank(message = "title is required")
     private String title;
 
-    @NotNull(message = "date time is required")
+    @NotNull(message = "start time is required")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime dateTime;
+    private LocalDateTime startDateTime;
+
+    @NotNull(message = "finish time is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime finishDateTime;
 
     @NotBlank(message = "description is required")
     private String description;
