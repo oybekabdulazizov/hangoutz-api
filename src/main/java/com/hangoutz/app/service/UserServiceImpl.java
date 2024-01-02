@@ -2,7 +2,10 @@ package com.hangoutz.app.service;
 
 import com.hangoutz.app.dto.UpdateUserDTO;
 import com.hangoutz.app.dto.UserDTO;
-import com.hangoutz.app.exception.*;
+import com.hangoutz.app.exception.AuthException;
+import com.hangoutz.app.exception.BadRequestException;
+import com.hangoutz.app.exception.ExceptionMessage;
+import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
 import com.hangoutz.app.model.User;
@@ -17,12 +20,12 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.hangoutz.app.service.UtilService.checkEmailIsValid;
+import static com.hangoutz.app.service.UtilService.getMapFromObject;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +69,7 @@ public class UserServiceImpl implements UserService {
             throw new AuthException(ExceptionMessage.PERMISSION_DENIED);
         }
 
-        Map<String, Object> updatedFields = getMapOfObject(updatedUserDTO);
+        Map<String, Object> updatedFields = getMapFromObject(updatedUserDTO);
         updatedFields.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(User.class, key);
             assert field != null;
@@ -85,28 +88,6 @@ public class UserServiceImpl implements UserService {
             userToBeUpdated.setLastModifiedAt(LocalDateTime.now());
         });
         return userMapper.toDto(userRepository.save(userToBeUpdated));
-    }
-
-
-    private Map<String, Object> getMapOfObject(UpdateUserDTO updatedUser) {
-        Map<String, Object> map = new HashMap<>();
-        Field[] fields = updatedUser.getClass().getDeclaredFields();
-        try {
-            for (Field field : fields) {
-                field.setAccessible(true);
-                var value = field.get(updatedUser);
-                // ignores if null, but throws an error if is blank
-                if (value != null) {
-                    if (value.toString().isBlank()) {
-                        throw new BadRequestException(field.getName() + " is required");
-                    }
-                    map.put(field.getName(), field.get(updatedUser));
-                }
-            }
-        } catch (IllegalAccessException ex) {
-            throw new InternalServerException(ex.getMessage());
-        }
-        return map;
     }
 
     @Override
