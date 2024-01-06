@@ -71,6 +71,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public JwtAuthResponseDTO signIn(SignInRequestDTO signInRequest) {
         try {
             authenticationManager.authenticate(
@@ -79,10 +80,14 @@ public class AuthServiceImpl implements AuthService {
         } catch (InternalAuthenticationServiceException | BadCredentialsException ex) {
             throw new AuthException(ExceptionMessage.BAD_CREDENTIALS);
         }
-        Optional<User> user = userRepository.findByEmail(signInRequest.getEmail());
-        if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
-        String sessionToken = jwtService.generateSessionToken(user.get());
-        String refreshToken = jwtService.generateRefreshToken(user.get());
+
+        User user = getUserByUsername(signInRequest.getEmail());
+        deleteAllTokensOfUser(user);
+
+        String sessionToken = jwtService.generateSessionToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+        saveUserToken(user, sessionToken, TokenType.SESSION);
+        saveUserToken(user, refreshToken, TokenType.REFRESH);
 
         return new JwtAuthResponseDTO(sessionToken,
                                       refreshToken,
@@ -118,10 +123,20 @@ public class AuthServiceImpl implements AuthService {
         tokenRepository.save(t);
     }
 
+    private void deleteAllTokensOfUser(User user) {
+        tokenRepository.deleteAllTokensOfUser(user.getId());
+    }
+
     private void checkIfUserEmailAlreadyTaken(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new BadRequestException(ExceptionMessage.EMAIL_TAKEN);
         }
+    }
+
+    private User getUserByUsername(String username) {
+        Optional<User> user = userRepository.findByEmail(username);
+        if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
+        return user.get();
     }
 
     private LocalDateTime getExpirationTime(String token) {
