@@ -1,8 +1,5 @@
 package com.hangoutz.app.service;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
@@ -18,7 +15,6 @@ import com.hangoutz.app.model.TokenType;
 import com.hangoutz.app.model.User;
 import com.hangoutz.app.repository.TokenRepository;
 import com.hangoutz.app.repository.UserRepository;
-import io.jsonwebtoken.MalformedJwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,7 +29,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 
-import static com.hangoutz.app.service.UtilService.checkEmailIsValid;
+import static com.hangoutz.app.service.UtilService.*;
 
 @Service
 @RequiredArgsConstructor
@@ -136,7 +132,7 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthException(ExceptionMessage.TOKEN_EXPIRED);
         }
 
-        userEmail = getUsername(refreshToken);
+        userEmail = getUsername(jwtService, refreshToken);
         if (userEmail == null || userEmail.isBlank()) throw new AuthException(ExceptionMessage.INVALID_TOKEN);
 
 
@@ -155,23 +151,6 @@ public class AuthServiceImpl implements AuthService {
                                  .build();
     }
 
-
-    private String getUsername(String jwt) {
-        try {
-            return jwtService.extractUsername(jwt);
-        } catch (MalformedJwtException ex) {
-            return null;
-        }
-    }
-
-    private Date getExpiryDate(String jwt) {
-        try {
-            DecodedJWT decodedJWT = JWT.decode(jwt);
-            return decodedJWT.getExpiresAt();
-        } catch (JWTDecodeException ex) {
-            return null;
-        }
-    }
 
     private void saveUserToken(User user, String token, TokenType tokenType) {
         Token t = Token.builder()

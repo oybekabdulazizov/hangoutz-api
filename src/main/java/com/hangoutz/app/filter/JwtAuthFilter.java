@@ -1,17 +1,11 @@
 package com.hangoutz.app.filter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hangoutz.app.dto.ExceptionResponseDTO;
 import com.hangoutz.app.exception.ExceptionMessage;
 import com.hangoutz.app.model.Token;
 import com.hangoutz.app.model.User;
 import com.hangoutz.app.repository.TokenRepository;
 import com.hangoutz.app.repository.UserRepository;
 import com.hangoutz.app.service.JwtService;
-import io.jsonwebtoken.MalformedJwtException;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,7 +15,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,6 +25,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
+
+import static com.hangoutz.app.service.UtilService.*;
 
 @Component
 @RequiredArgsConstructor
@@ -70,7 +65,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        userEmail = getUsername(jwt);
+        userEmail = getUsername(jwtService, jwt);
         if (userEmail == null) {
             returnInvalidTokenResponse(response, ExceptionMessage.INVALID_TOKEN);
             return;
@@ -97,32 +92,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
-    }
-
-    private Date getExpiryDate(String jwt) {
-        try {
-            DecodedJWT decodedJWT = JWT.decode(jwt);
-            return decodedJWT.getExpiresAt();
-        } catch (JWTDecodeException ex) {
-            return null;
-        }
-    }
-
-    private String getUsername(String jwt) {
-        try {
-            return jwtService.extractUsername(jwt);
-        } catch (MalformedJwtException ex) {
-            return null;
-        }
-    }
-
-    private void returnInvalidTokenResponse(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        ExceptionResponseDTO res = ExceptionResponseDTO.builder()
-                                                       .message(message)
-                                                       .status(HttpServletResponse.SC_UNAUTHORIZED)
-                                                       .build();
-        new ObjectMapper().writeValue(response.getOutputStream(), res);
     }
 }
