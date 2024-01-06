@@ -60,19 +60,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         jwt = jwtService.extractJwt(bearerToken);
         Token token = tokenRepository.findByToken(jwt).orElse(null);
         if (token == null) {
-            returnInvalidTokenResponse(response);
+            returnInvalidTokenResponse(response, ExceptionMessage.TOKEN_EXPIRED);
             return;
         }
 
         Date expirtyDate = getExpiryDate(jwt);
         if (expirtyDate == null || expirtyDate.before(new Date())) {
-            returnInvalidTokenResponse(response);
+            returnInvalidTokenResponse(response, ExceptionMessage.TOKEN_EXPIRED);
             return;
         }
 
         userEmail = getUsername(jwt);
         if (userEmail == null) {
-            returnInvalidTokenResponse(response);
+            returnInvalidTokenResponse(response, ExceptionMessage.INVALID_TOKEN);
             return;
         }
 
@@ -80,7 +80,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             Optional<User> user = userRepository.findByEmail(userEmail);
             if (user.isEmpty()) {
-                returnInvalidTokenResponse(response);
+                returnInvalidTokenResponse(response, ExceptionMessage.INVALID_TOKEN);
                 return;
             }
 
@@ -116,11 +116,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
     }
 
-    private void returnInvalidTokenResponse(HttpServletResponse response) throws IOException {
+    private void returnInvalidTokenResponse(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         ExceptionResponseDTO res = ExceptionResponseDTO.builder()
-                                                       .message(ExceptionMessage.INVALID_TOKEN)
+                                                       .message(message)
                                                        .status(HttpServletResponse.SC_UNAUTHORIZED)
                                                        .build();
         new ObjectMapper().writeValue(response.getOutputStream(), res);
