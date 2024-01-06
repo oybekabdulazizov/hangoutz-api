@@ -10,7 +10,10 @@ import com.hangoutz.app.exception.ExceptionMessage;
 import com.hangoutz.app.exception.NotFoundException;
 import com.hangoutz.app.mappers.UserMapper;
 import com.hangoutz.app.model.Role;
+import com.hangoutz.app.model.Token;
+import com.hangoutz.app.model.TokenType;
 import com.hangoutz.app.model.User;
+import com.hangoutz.app.repository.TokenRepository;
 import com.hangoutz.app.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +35,7 @@ import static com.hangoutz.app.service.UtilService.checkEmailIsValid;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -54,8 +58,16 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(role);
         userRepository.save(user);
 
-        String jwt = jwtService.generateToken(user);
-        return new JwtAuthResponseDTO(jwt, getExpirationTime(jwt));
+        String sessionToken = jwtService.generateSessionToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+        saveUserToken(user, sessionToken, TokenType.SESSION);
+        saveUserToken(user, refreshToken, TokenType.REFRESH);
+
+        return new JwtAuthResponseDTO(sessionToken,
+                                      refreshToken,
+                                      getExpirationTime(sessionToken),
+                                      getExpirationTime(refreshToken)
+        );
     }
 
     @Override
@@ -69,8 +81,14 @@ public class AuthServiceImpl implements AuthService {
         }
         Optional<User> user = userRepository.findByEmail(signInRequest.getEmail());
         if (user.isEmpty()) throw new NotFoundException(ExceptionMessage.USER_NOT_FOUND);
-        String jwt = jwtService.generateToken(user.get());
-        return new JwtAuthResponseDTO(jwt, getExpirationTime(jwt));
+        String sessionToken = jwtService.generateSessionToken(user.get());
+        String refreshToken = jwtService.generateRefreshToken(user.get());
+
+        return new JwtAuthResponseDTO(sessionToken,
+                                      refreshToken,
+                                      getExpirationTime(sessionToken),
+                                      getExpirationTime(refreshToken)
+        );
     }
 
     @Override
@@ -90,6 +108,15 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user.get());
     }
 
+
+    private void saveUserToken(User user, String token, TokenType tokenType) {
+        Token t = Token.builder()
+                       .token(token)
+                       .type(tokenType)
+                       .user(user)
+                       .build();
+        tokenRepository.save(t);
+    }
 
     private void checkIfUserEmailAlreadyTaken(String email) {
         if (userRepository.findByEmail(email).isPresent()) {

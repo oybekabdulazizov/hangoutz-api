@@ -14,8 +14,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class JwtAuthResponseDTO {
 
-    private String token;
+    private String sessionToken;
+
+    private String refreshToken;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime expiresAt;
+    private LocalDateTime sessionTokenExpiresAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private LocalDateTime refreshTokenExpiresAt;
 }
