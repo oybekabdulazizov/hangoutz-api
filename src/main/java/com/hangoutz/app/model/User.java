@@ -46,6 +46,16 @@ public class User implements UserDetails {
                     CascadeType.REFRESH})
     private Set<Event> hostingEvents = new HashSet<>();
 
+    @OneToMany(
+            mappedBy = "user",
+            cascade = {
+                    CascadeType.REMOVE,
+                    CascadeType.MERGE,
+                    CascadeType.DETACH,
+                    CascadeType.PERSIST,
+                    CascadeType.REFRESH})
+    private Set<Token> tokens = new HashSet<>();
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
@@ -93,6 +103,11 @@ public class User implements UserDetails {
     public void hostEvent(Event event) {
         if (event != null)
             hostingEvents.add(event);
+    }
+
+    public void addToken(Token token) {
+        if (token != null)
+            tokens.add(token);
     }
 
 
