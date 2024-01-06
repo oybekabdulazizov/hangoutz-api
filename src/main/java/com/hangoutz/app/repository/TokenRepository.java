@@ -16,4 +16,12 @@ public interface TokenRepository extends JpaRepository<Token, String> {
             DELETE FROM Token t WHERE t.user.id=:userId
             """)
     void deleteAllTokensOfUser(String userId);
+
+    @Modifying
+    @Query(value = """
+            DELETE FROM Token t\s
+            WHERE t.type='SESSION'\s
+            AND t.user.id=:userId\s
+            """)
+    void deleteSessionTokenOfUser(String userId);
 }

@@ -1,5 +1,8 @@
 package com.hangoutz.app.service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignInRequestDTO;
@@ -15,6 +18,7 @@ import com.hangoutz.app.model.TokenType;
 import com.hangoutz.app.model.User;
 import com.hangoutz.app.repository.TokenRepository;
 import com.hangoutz.app.repository.UserRepository;
+import io.jsonwebtoken.MalformedJwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.Optional;
 
 import static com.hangoutz.app.service.UtilService.checkEmailIsValid;
@@ -113,6 +118,60 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user.get());
     }
 
+    @Override
+    @Transactional
+    public JwtAuthResponseDTO refreshSessionToken(String refreshBearerToken) {
+        final String refreshToken;
+        final String userEmail;
+
+        if (refreshBearerToken == null || refreshBearerToken.isBlank() || !refreshBearerToken.startsWith("Bearer "))
+            throw new AuthException(ExceptionMessage.INVALID_TOKEN);
+
+        refreshToken = jwtService.extractJwt(refreshBearerToken);
+        Token token = tokenRepository.findByToken(refreshToken).orElse(null);
+        if (token == null) throw new AuthException(ExceptionMessage.INVALID_TOKEN);
+
+        Date expirtyDate = getExpiryDate(refreshToken);
+        if (expirtyDate == null || expirtyDate.before(new Date())) {
+            throw new AuthException(ExceptionMessage.TOKEN_EXPIRED);
+        }
+
+        userEmail = getUsername(refreshToken);
+        if (userEmail == null || userEmail.isBlank()) throw new AuthException(ExceptionMessage.INVALID_TOKEN);
+
+
+        User user = userRepository.findByEmail(userEmail).orElse(null);
+        if (user == null) throw new AuthException(ExceptionMessage.INVALID_TOKEN);
+
+        tokenRepository.deleteSessionTokenOfUser(user.getId());
+
+        String sessionToken = jwtService.generateSessionToken(user);
+        saveUserToken(user, sessionToken, TokenType.SESSION);
+        return JwtAuthResponseDTO.builder()
+                                 .sessionToken(sessionToken)
+                                 .refreshToken(refreshToken)
+                                 .sessionTokenExpiresAt(getExpirationTime(sessionToken))
+                                 .refreshTokenExpiresAt(getExpirationTime(refreshToken))
+                                 .build();
+    }
+
+
+    private String getUsername(String jwt) {
+        try {
+            return jwtService.extractUsername(jwt);
+        } catch (MalformedJwtException ex) {
+            return null;
+        }
+    }
+
+    private Date getExpiryDate(String jwt) {
+        try {
+            DecodedJWT decodedJWT = JWT.decode(jwt);
+            return decodedJWT.getExpiresAt();
+        } catch (JWTDecodeException ex) {
+            return null;
+        }
+    }
 
     private void saveUserToken(User user, String token, TokenType tokenType) {
         Token t = Token.builder()

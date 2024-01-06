@@ -7,6 +7,7 @@ import com.hangoutz.app.dto.SignUpRequestDTO;
 import com.hangoutz.app.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,5 +36,12 @@ public class AuthController {
     @ResponseStatus(code = HttpStatus.OK)
     public void resetPassword(@Valid @RequestBody ResetPasswordDTO request) {
         authService.resetPassword(request);
+    }
+
+    @PostMapping("/refresh-session-token")
+    public ResponseEntity<JwtAuthResponseDTO> refreshSessionToken(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String refreshBearerToken
+    ) {
+        return new ResponseEntity<>(authService.refreshSessionToken(refreshBearerToken), HttpStatus.OK);
     }
 }

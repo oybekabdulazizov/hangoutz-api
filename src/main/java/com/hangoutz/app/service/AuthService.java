@@ -12,4 +12,6 @@ public interface AuthService {
     JwtAuthResponseDTO signIn(SignInRequestDTO existingUser);
 
     void resetPassword(ResetPasswordDTO passwordResetRequest);
+
+    JwtAuthResponseDTO refreshSessionToken(String refreshBearerToken);
 }
