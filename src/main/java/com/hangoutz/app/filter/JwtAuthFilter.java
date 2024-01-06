@@ -6,10 +6,11 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hangoutz.app.dto.ExceptionResponseDTO;
 import com.hangoutz.app.exception.ExceptionMessage;
+import com.hangoutz.app.model.Token;
 import com.hangoutz.app.model.User;
+import com.hangoutz.app.repository.TokenRepository;
 import com.hangoutz.app.repository.UserRepository;
 import com.hangoutz.app.service.JwtService;
-import com.hangoutz.app.service.UserService;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -38,7 +39,7 @@ import java.util.Optional;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserService userService;
+    private final TokenRepository tokenRepository;
     private final UserRepository userRepository;
 
     @Override
@@ -57,6 +58,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         jwt = jwtService.extractJwt(bearerToken);
+        Token token = tokenRepository.findByToken(jwt).orElse(null);
+        if (token == null) {
+            returnInvalidTokenResponse(response);
+            return;
+        }
+
         Date expirtyDate = getExpiryDate(jwt);
         if (expirtyDate == null || expirtyDate.before(new Date())) {
             returnInvalidTokenResponse(response);
@@ -71,7 +78,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (!userEmail.isBlank()
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
-//            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
             Optional<User> user = userRepository.findByEmail(userEmail);
             if (user.isEmpty()) {
                 returnInvalidTokenResponse(response);
