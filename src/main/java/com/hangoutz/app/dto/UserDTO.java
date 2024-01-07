@@ -67,7 +67,7 @@ class EventProfile {
 
     private String description;
 
-    private SimpleCategoryDTO category;
+    private CategoryProfile category;
 
     private String city;
 

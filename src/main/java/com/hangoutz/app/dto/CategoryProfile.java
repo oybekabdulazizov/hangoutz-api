@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class SimpleCategoryDTO {
+public class CategoryProfile {
 
     private String id;
 

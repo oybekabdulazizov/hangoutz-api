@@ -39,7 +39,7 @@ public class EventDTO {
 
     private AttendeeProfile host;
 
-    private SimpleCategoryDTO category;
+    private CategoryProfile category;
 
     private List<AttendeeProfile> attendees;
 
