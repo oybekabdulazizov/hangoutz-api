@@ -62,19 +62,3 @@ public class EventDTO {
     }
 }
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Getter
-@Setter
-@ToString
-class AttendeeProfile {
-
-    private String id;
-
-    private String name;
-
-    private String lastname;
-
-    private String email;
-}

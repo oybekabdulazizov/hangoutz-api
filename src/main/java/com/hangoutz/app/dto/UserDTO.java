@@ -48,28 +48,3 @@ public class UserDTO {
     }
 }
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Getter
-@Setter
-class EventProfile {
-
-    private String id;
-
-    private String title;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime startDateTime;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime finishDateTime;
-
-    private String description;
-
-    private CategoryProfile category;
-
-    private String city;
-
-    private boolean cancelled;
-}
