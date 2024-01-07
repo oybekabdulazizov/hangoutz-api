@@ -1,8 +1,8 @@
 package com.hangoutz.app.service;
 
 import com.hangoutz.app.dto.JwtAuthResponseDTO;
+import com.hangoutz.app.dto.LogInRequestDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
-import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
 import com.hangoutz.app.exception.AuthException;
 import com.hangoutz.app.exception.BadRequestException;
@@ -73,16 +73,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public JwtAuthResponseDTO signIn(SignInRequestDTO signInRequest) {
+    public JwtAuthResponseDTO logIn(LogInRequestDTO logInRequest) {
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(logInRequest.getEmail(), logInRequest.getPassword())
             );
         } catch (InternalAuthenticationServiceException | BadCredentialsException ex) {
             throw new AuthException(ExceptionMessage.BAD_CREDENTIALS);
         }
 
-        User user = getUserByUsername(signInRequest.getEmail());
+        User user = getUserByUsername(logInRequest.getEmail());
         deleteAllTokensOfUser(user);
 
         String sessionToken = jwtService.generateSessionToken(user);

@@ -1,8 +1,8 @@
 package com.hangoutz.app.controller;
 
 import com.hangoutz.app.dto.JwtAuthResponseDTO;
+import com.hangoutz.app.dto.LogInRequestDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
-import com.hangoutz.app.dto.SignInRequestDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
 import com.hangoutz.app.service.AuthService;
 import jakarta.validation.Valid;
@@ -26,9 +26,9 @@ public class AuthController {
     }
 
 
-    @PostMapping("/sign-in")
-    public ResponseEntity<JwtAuthResponseDTO> signIn(@Valid @RequestBody SignInRequestDTO request) {
-        return new ResponseEntity<>(authService.signIn(request), HttpStatus.OK);
+    @PostMapping("/log-in")
+    public ResponseEntity<JwtAuthResponseDTO> logIn(@Valid @RequestBody LogInRequestDTO request) {
+        return new ResponseEntity<>(authService.logIn(request), HttpStatus.OK);
     }
 
 

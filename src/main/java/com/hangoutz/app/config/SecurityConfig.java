@@ -56,7 +56,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST,
                                          "/api/v1/auth/sign-up",
-                                         "/api/v1/auth/sign-in",
+                                         "/api/v1/auth/log-in",
                                          "/api/v1/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/categories").hasRole("ADMIN")
@@ -71,7 +71,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(config -> config
-                        .logoutUrl("/api/v1/auth/sign-out")
+                        .logoutUrl("/api/v1/auth/log-out")
                         .addLogoutHandler(logoutHandler)
                         .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
                 );
