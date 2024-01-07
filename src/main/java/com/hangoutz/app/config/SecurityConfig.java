@@ -2,6 +2,7 @@ package com.hangoutz.app.config;
 
 import com.hangoutz.app.exception.AccessDeniedExceptionHandler;
 import com.hangoutz.app.filter.JwtAuthFilter;
+import com.hangoutz.app.service.LogoutService;
 import com.hangoutz.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -28,6 +30,7 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final UserService userService;
+    private final LogoutService logoutHandler;
     private final PasswordEncoder passwordEncoder;
     private final AccessDeniedExceptionHandler accessDeniedExceptionHandler;
 
@@ -66,7 +69,12 @@ public class SecurityConfig {
                     handler.accessDeniedHandler(accessDeniedExceptionHandler);
                 })
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(config -> config
+                        .logoutUrl("/api/v1/auth/sign-out")
+                        .addLogoutHandler(logoutHandler)
+                        .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
+                );
 
         return httpSecurity.build();
     }

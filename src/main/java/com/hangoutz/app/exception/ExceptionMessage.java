@@ -19,4 +19,5 @@ public interface ExceptionMessage {
     String BAD_CREDENTIALS = "Username or password is incorrect";
     String PASSWORDS_MUST_MATCH = "New password and its confirmation must match";
     String PERMISSION_DENIED = "Permission denied";
+    String TOKEN_EXPIRED = "Token expired";
 }
