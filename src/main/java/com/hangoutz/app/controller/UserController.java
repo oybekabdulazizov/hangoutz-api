@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 @RequiredArgsConstructor
+@CrossOrigin(originPatterns = "*", allowCredentials = "true", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/v1")
 public class UserController {
