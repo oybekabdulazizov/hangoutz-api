@@ -21,6 +21,13 @@ public class AuthController {
     private final AuthService authService;
 
 
+    @GetMapping("/refresh-session-token")
+    public ResponseEntity<JwtAuthResponseDTO> refreshSessionToken(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String refreshBearerToken
+    ) {
+        return new ResponseEntity<>(authService.refreshSessionToken(refreshBearerToken), HttpStatus.OK);
+    }
+
     @PostMapping("/sign-up")
     public ResponseEntity<JwtAuthResponseDTO> signUp(@Valid @RequestBody SignUpRequestDTO request) {
         return new ResponseEntity<>(authService.signUp(request), HttpStatus.OK);
@@ -37,12 +44,5 @@ public class AuthController {
     @ResponseStatus(code = HttpStatus.OK)
     public void resetPassword(@Valid @RequestBody ResetPasswordDTO request) {
         authService.resetPassword(request);
-    }
-
-    @PostMapping("/refresh-session-token")
-    public ResponseEntity<JwtAuthResponseDTO> refreshSessionToken(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String refreshBearerToken
-    ) {
-        return new ResponseEntity<>(authService.refreshSessionToken(refreshBearerToken), HttpStatus.OK);
     }
 }
