@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class UserServiceImpl implements UserService {
             assert field != null;
             field.setAccessible(true);
             if (key.equals("dateOfBirth")) {
-                ReflectionUtils.setField(field, userToBeUpdated, LocalDateTime.parse(value.toString()));
+                ReflectionUtils.setField(field, userToBeUpdated, LocalDate.parse(value.toString()));
             } else if (key.equals("email")) {
                 checkEmailIsValid(value.toString());
                 if (userRepository.findByEmail(value.toString()).isPresent()) {

@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -24,7 +24,7 @@ public class SignUpRequestDTO {
 
     @NotNull(message = "date of birth is required")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     //    @Email
     @NotBlank(message = "email is required")

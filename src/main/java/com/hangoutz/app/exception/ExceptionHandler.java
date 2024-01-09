@@ -52,7 +52,7 @@ public class ExceptionHandler {
     @org.springframework.web.bind.annotation.ExceptionHandler(DateTimeParseException.class)
     public ResponseEntity<ExceptionResponseDTO> handleDateTimeParseException(DateTimeParseException ex) {
         ExceptionResponseDTO res = ExceptionResponseDTO.builder()
-                                                       .message(ExceptionMessage.INVALID_DATE_FORMAT)
+                                                       .message(ExceptionMessage.INVALID_DATETIME_FORMAT)
                                                        .status(HttpStatus.BAD_REQUEST.value())
                                                        .build();
         return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);

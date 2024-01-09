@@ -3,7 +3,7 @@ package com.hangoutz.app.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,7 +18,7 @@ public class UpdateUserDTO {
     private String lastname;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     private String email;
 }
