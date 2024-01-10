@@ -76,8 +76,8 @@ public class Event {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "city")
-    private String city;
+    @Column(name = "location")
+    private String location;
 
     @Column(name = "url")
     private String url;
@@ -119,7 +119,7 @@ public class Event {
                 ", lastModifiedAt=" + lastModifiedAt +
                 ", description='" + description + '\'' +
                 ", categoryId='" + category.getId() + '\'' +
-                ", city='" + city + '\'' +
+                ", location='" + location + '\'' +
                 ", isCancelled=" + cancelled +
                 ", attendeesCount=" + attendees.size() +
                 ", hostUserId='" + host.getId() + '\'' +

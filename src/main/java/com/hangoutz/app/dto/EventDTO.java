@@ -32,7 +32,7 @@ public class EventDTO {
 
     private String description;
 
-    private String city;
+    private String location;
 
     private String url;
 
@@ -55,7 +55,7 @@ public class EventDTO {
                 ", lastModifiedAt=" + lastModifiedAt +
                 ", description='" + description + '\'' +
                 ", category='" + category + '\'' +
-                ", city='" + city + '\'' +
+                ", location='" + location + '\'' +
                 ", cancelled=" + cancelled +
                 ", host='" + host + '\'' +
                 ", attendees=" + attendees +

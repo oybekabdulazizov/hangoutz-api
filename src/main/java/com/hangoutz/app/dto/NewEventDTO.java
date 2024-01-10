@@ -34,8 +34,8 @@ public class NewEventDTO {
     @NotBlank(message = "category is required")
     private String category;
 
-    @NotBlank(message = "city is required")
-    private String city;
+    @NotBlank(message = "location is required")
+    private String location;
 
     @URL
     private String url;

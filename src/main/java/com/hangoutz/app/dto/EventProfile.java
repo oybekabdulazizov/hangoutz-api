@@ -26,7 +26,7 @@ public class EventProfile {
 
     private CategoryProfile category;
 
-    private String city;
+    private String location;
 
     private String url;
 

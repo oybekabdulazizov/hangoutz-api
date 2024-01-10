@@ -26,7 +26,7 @@ public class UpdateEventDTO {
 
     private String category;
 
-    private String city;
+    private String location;
 
     @URL
     private String url;
