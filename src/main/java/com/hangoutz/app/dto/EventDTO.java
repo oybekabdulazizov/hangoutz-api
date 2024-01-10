@@ -30,10 +30,11 @@ public class EventDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime lastModifiedAt;
 
-
     private String description;
 
     private String city;
+
+    private String url;
 
     private boolean cancelled;
 

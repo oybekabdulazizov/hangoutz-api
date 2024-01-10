@@ -65,7 +65,7 @@ public class EventController {
     public ResponseEntity<EventDTO> update(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String bearerToken,
             @PathVariable String id,
-            @RequestBody UpdateEventDTO updatedFields
+            @Valid @RequestBody UpdateEventDTO updatedFields
     ) {
         return new ResponseEntity<>(eventService.update(bearerToken, id, updatedFields), HttpStatus.OK);
     }

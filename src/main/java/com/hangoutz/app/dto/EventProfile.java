@@ -28,5 +28,7 @@ public class EventProfile {
 
     private String city;
 
+    private String url;
+
     private boolean cancelled;
 }

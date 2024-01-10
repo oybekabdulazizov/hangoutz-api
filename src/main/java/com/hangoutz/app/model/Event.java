@@ -79,6 +79,9 @@ public class Event {
     @Column(name = "city")
     private String city;
 
+    @Column(name = "url")
+    private String url;
+
     @Column(name = "cancelled")
     private boolean cancelled;
 

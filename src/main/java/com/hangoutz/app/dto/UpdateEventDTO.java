@@ -2,6 +2,7 @@ package com.hangoutz.app.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
 
@@ -26,4 +27,7 @@ public class UpdateEventDTO {
     private String category;
 
     private String city;
+
+    @URL
+    private String url;
 }
