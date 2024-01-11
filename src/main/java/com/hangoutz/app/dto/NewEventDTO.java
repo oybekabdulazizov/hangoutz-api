@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 public class NewEventDTO {
 
     @NotBlank(message = "title is required")
+    @Length(min = 2, max = 100, message = "Title must be between 2 and 100 characters")
     private String title;
 
     @NotNull(message = "start time is required")
@@ -29,14 +31,17 @@ public class NewEventDTO {
     private LocalDateTime finishDateTime;
 
     @NotBlank(message = "description is required")
+    @Length(min = 2, max = 500, message = "Description must be between 2 and 500 characters")
     private String description;
 
     @NotBlank(message = "category is required")
     private String category;
 
     @NotBlank(message = "location is required")
+    @Length(min = 2, max = 255, message = "Location must be between 2 and 255 characters")
     private String location;
 
     @URL
+    @Length(min = 2, max = 255, message = "URL must be between 2 and 255 characters")
     private String url;
 }

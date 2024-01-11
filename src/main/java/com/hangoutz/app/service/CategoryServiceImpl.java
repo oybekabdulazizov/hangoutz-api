@@ -54,6 +54,8 @@ public class CategoryServiceImpl implements CategoryService {
         Category categoryToBeUpdated = getByIdIfCategoryExists(id);
         String categoryName = updatedFields.get("name");
         if (categoryName != null && !categoryName.isBlank()) {
+            if (categoryName.length() > 255)
+                throw new BadRequestException("Name cannot exceed 255 characters");
             checkByNameIfCategoryAlreadyExists(categoryName);
             categoryToBeUpdated.setName(categoryName);
             categoryRepository.save(categoryToBeUpdated);
