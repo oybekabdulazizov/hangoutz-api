@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
+@CrossOrigin(originPatterns = "*", allowCredentials = "true", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/v1")
 public class CategoryController {
