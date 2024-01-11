@@ -45,6 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDTO create(NewCategoryDTO newCategoryDTO) {
         checkByNameIfCategoryAlreadyExists(newCategoryDTO.getName());
         Category newCategory = categoryMapper.toModel(newCategoryDTO);
+        newCategory.setName(newCategoryDTO.getName().toLowerCase());
         return categoryMapper.toDto(categoryRepository.save(newCategory));
     }
 
@@ -55,9 +56,9 @@ public class CategoryServiceImpl implements CategoryService {
         String categoryName = updatedFields.get("name");
         if (categoryName != null && !categoryName.isBlank()) {
             if (categoryName.length() > 255)
-                throw new BadRequestException("Name cannot exceed 255 characters");
+                throw new BadRequestException("Category name cannot exceed 255 characters");
             checkByNameIfCategoryAlreadyExists(categoryName);
-            categoryToBeUpdated.setName(categoryName);
+            categoryToBeUpdated.setName(categoryName.toLowerCase());
             categoryRepository.save(categoryToBeUpdated);
         }
         return categoryMapper.toDto(categoryToBeUpdated);
