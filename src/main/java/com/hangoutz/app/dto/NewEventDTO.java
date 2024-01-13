@@ -42,6 +42,10 @@ public class NewEventDTO {
     private String location;
 
     @URL
-    @Length(min = 2, max = 255, message = "URL must be between 2 and 255 characters")
+    @Length(max = 255, message = "URL cannot exceed 255 characters")
     private String url;
+
+    @URL
+    @Length(max = 255, message = "Thumbnail URL cannot exceed 255 characters")
+    private String thumbnailUrl;
 }

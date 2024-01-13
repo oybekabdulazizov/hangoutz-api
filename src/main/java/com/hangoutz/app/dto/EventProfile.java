@@ -30,5 +30,7 @@ public class EventProfile {
 
     private String url;
 
+    private String thumbnailUrl;
+
     private boolean cancelled;
 }

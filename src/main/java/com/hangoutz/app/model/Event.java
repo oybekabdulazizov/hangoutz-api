@@ -82,6 +82,9 @@ public class Event {
     @Column(name = "url")
     private String url;
 
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
     @Column(name = "cancelled")
     private boolean cancelled;
 
@@ -120,6 +123,8 @@ public class Event {
                 ", description='" + description + '\'' +
                 ", categoryId='" + category.getId() + '\'' +
                 ", location='" + location + '\'' +
+                ", url='" + url + '\'' +
+                ", thumbnailUrl='" + thumbnailUrl + '\'' +
                 ", isCancelled=" + cancelled +
                 ", attendeesCount=" + attendees.size() +
                 ", hostUserId='" + host.getId() + '\'' +

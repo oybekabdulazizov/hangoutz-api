@@ -36,6 +36,8 @@ public class EventDTO {
 
     private String url;
 
+    private String thumbnailUrl;
+
     private boolean cancelled;
 
     private AttendeeProfile host;
