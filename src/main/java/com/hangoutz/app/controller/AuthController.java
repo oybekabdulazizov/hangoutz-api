@@ -5,12 +5,16 @@ import com.hangoutz.app.dto.LogInRequestDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
 import com.hangoutz.app.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true", allowedHeaders = "*")
@@ -37,6 +41,12 @@ public class AuthController {
     @PostMapping("/log-in")
     public ResponseEntity<JwtAuthResponseDTO> logIn(@Valid @RequestBody LogInRequestDTO request) {
         return new ResponseEntity<>(authService.logIn(request), HttpStatus.OK);
+    }
+
+    @GetMapping("/log-out")
+    @ResponseStatus(code = HttpStatus.OK)
+    public void logOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        authService.logOut(request, response);
     }
 
 

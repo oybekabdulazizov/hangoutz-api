@@ -4,6 +4,10 @@ import com.hangoutz.app.dto.JwtAuthResponseDTO;
 import com.hangoutz.app.dto.LogInRequestDTO;
 import com.hangoutz.app.dto.ResetPasswordDTO;
 import com.hangoutz.app.dto.SignUpRequestDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
 
 public interface AuthService {
 
@@ -14,4 +18,6 @@ public interface AuthService {
     void resetPassword(ResetPasswordDTO passwordResetRequest);
 
     JwtAuthResponseDTO refreshSessionToken(String refreshBearerToken);
+
+    void logOut(HttpServletRequest request, HttpServletResponse response) throws IOException;
 }
