@@ -52,7 +52,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDTO create(String bearerToken, NewEventDTO newEventDTO) {
         User currentUser = getCurrentUser(bearerToken);
-        Category category = getByNameIfCategoryExists(newEventDTO.getCategory());
+        Category category = getByIdIfCategoryExists(newEventDTO.getCategory());
         Event newEvent = eventMapper.toModel(newEventDTO);
 
         LocalDateTime now = LocalDateTime.now();
@@ -87,7 +87,7 @@ public class EventServiceImpl implements EventService {
             if (key.equals("startDateTime") || key.equals("finishDateTime")) {
                 ReflectionUtils.setField(field, eventToBeUpdated, LocalDateTime.parse(value.toString()));
             } else if (key.equals("category")) {
-                Category category = getByNameIfCategoryExists(value.toString().toLowerCase());
+                Category category = getByIdIfCategoryExists(value.toString());
                 ReflectionUtils.setField(field, eventToBeUpdated, category);
             } else {
                 ReflectionUtils.setField(field, eventToBeUpdated, value);
@@ -134,8 +134,8 @@ public class EventServiceImpl implements EventService {
     }
 
 
-    private Category getByNameIfCategoryExists(String name) {
-        Optional<Category> category = categoryRepository.findByName(name.toLowerCase());
+    private Category getByIdIfCategoryExists(String categoryId) {
+        Optional<Category> category = categoryRepository.findById(categoryId);
         if (category.isEmpty()) throw new NotFoundException(ExceptionMessage.CATEGORY_NOT_FOUND);
         return category.get();
     }
