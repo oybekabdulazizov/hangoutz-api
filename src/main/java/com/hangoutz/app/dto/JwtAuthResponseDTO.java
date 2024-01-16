@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class JwtAuthResponseDTO {
 
+    private UserProfile user;
+
     private String sessionToken;
 
     private String refreshToken;

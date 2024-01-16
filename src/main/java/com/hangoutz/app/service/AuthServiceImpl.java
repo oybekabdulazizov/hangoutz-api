@@ -1,9 +1,6 @@
 package com.hangoutz.app.service;
 
-import com.hangoutz.app.dto.JwtAuthResponseDTO;
-import com.hangoutz.app.dto.LogInRequestDTO;
-import com.hangoutz.app.dto.ResetPasswordDTO;
-import com.hangoutz.app.dto.SignUpRequestDTO;
+import com.hangoutz.app.dto.*;
 import com.hangoutz.app.exception.AuthException;
 import com.hangoutz.app.exception.BadRequestException;
 import com.hangoutz.app.exception.ExceptionMessage;
@@ -69,10 +66,19 @@ public class AuthServiceImpl implements AuthService {
         saveUserToken(user, sessionToken, TokenType.SESSION);
         saveUserToken(user, refreshToken, TokenType.REFRESH);
 
-        return new JwtAuthResponseDTO(sessionToken,
-                                      refreshToken,
-                                      getExpirationTime(sessionToken),
-                                      getExpirationTime(refreshToken)
+        UserProfile userProfile = UserProfile.builder()
+                                             .id(user.getId())
+                                             .name(user.getName())
+                                             .lastname(user.getLastname())
+                                             .email(user.getEmail())
+                                             .build();
+
+        return new JwtAuthResponseDTO(
+                userProfile,
+                sessionToken,
+                refreshToken,
+                getExpirationTime(sessionToken),
+                getExpirationTime(refreshToken)
         );
     }
 
@@ -95,7 +101,15 @@ public class AuthServiceImpl implements AuthService {
         saveUserToken(user, sessionToken, TokenType.SESSION);
         saveUserToken(user, refreshToken, TokenType.REFRESH);
 
-        return new JwtAuthResponseDTO(sessionToken,
+        UserProfile userProfile = UserProfile.builder()
+                                             .id(user.getId())
+                                             .name(user.getName())
+                                             .lastname(user.getLastname())
+                                             .email(user.getEmail())
+                                             .build();
+
+        return new JwtAuthResponseDTO(userProfile,
+                                      sessionToken,
                                       refreshToken,
                                       getExpirationTime(sessionToken),
                                       getExpirationTime(refreshToken)
