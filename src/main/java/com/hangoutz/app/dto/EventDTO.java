@@ -40,11 +40,11 @@ public class EventDTO {
 
     private boolean cancelled;
 
-    private AttendeeProfile host;
+    private UserProfile host;
 
     private CategoryProfile category;
 
-    private List<AttendeeProfile> attendees;
+    private List<UserProfile> attendees;
 
     @Override
     public String toString() {

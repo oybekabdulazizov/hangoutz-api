@@ -8,7 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class AttendeeProfile {
+public class UserProfile {
 
     private String id;
 
