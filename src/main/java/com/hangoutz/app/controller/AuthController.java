@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +26,9 @@ public class AuthController {
 
     @GetMapping("/refresh-session-token")
     public ResponseEntity<JwtAuthResponseDTO> refreshSessionToken(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String refreshBearerToken
+            HttpServletRequest request
     ) {
-        return new ResponseEntity<>(authService.refreshSessionToken(refreshBearerToken), HttpStatus.OK);
+        return new ResponseEntity<>(authService.refreshSessionToken(request), HttpStatus.OK);
     }
 
     @PostMapping("/sign-up")

@@ -28,8 +28,10 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.hangoutz.app.service.UtilService.*;
 
@@ -135,15 +137,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public JwtAuthResponseDTO refreshSessionToken(String refreshBearerToken) {
-        final String refreshToken;
-        final String userEmail;
+    public JwtAuthResponseDTO refreshSessionToken(HttpServletRequest request) {
+        String refreshToken = Arrays.stream(request.getCookies())
+                                    .map((c) -> c.getName().equals("refreshToken") ? c.getValue() : "")
+                                    .collect(Collectors.joining(""));
+        System.out.println("received the refresh token: " + refreshToken);
+        String userEmail;
 
-        if (refreshBearerToken == null || refreshBearerToken.isBlank() || !refreshBearerToken.startsWith("Bearer "))
-            throw new AuthException(ExceptionMessage.INVALID_TOKEN);
-
-        refreshToken = jwtService.extractJwt(refreshBearerToken);
+        System.out.println("attempting to look for and fetch the refresh token from the db...");
         Token token = tokenRepository.findByToken(refreshToken).orElse(null);
+        System.out.println("refresh token: ");
+        if (token != null) System.out.println(token.getToken());
         if (token == null) throw new AuthException(ExceptionMessage.INVALID_TOKEN);
 
         Date expirtyDate = getExpiryDate(refreshToken);
@@ -160,9 +164,17 @@ public class AuthServiceImpl implements AuthService {
 
         tokenRepository.deleteSessionTokenOfUser(user.getId());
 
+        UserProfile userProfile = UserProfile.builder()
+                                             .id(user.getId())
+                                             .name(user.getName())
+                                             .lastname(user.getLastname())
+                                             .email(user.getEmail())
+                                             .build();
+
         String sessionToken = jwtService.generateSessionToken(user);
         saveUserToken(user, sessionToken, TokenType.SESSION);
         return JwtAuthResponseDTO.builder()
+                                 .user(userProfile)
                                  .sessionToken(sessionToken)
                                  .refreshToken(refreshToken)
                                  .sessionTokenExpiresAt(getExpirationTime(sessionToken))

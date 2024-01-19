@@ -17,7 +17,7 @@ public interface AuthService {
 
     void resetPassword(ResetPasswordDTO passwordResetRequest);
 
-    JwtAuthResponseDTO refreshSessionToken(String refreshBearerToken);
+    JwtAuthResponseDTO refreshSessionToken(HttpServletRequest request);
 
     void logOut(HttpServletRequest request, HttpServletResponse response) throws IOException;
 }
